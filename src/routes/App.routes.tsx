@@ -12,15 +12,13 @@ export default function AppRoutes() {
       <Routes>
         {token ? (
           <>
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/" element={<Dashboard />} />
             <Route path="/pos" element={<POS />} />
             {/* <Route path="/products" element={<Products />} /> */}
-          </>
-        ) : (
-          <>
-            <Route path="/" element={<Login />} />
             <Route path="/register" element={<Register />} />
           </>
+        ) : (
+          <Route path="/" element={<Login />} />
         )}
       </Routes>
     </BrowserRouter>

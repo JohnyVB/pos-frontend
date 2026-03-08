@@ -4,10 +4,9 @@ export interface Product {
   barcode: string;
   price: number;
   vat: number;
-}
-
-export interface CartItem extends Product {
-  quantity: number;
+  categoryId: number;
+  active: boolean;
+  created_at: string;
 }
 
 export type User = {
@@ -15,6 +14,7 @@ export type User = {
   name: string;
   email: string;
   role: string;
+  created_at: string;
 };
 
 export interface loginResponse {

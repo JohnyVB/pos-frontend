@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import API from "../config/api.config";
-import type { CartItem, Product } from "../types/types";
+import type { CartItem, Product } from "../types/global.types";
 
 export default function POS() {
   const [products, setProducts] = useState<Product[]>([]);

@@ -1,20 +1,21 @@
 import { useEffect, useState } from "react";
-import type { Product } from "../types/global.types";
+import toast, { Toaster } from "react-hot-toast";
+import TabCategories from "../components/TabCategories";
+import TabCreateEditProduct from "../components/TabCreateEditProduct";
+import { TabInventory } from "../components/TabInventory";
+import TabProducts from "../components/TabProducts";
 import { useForm } from "../hooks/useForm";
+import type { Product } from "../interfaces/global.interface";
+import type { ActiveTab } from "../interfaces/global.types";
+import type { Category } from "../interfaces/TabCategories.interface";
+import { onGetCategories } from "../services/categories.services";
 import {
   createProduct,
   deleteProduct,
   getProducts,
   updateProduct,
 } from "../services/products.services";
-import TabProducts from "../components/TabProducts";
-import type { ActiveTab } from "../types/TabProducts.types";
-import TabCreateEditProduct from "../components/TabCreateEditProduct";
-import TabCategories from "../components/TabCategories";
-import { TabInventory } from "../components/TabInventory";
 import userStore from "../store/userStore";
-import type { Category } from "../types/TabCategories.types";
-import toast, { Toaster } from "react-hot-toast";
 
 export default function Products() {
   const { token } = userStore();
@@ -45,7 +46,7 @@ export default function Products() {
   useEffect(() => {
     // loadProducts();
     loadCategories();
-    // loadInventory();
+    loadInventory();
   }, []);
 
   const loadProducts = async () => {
@@ -54,14 +55,11 @@ export default function Products() {
   };
 
   const loadCategories = async () => {
-    try {
-      // Si tienes un servicio de categorías, úsalo. Si no, simulamos con datos locales
-      const stored = localStorage.getItem("categories");
-      if (stored) {
-        setCategories(JSON.parse(stored));
-      }
-    } catch (error) {
-      console.error(error);
+    const res = await onGetCategories(token!);
+    if (res.response === "success" && res.categories) {
+      setCategories(res.categories);
+    } else {
+      console.error("Error fetching categories:", res.message);
     }
   };
 
@@ -154,9 +152,17 @@ export default function Products() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>Gestión de Productos</h1>
-      <button onClick={() => window.history.back()}>Ir atrás</button>
-      <br />
+      <div
+        style={{
+          justifyContent: "space-between",
+          alignItems: "center",
+          display: "flex",
+        }}
+      >
+        <button onClick={() => window.history.back()}>Ir atrás</button>
+        <h1>Gestión de Productos</h1>
+        <div style={{ width: "75px" }}></div>
+      </div>
 
       {/* Tabs */}
       <TabProducts activeTab={activeTab} setActiveTab={setActiveTab} />

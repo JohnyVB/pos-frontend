@@ -1,9 +1,9 @@
 import React from "react";
-import type { Product } from "../types/global.types";
+import type { Product } from "../interfaces/global.interface";
 import type {
   inventoryFormType,
   inventoryType,
-} from "../types/TabInventory.types";
+} from "../interfaces/TabInventory.interface";
 
 type TabInventoryProps = {
   products: Product[];

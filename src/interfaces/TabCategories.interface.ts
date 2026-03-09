@@ -1,9 +1,9 @@
-import type { ToastFunction } from "../interfaces/global.interface";
+import type { ToastFunction } from "./global.interface";
 
-export type categoryFormType = {
+export interface categoryFormType {
   name: string;
   description: string;
-};
+}
 
 export interface Category {
   id: number;
@@ -13,15 +13,21 @@ export interface Category {
   active: boolean;
 }
 
-export type TabCategoriesProps = {
+export interface TabCategoriesProps {
   categories: Category[];
   setCategories: (categories: Category[]) => void;
   handleDeleteCategory: (id: number) => void;
   toast: ToastFunction;
-};
+}
 
-export type createCategoryResponse = {
+export interface createCategoryResponse {
   response: "success" | "error";
   category?: Category;
   message?: string;
-};
+}
+
+export interface getCategoriesResponse {
+  response: "success" | "error";
+  categories?: Category[];
+  message?: string;
+}

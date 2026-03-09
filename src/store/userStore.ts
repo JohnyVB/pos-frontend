@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { User } from "../types/global.types";
+import type { User } from "../interfaces/global.interface";
 
 type State = {
   token: string | null;

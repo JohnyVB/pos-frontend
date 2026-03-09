@@ -2,11 +2,18 @@ import API from "../config/api.config";
 import type {
   categoryFormType,
   createCategoryResponse,
-} from "../types/TabCategories.types";
+  getCategoriesResponse,
+} from "../interfaces/TabCategories.interface";
 
-export const onGetCategories = async () => {
+export const onGetCategories = async (
+  token: string,
+): Promise<getCategoriesResponse> => {
   try {
-    const { data } = await API.get("/categories");
+    const { data } = await API.get("/categories", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return data;
   } catch (error) {
     console.log("Error fetching categories:", error);

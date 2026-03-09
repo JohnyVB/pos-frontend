@@ -1,5 +1,6 @@
-import type { createEditForm } from "../types/TabCreateEdit.types";
-import type { Category, Product } from "../types/global.types";
+import type { Product } from "../interfaces/global.interface";
+import type { Category } from "../interfaces/TabCategories.interface";
+import type { createEditForm } from "../interfaces/TabCreateEdit.interface";
 
 type TabProductsProps = {
   handleSubmit: (e: React.FormEvent) => void;

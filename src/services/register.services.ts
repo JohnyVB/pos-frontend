@@ -1,5 +1,5 @@
 import API from "../config/api.config";
-import type { registerResponse } from "../types/global.types";
+import type { registerResponse } from "../interfaces/global.interface";
 
 export const onRegister = async (
   name: string,

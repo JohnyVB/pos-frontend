@@ -8,12 +8,20 @@ export default function Dashboard() {
   const handleLogout = () => {
     setToken(null);
     setUserData(null);
-    navigation("/"); // Redirige al login después de cerrar sesión
+    navigation("/");
   };
 
   return (
     <div>
-      <h1>POS Dashboard</h1>
+      <div
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          display: "flex",
+        }}
+      >
+        <h1>POS Dashboard</h1>
+      </div>
 
       <Link to="/pos">Nueva Venta</Link>
       <br />

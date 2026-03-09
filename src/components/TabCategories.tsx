@@ -1,10 +1,10 @@
 import { useForm } from "../hooks/useForm";
-import { onCreateCategory } from "../services/categories.services";
-import userStore from "../store/userStore";
 import type {
   Category,
   TabCategoriesProps,
-} from "../types/TabCategories.types";
+} from "../interfaces/TabCategories.interface";
+import { onCreateCategory } from "../services/categories.services";
+import userStore from "../store/userStore";
 
 const TabCategories = ({
   categories,
@@ -13,7 +13,6 @@ const TabCategories = ({
   toast,
 }: TabCategoriesProps) => {
   const { token } = userStore();
-
   const { form, onChangeForm, resetForm } = useForm({
     name: "",
     description: "",

@@ -1,4 +1,4 @@
-import type { ActiveTab } from "../types/TabProducts.types";
+import type { ActiveTab } from "../interfaces/TabProducts.interface";
 
 type TabProductsProps = {
   activeTab: ActiveTab;

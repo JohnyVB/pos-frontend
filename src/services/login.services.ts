@@ -1,5 +1,5 @@
 import API from "../config/api.config";
-import type { loginResponse } from "../types/global.types";
+import type { loginResponse } from "../interfaces/global.interface";
 
 export const onLogin = async (
   email: string,

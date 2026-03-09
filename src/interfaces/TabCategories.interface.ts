@@ -16,7 +16,6 @@ export interface Category {
 export interface TabCategoriesProps {
   categories: Category[];
   setCategories: (categories: Category[]) => void;
-  handleDeleteCategory: (id: number) => void;
   toast: ToastFunction;
 }
 
@@ -29,5 +28,10 @@ export interface createCategoryResponse {
 export interface getCategoriesResponse {
   response: "success" | "error";
   categories?: Category[];
+  message?: string;
+}
+
+export interface deactivateCategoryResponse {
+  response: "success" | "error";
   message?: string;
 }

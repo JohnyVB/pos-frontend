@@ -105,14 +105,6 @@ export default function Products() {
     }
   };
 
-  const handleDeleteCategory = (id: number) => {
-    if (window.confirm("¿Desea eliminar esta categoría?")) {
-      const updated = categories.filter((c) => c.id !== id);
-      setCategories(updated);
-      localStorage.setItem("categories", JSON.stringify(updated));
-    }
-  };
-
   // Handlers para Inventario
   const handleAddInventory = (e: any) => {
     e.preventDefault();
@@ -188,7 +180,6 @@ export default function Products() {
         <TabCategories
           categories={categories}
           setCategories={setCategories}
-          handleDeleteCategory={handleDeleteCategory}
           toast={toast}
         />
       )}

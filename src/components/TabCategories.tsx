@@ -3,13 +3,15 @@ import type {
   Category,
   TabCategoriesProps,
 } from "../interfaces/TabCategories.interface";
-import { onCreateCategory } from "../services/categories.services";
+import {
+  onCreateCategory,
+  onDeactivateCategory,
+} from "../services/categories.services";
 import userStore from "../store/userStore";
 
 const TabCategories = ({
   categories,
   setCategories,
-  handleDeleteCategory,
   toast,
 }: TabCategoriesProps) => {
   const { token } = userStore();
@@ -39,6 +41,23 @@ const TabCategories = ({
         duration: 4000,
       });
     }
+  };
+
+  // Función para eliminar (desactivar) una categoría
+  const handleDeleteCategory = async (id: number) => {
+    const res = await onDeactivateCategory(id, token!);
+    if (res.response === "success") {
+      const updatedCategories = categories.filter((cat) => cat.id !== id);
+      setCategories(updatedCategories);
+      toast.success("Categoría eliminada exitosamente", {
+        duration: 4000,
+      });
+      return;
+    }
+    toast.error(res.message || "Error al eliminar la categoría", {
+      duration: 4000,
+    });
+    return
   };
 
   return (
@@ -92,16 +111,12 @@ const TabCategories = ({
               <td>{cat.name}</td>
               <td>{cat.description}</td>
               <td>
-                {cat.active ? (
-                  <button
-                    onClick={() => handleDeleteCategory(cat.id)}
-                    style={{ backgroundColor: "#dc3545", color: "white" }}
-                  >
-                    Deshactivar
-                  </button>
-                ) : (
-                  <span style={{ color: "#6c757d" }}>Inactiva</span>
-                )}
+                <button
+                  onClick={() => handleDeleteCategory(cat.id)}
+                  style={{ backgroundColor: "#dc3545", color: "white" }}
+                >
+                  Eliminar
+                </button>
               </td>
             </tr>
           ))}

@@ -1,10 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { onRegister } from "../services/register.services";
 import { useForm } from "../hooks/useForm";
+import { onRegister } from "../services/register.services";
 
 export default function Register() {
-  const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
   const { name, email, password, role, onChangeForm, resetForm } = useForm({
     name: "",
@@ -35,7 +33,17 @@ export default function Register() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>Registrar Usuario</h1>
+      <div
+        style={{
+          justifyContent: "space-between",
+          alignItems: "center",
+          display: "flex",
+        }}
+      >
+        <button onClick={() => window.history.back()}>Ir atrás</button>
+        <h1>Registrar Usuario</h1>
+        <div style={{ width: "75px" }}></div>
+      </div>
 
       <form onSubmit={handleSubmit} style={{ maxWidth: "400px" }}>
         <div>
@@ -90,22 +98,6 @@ export default function Register() {
           {loading ? "Registrando..." : "Registrar"}
         </button>
       </form>
-
-      <p style={{ marginTop: "20px" }}>
-        ¿Ya tienes cuenta?{" "}
-        <button
-          onClick={() => navigate("/")}
-          style={{
-            background: "none",
-            border: "none",
-            color: "blue",
-            cursor: "pointer",
-            textDecoration: "underline",
-          }}
-        >
-          Vuelve al login
-        </button>
-      </p>
     </div>
   );
 }

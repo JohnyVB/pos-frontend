@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { onVerifyToken } from "../services/dashboard.services";
 import userStore from "../store/userStore";
 
 export default function Dashboard() {
-  const { setToken, setUserData } = userStore();
+  const { token, setToken, setUserData } = userStore();
   const navigation = useNavigate();
 
   const handleLogout = () => {
@@ -10,6 +12,18 @@ export default function Dashboard() {
     setUserData(null);
     navigation("/");
   };
+
+  const verifyToken = async () => {
+    const data = await onVerifyToken(token!);
+    console.log(JSON.stringify(data, null, 2));
+    if (data.response === "error") {
+      handleLogout();
+    }
+  };
+
+  useEffect(() => {
+    verifyToken();
+  }, [])
 
   return (
     <div>

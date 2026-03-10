@@ -9,30 +9,15 @@ import type { Product } from "../interfaces/global.interface";
 import type { ActiveTab } from "../interfaces/global.types";
 import type { Category } from "../interfaces/TabCategories.interface";
 import { onGetCategories } from "../services/categories.services";
-import {
-  createProduct,
-  deleteProduct,
-  getProducts,
-  updateProduct,
-} from "../services/products.services";
 import userStore from "../store/userStore";
+import { onGetProducts } from "../services/products.services";
 
 export default function Products() {
   const { token } = userStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeTab, setActiveTab] = useState<ActiveTab>("products");
-  const [editingId, setEditingId] = useState<number | null>(null);
   const [inventory, setInventory] = useState<any[]>([]);
-
-  const { form, onChangeForm, resetForm } = useForm({
-    name: "",
-    barcode: "",
-    price: 0,
-    vat: 21,
-    categoryId: 1,
-    active: true,
-  });
 
   const {
     form: inventoryForm,
@@ -44,14 +29,25 @@ export default function Products() {
   });
 
   useEffect(() => {
-    // loadProducts();
+    loadProducts();
     loadCategories();
     loadInventory();
   }, []);
 
   const loadProducts = async () => {
-    const data = await getProducts();
-    setProducts(data);
+    try {
+      const res = await onGetProducts(token!);
+      if (res.response === "success" && res.products) {
+        setProducts(res.products);
+      } else {
+        setProducts([]);
+        toast.error("Error al cargar productos", { duration: 4000 });
+      }
+    } catch (error) {
+      setProducts([]);
+      console.error("Error fetching products:", error);
+      toast.error("Error al cargar productos", { duration: 4000 });
+    }
   };
 
   const loadCategories = async () => {
@@ -71,37 +67,6 @@ export default function Products() {
       }
     } catch (error) {
       console.error(error);
-    }
-  };
-
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
-    try {
-      if (editingId) {
-        await updateProduct(editingId, form);
-        setEditingId(null);
-      } else {
-        await createProduct(form);
-      }
-      resetForm();
-      loadProducts();
-    } catch (error) {
-      console.error(error);
-      alert("Error al guardar producto");
-    }
-  };
-
-  const handleEdit = () => {
-    // setEditingId(product.id!);
-    // Object.keys(product).forEach((key) => {
-    //   onChangeForm((product as any)[key], key as keyof Product);
-    // });
-  };
-
-  const handleDelete = async (id: number) => {
-    if (window.confirm("¿Desea eliminar este producto?")) {
-      await deleteProduct(id);
-      loadProducts();
     }
   };
 
@@ -162,16 +127,10 @@ export default function Products() {
       {/* TAB PRODUCTOS */}
       {activeTab === "products" && (
         <TabCreateEditProduct
-          handleSubmit={handleSubmit}
-          form={form}
-          onChangeForm={onChangeForm}
-          editingId={editingId}
           products={products}
-          resetForm={resetForm}
-          setEditingId={setEditingId}
-          handleEdit={handleEdit}
-          handleDelete={handleDelete}
+          setProducts={setProducts}
           categories={categories}
+          toast={toast}
         />
       )}
 

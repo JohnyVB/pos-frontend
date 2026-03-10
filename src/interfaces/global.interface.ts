@@ -6,7 +6,7 @@ export interface Product {
   barcode: string;
   price: number;
   vat: number;
-  categoryId: number;
+  category_id: number;
   active: boolean;
   created_at: string;
 }

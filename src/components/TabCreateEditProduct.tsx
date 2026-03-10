@@ -1,39 +1,83 @@
+import { useState } from "react";
+import { useForm } from "../hooks/useForm";
 import type { Product } from "../interfaces/global.interface";
-import type { Category } from "../interfaces/TabCategories.interface";
-import type { createEditForm } from "../interfaces/TabCreateEdit.interface";
+import type { createEditForm, TabProductsProps } from "../interfaces/TabCreateEdit.interface";
+import { onCreateProduct, onDeleteProduct, onUpdateProduct } from "../services/products.services";
+import userStore from "../store/userStore";
+import { formatDateToShow } from "../helper/formatDate.helper";
 
-type TabProductsProps = {
-  handleSubmit: (e: React.FormEvent) => void;
-  form: createEditForm;
-  onChangeForm: (value: string, field: keyof createEditForm) => void;
-  editingId: number | null;
-  products: Product[];
-  resetForm: () => void;
-  setEditingId: (id: number | null) => void;
-  handleEdit: (product: Product) => void;
-  handleDelete: (id: number) => void;
-  categories: Category[];
-};
+const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabProductsProps) => {
+  const { token } = userStore();
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const { form, onChangeForm, setFormValues, resetForm } = useForm<createEditForm>({
+    name: "",
+    barcode: "",
+    price: 0,
+    vat: 21,
+    category_id: 1,
+  });
 
-const TabCreateEditProduct = ({
-  handleSubmit,
-  form,
-  onChangeForm,
-  editingId,
-  products,
-  resetForm,
-  setEditingId,
-  handleEdit,
-  handleDelete,
-  categories,
-}: TabProductsProps) => {
+  const addProductToList = (newProduct: Product) => {
+    setProducts((prev) => [...prev, newProduct]);
+  }
+
+  const updateProductInList = (updatedProduct: Product) => {
+    setProducts((prev) =>
+      prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
+    );
+  };
+
+  const handleCreateEdit = async () => {
+    try {
+      if (!editingId) {
+        const res = await onCreateProduct(form, token!);
+        if (res.response === "success" && res.product) {
+          toast.success("Producto creado exitosamente", { duration: 4000 });
+          addProductToList(res.product);
+        }
+      } else {
+        const res = await onUpdateProduct(editingId, form, token!);
+        if (res.response === "success" && res.product) {
+          updateProductInList(res.product);
+          toast.success("Producto actualizado exitosamente", { duration: 4000 });
+          setEditingId(null);
+        }
+      }
+      resetForm();
+    } catch (error: any) {
+      console.error("Error en creación/edición:", error);
+      toast.error("Error al crear/editar producto", { duration: 4000 });
+    }
+  };
+
+  const handleEdit = (product: Product) => {
+    setEditingId(product.id!);
+    setFormValues({
+      name: product.name,
+      barcode: product.barcode,
+      price: product.price,
+      vat: product.vat,
+      category_id: product.category_id,
+    });
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      const res = await onDeleteProduct(id, token!);
+      if (res.response === "success") {
+        setProducts((prev) => prev.filter((p) => p.id !== id));
+        toast.success("Producto eliminado exitosamente", { duration: 4000 });
+      }
+    } catch (error) {
+      toast.error("Error al eliminar producto", { duration: 4000 });
+    }
+  };
+
+
   return (
     <div>
       <h2>Crear/Editar Productos</h2>
-      <form
-        onSubmit={handleSubmit}
-        style={{ marginBottom: "20px", maxWidth: "400px" }}
-      >
+      <div style={{ marginBottom: "20px", maxWidth: "400px" }}>
         <input
           placeholder="Nombre"
           value={form.name}
@@ -85,8 +129,8 @@ const TabCreateEditProduct = ({
           }}
         />
         <select
-          value={form.categoryId}
-          onChange={(e) => onChangeForm(e.target.value, "categoryId")}
+          value={form.category_id}
+          onChange={(e) => onChangeForm(e.target.value, "category_id")}
           style={{
             display: "block",
             marginBottom: "10px",
@@ -101,7 +145,7 @@ const TabCreateEditProduct = ({
             </option>
           ))}
         </select>
-        <button type="submit" style={{ padding: "10px", marginRight: "10px" }}>
+        <button onClick={handleCreateEdit} style={{ padding: "10px", marginRight: "10px" }}>
           {editingId ? "Actualizar" : "Agregar"}
         </button>
         {editingId && (
@@ -116,7 +160,7 @@ const TabCreateEditProduct = ({
             Cancelar
           </button>
         )}
-      </form>
+      </div>
 
       <h3>Lista de Productos</h3>
       <table
@@ -131,6 +175,7 @@ const TabCreateEditProduct = ({
             <th>Precio</th>
             <th>IVA</th>
             <th>Categoría</th>
+            <th>Fecha de Creación</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -139,11 +184,12 @@ const TabCreateEditProduct = ({
             <tr key={p.id}>
               <td>{p.name}</td>
               <td>{p.barcode}</td>
-              <td>€{p.price.toFixed(2)}</td>
+              <td>€{p.price}</td>
               <td>{p.vat}%</td>
               <td>
-                {categories.find((c) => c.id === p.categoryId)?.name || "N/A"}
+                {categories.find((c) => c.id === p.category_id)?.name || "N/A"}
               </td>
+              <td>{formatDateToShow(p.created_at) || "N/A"}</td>
               <td>
                 <button
                   onClick={() => handleEdit(p)}

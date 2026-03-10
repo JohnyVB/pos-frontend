@@ -15,7 +15,6 @@ export default function Dashboard() {
 
   const verifyToken = async () => {
     const data = await onVerifyToken(token!);
-    console.log(JSON.stringify(data, null, 2));
     if (data.response === "error") {
       handleLogout();
     }

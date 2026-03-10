@@ -22,7 +22,7 @@ export const onGetProducts = async (token: string): Promise<getProductsResponse>
 
 export const onCreateProduct = async (product: createEditForm, token: string): Promise<createProductResponse> => {
   try {
-    const { data } = await API.post("/products", product, {
+    const { data } = await API.post("/products", { ...product, price: parseFloat(product.price) }, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -36,7 +36,7 @@ export const onCreateProduct = async (product: createEditForm, token: string): P
 
 export const onUpdateProduct = async (id: number, product: createEditForm, token: string): Promise<updateProductResponse> => {
   try {
-    const { data } = await API.put(`/products/${id}`, product, {
+    const { data } = await API.put(`/products/${id}`, { ...product, price: parseFloat(product.price) }, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

@@ -4,7 +4,7 @@ import type { Category } from "./TabCategories.interface";
 export interface createEditForm {
   name: string;
   barcode: string;
-  price: number;
+  price: string;
   vat: number;
   category_id: number;
 }

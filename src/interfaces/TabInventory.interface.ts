@@ -1,11 +1,35 @@
-export interface inventoryType {
+import type { Product, ToastFunction } from "./global.interface";
+
+export interface Inventory {
   id: number;
-  productId: number;
+  product_id: number;
   quantity: number;
-  created_at: string;
 }
 
-export interface inventoryFormType {
-  productId: string;
-  quantity: string;
+export interface InventoryForm {
+  product_id: string;
+  quantity: number;
+  reference: string;
+}
+
+export interface TabInventoryProps {
+  products: Product[];
+  inventory: Inventory[];
+  setInventory: React.Dispatch<React.SetStateAction<Inventory[]>>;
+  toast: ToastFunction;
+};
+
+export interface InventoryMovementResponse {
+  response: string;
+  message: string;
+}
+
+export interface productSearchQuery extends Product {
+  inventory_quantity: number;
+}
+
+export interface ProductSearchResponse {
+  response: string;
+  product?: productSearchQuery;
+  message?: string;
 }

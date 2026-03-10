@@ -12,7 +12,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
   const { form, onChangeForm, setFormValues, resetForm } = useForm<createEditForm>({
     name: "",
     barcode: "",
-    price: 0,
+    price: "0",
     vat: 21,
     category_id: 1,
   });
@@ -55,7 +55,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
     setFormValues({
       name: product.name,
       barcode: product.barcode,
-      price: product.price,
+      price: String(product.price),
       vat: product.vat,
       category_id: product.category_id,
     });
@@ -103,10 +103,17 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
           }}
         />
         <input
-          type="number"
+          type="text"
           placeholder="Precio"
           value={form.price}
-          onChange={(e) => onChangeForm(e.target.value, "price")}
+          onChange={(e) => {
+            let value = e.target.value;
+            value = value.replace(',', '.');
+            const regex = /^\d*(\.\d{0,2})?$/;
+            if (value === "" || value === "." || regex.test(value)) {
+              onChangeForm(value, "price")
+            }
+          }}
           required
           style={{
             display: "block",

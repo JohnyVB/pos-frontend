@@ -5,8 +5,8 @@ export interface createEditForm {
   name: string;
   barcode: string;
   price: string;
-  vat: number;
-  category_id: number;
+  vat: string;
+  category_id: string;
 }
 
 export interface TabProductsProps {

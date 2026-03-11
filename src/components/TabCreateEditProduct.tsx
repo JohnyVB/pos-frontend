@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "../hooks/useForm";
 import type { Product } from "../interfaces/global.interface";
 import type { createEditForm, TabProductsProps } from "../interfaces/TabCreateEdit.interface";
@@ -9,12 +9,17 @@ import { formatDateToShow } from "../helper/formatDate.helper";
 const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabProductsProps) => {
   const { token } = userStore();
   const [editingId, setEditingId] = useState<number | null>(null);
+  const inputNameRef = useRef<HTMLInputElement | null>(null);
+  const inputBarcodeRef = useRef<HTMLInputElement | null>(null);
+  const inputPriceRef = useRef<HTMLInputElement | null>(null);
+  const inputVatRef = useRef<HTMLInputElement | null>(null);
+  const inputCategoryRef = useRef<HTMLSelectElement | null>(null);
   const { form, onChangeForm, setFormValues, resetForm } = useForm<createEditForm>({
     name: "",
     barcode: "",
     price: "0",
-    vat: 21,
-    category_id: 1,
+    vat: "21",
+    category_id: "1",
   });
 
   const addProductToList = (newProduct: Product) => {
@@ -34,6 +39,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
         if (res.response === "success" && res.product) {
           toast.success("Producto creado exitosamente", { duration: 4000 });
           addProductToList(res.product);
+          inputBarcodeRef.current?.focus();
         }
       } else {
         const res = await onUpdateProduct(editingId, form, token!);
@@ -41,6 +47,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
           updateProductInList(res.product);
           toast.success("Producto actualizado exitosamente", { duration: 4000 });
           setEditingId(null);
+          inputBarcodeRef.current?.focus();
         }
       }
       resetForm();
@@ -56,8 +63,8 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
       name: product.name,
       barcode: product.barcode,
       price: String(product.price),
-      vat: product.vat,
-      category_id: product.category_id,
+      vat: String(product.vat),
+      category_id: String(product.category_id),
     });
   };
 
@@ -73,27 +80,51 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
     }
   };
 
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>,
+    nextRef?: React.RefObject<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    if (e.key === "Enter") {
+      if (nextRef) {
+        nextRef.current.focus()
+      } else {
+        handleCreateEdit()
+      }
+
+    }
+  }
+
+  const valueAjustment = (value: string, field: keyof createEditForm) => {
+    if (field === "price") {
+      value = value.replace(',', '.');
+      const regex = /^\d*(\.\d{0,2})?$/;
+      if (value === "" || value === "." || regex.test(value)) {
+        onChangeForm(value, field);
+      }
+    } else if (field === "vat") {
+      const numericValue = value.replace(/\D/g, '');
+      onChangeForm(numericValue, field);
+    } else {
+      onChangeForm(value, field);
+    }
+  }
+
+  useEffect(() => {
+    if (inputBarcodeRef.current) {
+      inputBarcodeRef.current.focus();
+    }
+  }, [])
 
   return (
     <div>
       <h2>Crear/Editar Productos</h2>
       <div style={{ marginBottom: "20px", maxWidth: "400px" }}>
         <input
-          placeholder="Nombre"
-          value={form.name}
-          onChange={(e) => onChangeForm(e.target.value, "name")}
-          required
-          style={{
-            display: "block",
-            marginBottom: "10px",
-            padding: "8px",
-            width: "100%",
-          }}
-        />
-        <input
+          ref={inputBarcodeRef}
           placeholder="Código de barras"
           value={form.barcode}
-          onChange={(e) => onChangeForm(e.target.value, "barcode")}
+          onChange={(e) => valueAjustment(e.target.value, "barcode")}
+          onKeyDown={(e) => handleKeyDown(e, inputNameRef as React.RefObject<HTMLInputElement>)}
           required
           style={{
             display: "block",
@@ -103,17 +134,26 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
           }}
         />
         <input
+          ref={inputNameRef}
+          placeholder="Nombre"
+          value={form.name}
+          onChange={(e) => valueAjustment(e.target.value, "name")}
+          onKeyDown={(e) => handleKeyDown(e, inputPriceRef as React.RefObject<HTMLInputElement>)}
+          required
+          style={{
+            display: "block",
+            marginBottom: "10px",
+            padding: "8px",
+            width: "100%",
+          }}
+        />
+        <input
+          ref={inputPriceRef}
           type="text"
           placeholder="Precio"
           value={form.price}
-          onChange={(e) => {
-            let value = e.target.value;
-            value = value.replace(',', '.');
-            const regex = /^\d*(\.\d{0,2})?$/;
-            if (value === "" || value === "." || regex.test(value)) {
-              onChangeForm(value, "price")
-            }
-          }}
+          onChange={(e) => valueAjustment(e.target.value, "price")}
+          onKeyDown={(e) => handleKeyDown(e, inputVatRef as React.RefObject<HTMLInputElement>)}
           required
           style={{
             display: "block",
@@ -123,10 +163,12 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
           }}
         />
         <input
-          type="number"
+          ref={inputVatRef}
+          type="text"
           placeholder="IVA"
           value={form.vat}
-          onChange={(e) => onChangeForm(e.target.value, "vat")}
+          onChange={(e) => valueAjustment(e.target.value, "vat")}
+          onKeyDown={(e) => handleKeyDown(e, inputCategoryRef as React.RefObject<HTMLSelectElement>)}
           required
           style={{
             display: "block",
@@ -136,8 +178,10 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
           }}
         />
         <select
+          ref={inputCategoryRef}
           value={form.category_id}
-          onChange={(e) => onChangeForm(e.target.value, "category_id")}
+          onChange={(e) => valueAjustment(e.target.value, "category_id")}
+          onKeyDown={(e) => handleKeyDown(e)}
           style={{
             display: "block",
             marginBottom: "10px",

@@ -7,11 +7,11 @@ import TabProducts from "../components/TabProducts";
 import type { Product } from "../interfaces/global.interface";
 import type { ActiveTab } from "../interfaces/global.types";
 import type { Category } from "../interfaces/TabCategories.interface";
+import type { Inventory } from "../interfaces/TabInventory.interface";
 import { onGetCategories } from "../services/categories.services";
+import { onLoadInventory } from "../services/inventory.services";
 import { onGetProducts } from "../services/products.services";
 import userStore from "../store/userStore";
-import type { Inventory } from "../interfaces/TabInventory.interface";
-import { onLoadInventory } from "../services/inventory.services";
 
 export default function Products() {
   const { token } = userStore();
@@ -19,7 +19,6 @@ export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [inventory, setInventory] = useState<Inventory[]>([]);
-
 
   useEffect(() => {
     loadProducts();

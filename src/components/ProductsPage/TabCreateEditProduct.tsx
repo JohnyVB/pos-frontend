@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { useForm } from "../hooks/useForm";
-import type { Product } from "../interfaces/global.interface";
-import type { createEditForm, TabProductsProps } from "../interfaces/TabCreateEdit.interface";
-import { onCreateProduct, onDeleteProduct, onUpdateProduct } from "../services/products.services";
-import userStore from "../store/userStore";
-import { formatDateToShow } from "../helper/formatDate.helper";
+import { useForm } from "../../hooks/useForm";
+import type { Product } from "../../interfaces/global.interface";
+import type { createEditForm, TabProductsProps } from "../../interfaces/TabCreateEdit.interface";
+import { onCreateProduct, onDeleteProduct, onUpdateProduct } from "../../services/products.services";
+import userStore from "../../store/userStore";
+import { formatDateToShow } from "../../helper/formatDate.helper";
 
 const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabProductsProps) => {
   const { token } = userStore();
@@ -118,99 +118,76 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
   return (
     <div>
       <h2>Crear/Editar Productos</h2>
-      <div style={{ marginBottom: "20px", maxWidth: "400px" }}>
-        <input
-          ref={inputBarcodeRef}
-          placeholder="Código de barras"
-          value={form.barcode}
-          onChange={(e) => valueAjustment(e.target.value, "barcode")}
-          onKeyDown={(e) => handleKeyDown(e, inputNameRef as React.RefObject<HTMLInputElement>)}
-          required
-          style={{
-            display: "block",
-            marginBottom: "10px",
-            padding: "8px",
-            width: "100%",
-          }}
-        />
-        <input
-          ref={inputNameRef}
-          placeholder="Nombre"
-          value={form.name}
-          onChange={(e) => valueAjustment(e.target.value, "name")}
-          onKeyDown={(e) => handleKeyDown(e, inputPriceRef as React.RefObject<HTMLInputElement>)}
-          required
-          style={{
-            display: "block",
-            marginBottom: "10px",
-            padding: "8px",
-            width: "100%",
-          }}
-        />
-        <input
-          ref={inputPriceRef}
-          type="text"
-          placeholder="Precio"
-          value={form.price}
-          onChange={(e) => valueAjustment(e.target.value, "price")}
-          onKeyDown={(e) => handleKeyDown(e, inputVatRef as React.RefObject<HTMLInputElement>)}
-          required
-          style={{
-            display: "block",
-            marginBottom: "10px",
-            padding: "8px",
-            width: "100%",
-          }}
-        />
-        <input
-          ref={inputVatRef}
-          type="text"
-          placeholder="IVA"
-          value={form.vat}
-          onChange={(e) => valueAjustment(e.target.value, "vat")}
-          onKeyDown={(e) => handleKeyDown(e, inputCategoryRef as React.RefObject<HTMLSelectElement>)}
-          required
-          style={{
-            display: "block",
-            marginBottom: "10px",
-            padding: "8px",
-            width: "100%",
-          }}
-        />
-        <select
-          ref={inputCategoryRef}
-          value={form.category_id}
-          onChange={(e) => valueAjustment(e.target.value, "category_id")}
-          onKeyDown={(e) => handleKeyDown(e)}
-          style={{
-            display: "block",
-            marginBottom: "10px",
-            padding: "8px",
-            width: "100%",
-          }}
-        >
-          <option value={0}>Sin categoría</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.name}
-            </option>
-          ))}
-        </select>
-        <button onClick={handleCreateEdit} style={{ padding: "10px", marginRight: "10px" }}>
-          {editingId ? "Actualizar" : "Agregar"}
-        </button>
-        {editingId && (
-          <button
-            type="button"
-            onClick={() => {
-              resetForm();
-              setEditingId(null);
-            }}
-            style={{ padding: "10px" }}
+      <div style={{ marginBottom: "20px", maxWidth: "585px" }}>
+        <div style={{ flex: 1, backgroundColor: "#f9f9f9", padding: "20px", borderRadius: "5px" }}>
+          <input
+            ref={inputBarcodeRef}
+            placeholder="Código de barras"
+            value={form.barcode}
+            onChange={(e) => valueAjustment(e.target.value, "barcode")}
+            onKeyDown={(e) => handleKeyDown(e, inputNameRef as React.RefObject<HTMLInputElement>)}
+            required
+            className="input"
+          />
+          <input
+            ref={inputNameRef}
+            placeholder="Nombre"
+            value={form.name}
+            onChange={(e) => valueAjustment(e.target.value, "name")}
+            onKeyDown={(e) => handleKeyDown(e, inputPriceRef as React.RefObject<HTMLInputElement>)}
+            required
+            className="input"
+          />
+          <input
+            ref={inputPriceRef}
+            type="text"
+            placeholder="Precio"
+            value={form.price}
+            onChange={(e) => valueAjustment(e.target.value, "price")}
+            onKeyDown={(e) => handleKeyDown(e, inputVatRef as React.RefObject<HTMLInputElement>)}
+            required
+            className="input"
+          />
+          <input
+            ref={inputVatRef}
+            type="text"
+            placeholder="IVA"
+            value={form.vat}
+            onChange={(e) => valueAjustment(e.target.value, "vat")}
+            onKeyDown={(e) => handleKeyDown(e, inputCategoryRef as React.RefObject<HTMLSelectElement>)}
+            required
+            className="input"
+          />
+          <select
+            ref={inputCategoryRef}
+            value={form.category_id}
+            onChange={(e) => valueAjustment(e.target.value, "category_id")}
+            onKeyDown={(e) => handleKeyDown(e)}
+            className="select"
           >
-            Cancelar
+            <option value={0}>Sin categoría</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+          <button onClick={handleCreateEdit} style={{ padding: "10px", marginRight: "10px" }}>
+            {editingId ? "Actualizar" : "Agregar"}
           </button>
-        )}
+          {editingId && (
+            <button
+              type="button"
+              onClick={() => {
+                resetForm();
+                setEditingId(null);
+              }}
+              style={{ padding: "10px" }}
+            >
+              Cancelar
+            </button>
+          )}
+        </div>
       </div>
 
       <h3>Lista de Productos</h3>
@@ -235,7 +212,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
             <tr key={p.id}>
               <td>{p.name}</td>
               <td>{p.barcode}</td>
-              <td>€{p.price}</td>
+              <td className="price">€{p.price}</td>
               <td>{p.vat}%</td>
               <td>
                 {categories.find((c) => c.id === p.category_id)?.name || "N/A"}

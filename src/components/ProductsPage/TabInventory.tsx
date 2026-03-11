@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { useForm } from "../hooks/useForm";
+import { useForm } from "../../hooks/useForm";
 import type {
   InventoryForm,
   productSearchQuery,
   TabInventoryProps
-} from "../interfaces/TabInventory.interface";
-import { onGetProductByQuery, onMovement } from "../services/inventory.services";
-import userStore from "../store/userStore";
+} from "../../interfaces/TabInventory.interface";
+import { onGetProductByQuery, onMovement } from "../../services/inventory.services";
+import userStore from "../../store/userStore";
 
 export const TabInventory = ({
   products,
@@ -187,12 +187,7 @@ export const TabInventory = ({
             placeholder="Código de barras o nombre..."
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDownSearch}
-            style={{
-              display: "block",
-              marginBottom: "10px",
-              padding: "8px",
-              width: "98%",
-            }}
+            className="input"
           />
 
           <input
@@ -209,12 +204,7 @@ export const TabInventory = ({
             }}
             onKeyDown={handleKeyDownQuantity}
             required
-            style={{
-              display: "block",
-              marginBottom: "10px",
-              padding: "8px",
-              width: "98%",
-            }}
+            className="input"
           />
 
           <textarea
@@ -223,13 +213,7 @@ export const TabInventory = ({
             value={form.reference}
             onChange={(e) => onChangeForm(e.target.value, "reference")}
             onKeyDown={handleKeyDownReference}
-            style={{
-              display: "block",
-              marginBottom: "10px",
-              padding: "8px",
-              width: "98%",
-              resize: "vertical",
-            }}
+            className="textarea"
           />
 
           {selectedProduct && (
@@ -280,7 +264,7 @@ export const TabInventory = ({
             return (
               <tr key={inv.product_id}>
                 <td>{product?.name || "Producto no encontrado"}</td>
-                <td>{Number(inv.quantity)}</td>
+                <td className="quantity">{Number(inv.quantity)}</td>
               </tr>
             );
           })}

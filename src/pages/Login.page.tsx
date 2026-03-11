@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useForm } from "../hooks/useForm";
 import { onLogin } from "../services/login.services";
 import userStore from "../store/userStore";
+import { PageHeader } from "../components/common/PageHeader";
+import '../css/pages/Login.css'
 
 export default function Login() {
   const { setToken, setUserData } = userStore();
@@ -25,27 +27,38 @@ export default function Login() {
   };
 
   return (
-    <div>
-      <h1>POS Login</h1>
-
-      <input
-        placeholder="email"
-        value={email}
-        onChange={(e) => onChangeForm(e.target.value, "email")}
-        required
-      />
-
-      <input
-        type="password"
-        placeholder="password"
-        value={password}
-        onChange={(e) => onChangeForm(e.target.value, "password")}
-        required
-      />
-
-      <button onClick={handleLogin} disabled={loading}>
-        {loading ? "Logging in..." : "Login"}
-      </button>
+    <div className="padding-container">
+      <PageHeader title="POS Login" nav={false} />
+      <div className="login-container">
+        <div className="input-container">
+          <div>
+            <label htmlFor="">Correo</label>
+            <input
+              placeholder="email"
+              value={email}
+              onChange={(e) => onChangeForm(e.target.value, "email")}
+              className="input"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="">Contraseña</label>
+            <input
+              type="password"
+              placeholder="password"
+              value={password}
+              onChange={(e) => onChangeForm(e.target.value, "password")}
+              className="input"
+              required
+            />
+          </div>
+          <div className="btn-container">
+            <button className="btn-pos btn-primary" onClick={handleLogin} disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

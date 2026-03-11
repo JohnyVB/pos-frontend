@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { PageHeader } from "../components/common/PageHeader";
 import { onVerifyToken } from "../services/dashboard.services";
 import userStore from "../store/userStore";
 
@@ -25,27 +26,14 @@ export default function Dashboard() {
   }, [])
 
   return (
-    <div>
-      <div
-        style={{
-          justifyContent: "center",
-          alignItems: "center",
-          display: "flex",
-        }}
-      >
-        <h1>POS Dashboard</h1>
+    <div className="padding-container">
+      <PageHeader title="POS Dashboard" nav={false} />
+      <div className="nav-button-container">
+        <button className="btn-pos" onClick={() => navigation("/pos")}>Nueva Venta</button>
+        <button className="btn-pos" onClick={() => navigation("/products")}>Productos</button>
+        <button className="btn-pos" onClick={() => navigation("/register")}>Registrar Usuario</button>
+        <button className="btn-pos btn-danger" onClick={handleLogout}>Cerrar Sesión</button>
       </div>
-
-      <Link to="/pos">Nueva Venta</Link>
-      <br />
-
-      <Link to="/products">Productos</Link>
-      <br />
-
-      <Link to="/register">Registrar Usuario</Link>
-      <br />
-
-      <button onClick={handleLogout}>Cerrar Sesión</button>
     </div>
   );
 }

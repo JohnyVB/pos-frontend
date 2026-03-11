@@ -1,13 +1,13 @@
-import { useForm } from "../hooks/useForm";
+import { useForm } from "../../hooks/useForm";
 import type {
   Category,
   TabCategoriesProps,
-} from "../interfaces/TabCategories.interface";
+} from "../../interfaces/TabCategories.interface";
 import {
   onCreateCategory,
   onDeactivateCategory,
-} from "../services/categories.services";
-import userStore from "../store/userStore";
+} from "../../services/categories.services";
+import userStore from "../../store/userStore";
 
 const TabCategories = ({
   categories,
@@ -63,33 +63,25 @@ const TabCategories = ({
   return (
     <div>
       <h2>Crear Categorías</h2>
-      <div style={{ marginBottom: "20px", maxWidth: "400px" }}>
-        <input
-          placeholder="Nombre de categoría"
-          value={form.name}
-          onChange={(e) => onChangeForm(e.target.value, "name")}
-          required
-          style={{
-            display: "block",
-            marginBottom: "10px",
-            padding: "8px",
-            width: "100%",
-          }}
-        />
-        <input
-          placeholder="Descripción (opcional)"
-          value={form.description}
-          onChange={(e) => onChangeForm(e.target.value, "description")}
-          style={{
-            display: "block",
-            marginBottom: "10px",
-            padding: "8px",
-            width: "100%",
-          }}
-        />
-        <button onClick={handleAddCategory} style={{ padding: "10px" }}>
-          Agregar Categoría
-        </button>
+      <div style={{ marginBottom: "20px", maxWidth: "585px" }}>
+        <div style={{ flex: 1, backgroundColor: "#f9f9f9", padding: "20px", borderRadius: "5px" }}>
+          <input
+            placeholder="Nombre de categoría"
+            value={form.name}
+            onChange={(e) => onChangeForm(e.target.value, "name")}
+            required
+            className="input"
+          />
+          <input
+            placeholder="Descripción (opcional)"
+            value={form.description}
+            onChange={(e) => onChangeForm(e.target.value, "description")}
+            className="input"
+          />
+          <button onClick={handleAddCategory} style={{ padding: "10px" }}>
+            Agregar Categoría
+          </button>
+        </div>
       </div>
 
       <h3>Lista de Categorías</h3>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import API from "../config/api.config";
 import type { CartItem, Product } from "../interfaces/global.interface";
+import { PageHeader } from "../components/common/PageHeader";
 
 export default function POS() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -12,8 +13,8 @@ export default function POS() {
   }, []);
 
   const fetchProducts = async () => {
-    const res = await API.get("/products");
-    setProducts(res.data);
+    // const res = await API.get("/products");
+    // setProducts(res.data);
   };
 
   const addToCart = (product: Product) => {
@@ -71,68 +72,69 @@ export default function POS() {
   );
 
   return (
-    <div style={{ display: "flex", gap: "40px" }}>
-      {/* PRODUCTOS */}
+    <div className="padding-container">
+      <PageHeader title="Venta" />
+      <div style={{ display: "flex", gap: "40px" }}>
+        {/* PRODUCTOS */}
+        <div style={{ width: "50%" }}>
+          <h2>Productos</h2>
 
-      <div style={{ width: "50%" }}>
-        <h2>Productos</h2>
+          <input
+            placeholder="Buscar producto..."
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-        <input
-          placeholder="Buscar producto..."
-          onChange={(e) => setSearch(e.target.value)}
-        />
+          {filteredProducts.map((product) => (
+            <div
+              key={product.id}
+              style={{
+                border: "1px solid gray",
+                padding: "10px",
+                margin: "5px",
+              }}
+            >
+              <b>{product.name}</b>
 
-        {filteredProducts.map((product) => (
-          <div
-            key={product.id}
-            style={{
-              border: "1px solid gray",
-              padding: "10px",
-              margin: "5px",
-            }}
-          >
-            <b>{product.name}</b>
+              <p>€{product.price}</p>
 
-            <p>€{product.price}</p>
+              <button onClick={() => addToCart(product)}>Agregar</button>
+            </div>
+          ))}
+        </div>
 
-            <button onClick={() => addToCart(product)}>Agregar</button>
-          </div>
-        ))}
-      </div>
+        {/* CARRITO */}
+        <div style={{ width: "50%" }}>
+          <h2>Carrito</h2>
 
-      {/* CARRITO */}
+          {cart.map((item) => (
+            <div
+              key={item.id}
+              style={{
+                borderBottom: "1px solid gray",
+                marginBottom: "10px",
+              }}
+            >
+              {item.name}
+              <input
+                type="number"
+                value={item.quantity}
+                onChange={(e) => updateQuantity(item.id, Number(e.target.value))}
+              />
+              €{(item.price * item.quantity).toFixed(2)}
+              <button onClick={() => removeItem(item.id)}>X</button>
+            </div>
+          ))}
 
-      <div style={{ width: "50%" }}>
-        <h2>Carrito</h2>
+          <hr />
 
-        {cart.map((item) => (
-          <div
-            key={item.id}
-            style={{
-              borderBottom: "1px solid gray",
-              marginBottom: "10px",
-            }}
-          >
-            {item.name}
-            <input
-              type="number"
-              value={item.quantity}
-              onChange={(e) => updateQuantity(item.id, Number(e.target.value))}
-            />
-            €{(item.price * item.quantity).toFixed(2)}
-            <button onClick={() => removeItem(item.id)}>X</button>
-          </div>
-        ))}
+          <p>Subtotal: €{subtotal.toFixed(2)}</p>
 
-        <hr />
+          <p>IVA: €{vatTotal.toFixed(2)}</p>
 
-        <p>Subtotal: €{subtotal.toFixed(2)}</p>
+          <h3>Total: €{total.toFixed(2)}</h3>
 
-        <p>IVA: €{vatTotal.toFixed(2)}</p>
-
-        <h3>Total: €{total.toFixed(2)}</h3>
-
-        <button onClick={handleCheckout}>Cobrar</button>
+          <button onClick={handleCheckout}>Cobrar</button>
+        </div>
       </div>
     </div>
   );

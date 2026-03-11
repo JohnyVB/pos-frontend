@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import TabCategories from "../components/TabCategories";
-import TabCreateEditProduct from "../components/TabCreateEditProduct";
-import { TabInventory } from "../components/TabInventory";
-import TabProducts from "../components/TabProducts";
+import { PageHeader } from "../components/common/PageHeader";
+import TabCategories from "../components/ProductsPage/TabCategories";
+import TabCreateEditProduct from "../components/ProductsPage/TabCreateEditProduct";
+import { TabInventory } from "../components/ProductsPage/TabInventory";
+import TabProducts from "../components/ProductsPage/TabProducts";
 import type { Product } from "../interfaces/global.interface";
 import type { ActiveTab } from "../interfaces/global.types";
 import type { Category } from "../interfaces/TabCategories.interface";
@@ -68,18 +69,8 @@ export default function Products() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <div
-        style={{
-          justifyContent: "space-between",
-          alignItems: "center",
-          display: "flex",
-        }}
-      >
-        <button onClick={() => window.history.back()}>Ir atrás</button>
-        <h1>Gestión de Productos</h1>
-        <div style={{ width: "75px" }}></div>
-      </div>
+    <div className="padding-container">
+      <PageHeader title="Gestión de productos" />
 
       {/* Tabs */}
       <TabProducts activeTab={activeTab} setActiveTab={setActiveTab} />

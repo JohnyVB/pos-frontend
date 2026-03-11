@@ -8,7 +8,7 @@ export interface Inventory {
 
 export interface InventoryForm {
   product_id: string;
-  quantity: number;
+  quantity: string;
   reference: string;
 }
 
@@ -31,5 +31,11 @@ export interface productSearchQuery extends Product {
 export interface ProductSearchResponse {
   response: string;
   product?: productSearchQuery;
+  message?: string;
+}
+
+export interface LoadInventoryResponse {
+  response: string;
+  inventory?: Inventory[];
   message?: string;
 }

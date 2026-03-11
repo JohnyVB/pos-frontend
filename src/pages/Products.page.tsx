@@ -11,6 +11,7 @@ import { onGetCategories } from "../services/categories.services";
 import { onGetProducts } from "../services/products.services";
 import userStore from "../store/userStore";
 import type { Inventory } from "../interfaces/TabInventory.interface";
+import { onLoadInventory } from "../services/inventory.services";
 
 export default function Products() {
   const { token } = userStore();
@@ -53,12 +54,17 @@ export default function Products() {
 
   const loadInventory = async () => {
     try {
-      const stored = localStorage.getItem("inventory");
-      if (stored) {
-        setInventory(JSON.parse(stored));
+      const res = await onLoadInventory(token!);
+      if (res.response === "success" && res.inventory) {
+        setInventory(res.inventory);
+      } else {
+        setInventory([]);
+        toast.error("Error al cargar inventario", { duration: 4000 });
       }
     } catch (error) {
       console.error(error);
+      setInventory([]);
+      toast.error("Error al cargar inventario", { duration: 4000 });
     }
   };
 

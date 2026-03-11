@@ -1,5 +1,5 @@
 import API from "../config/api.config";
-import type { InventoryMovementResponse, ProductSearchResponse } from "../interfaces/TabInventory.interface";
+import type { InventoryMovementResponse, LoadInventoryResponse, ProductSearchResponse } from "../interfaces/TabInventory.interface";
 
 export const onMovement = async (
   product_id: number,
@@ -32,5 +32,19 @@ export const onGetProductByQuery = async (query: string, token: string): Promise
   } catch (error) {
     console.error("Error fetching product by query:", error);
     return { response: "error", message: "Error al buscar producto" };
+  }
+};
+
+export const onLoadInventory = async (token: string): Promise<LoadInventoryResponse> => {
+  try {
+    const { data } = await API.get("/inventory", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return data;
+  } catch (error) {
+    console.error("Error loading inventory:", error);
+    return { response: "error", message: "Error al cargar inventario" };
   }
 };

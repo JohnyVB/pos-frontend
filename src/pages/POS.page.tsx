@@ -21,7 +21,7 @@ export default function POS() {
   const [paymentType, setPaymentType] = useState<string>("")
   const [showCashKeyboard, setShowCashKeyboard] = useState<boolean>(false)
   const [showCardForm, setShowCardForm] = useState<boolean>(false)
-  const { currentAmount, setCurrentAmount } = useCashStore()
+  const { cashBox, currentAmount, setCurrentAmount } = useCashStore()
 
 
   const searchProductByBarcode = async (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -82,7 +82,7 @@ export default function POS() {
     const body = {
       payment_method: paymentType,
       amount_received,
-      cash_box_id: 1,
+      cash_box_id: cashBox!.id,
       items,
     }
     const res = await onRegisterSale(body, token!)

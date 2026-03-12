@@ -1,4 +1,5 @@
-import type { Product, ToastFunction } from "./global.interface";
+import type { Product, ToastFunction } from "../../global.interface";
+
 
 export interface Inventory {
   id: number;

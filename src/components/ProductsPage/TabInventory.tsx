@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "../../hooks/useForm";
-import type {
-  InventoryForm,
-  productSearchQuery,
-  TabInventoryProps
-} from "../../interfaces/TabInventory.interface";
+
 import { onGetProductByQuery, onMovement } from "../../services/inventory.services";
 import userStore from "../../store/userStore";
+import type { Inventory, InventoryForm, productSearchQuery, TabInventoryProps } from "../../interfaces/components/POSPage/TabInventory.interface";
+import type { Product } from "../../interfaces/global.interface";
 
 export const TabInventory = ({
   products,
@@ -33,7 +31,7 @@ export const TabInventory = ({
 
   const existingInventory = (selectedProduct: productSearchQuery): number => {
     return inventory.findIndex(
-      (inv) => inv.product_id === selectedProduct.id,
+      (inv: Inventory) => inv.product_id === selectedProduct.id,
     );
   };
 
@@ -62,7 +60,7 @@ export const TabInventory = ({
 
     if (existingIndex >= 0) {
       if (Number(selectedProduct.inventory_quantity) === Number(form.quantity)) {
-        const updated = inventory.filter((inv) => inv.product_id !== selectedProduct.id);
+        const updated = inventory.filter((inv: Inventory) => inv.product_id !== selectedProduct.id);
         setInventory(updated);
         return;
       }
@@ -247,29 +245,27 @@ export const TabInventory = ({
       </div>
 
       <h3>Inventario Actual</h3>
-      <table
-        border={1}
-        cellPadding={10}
-        style={{ width: "100%", borderCollapse: "collapse" }}
-      >
-        <thead>
-          <tr style={{ backgroundColor: "#f0f0f0" }}>
-            <th>Producto</th>
-            <th>Cantidad</th>
-          </tr>
-        </thead>
-        <tbody>
-          {inventory.map((inv) => {
-            const product = products.find((p) => p.id === inv.product_id);
-            return (
-              <tr key={inv.product_id}>
-                <td>{product?.name || "Producto no encontrado"}</td>
-                <td className="quantity">{Number(inv.quantity)}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="table-wrapper">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cantidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            {inventory.map((inv: Inventory) => {
+              const product = products.find((p: Product) => p.id === inv.product_id);
+              return (
+                <tr key={inv.product_id}>
+                  <td>{product?.name || "Producto no encontrado"}</td>
+                  <td className="quantity">{Number(inv.quantity)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div >
   );
 };

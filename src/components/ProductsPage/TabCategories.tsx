@@ -85,35 +85,33 @@ const TabCategories = ({
       </div>
 
       <h3>Lista de Categorías</h3>
-      <table
-        border={1}
-        cellPadding={10}
-        style={{ width: "100%", borderCollapse: "collapse" }}
-      >
-        <thead>
-          <tr style={{ backgroundColor: "#f0f0f0" }}>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {categories.map((cat) => (
-            <tr key={cat.id}>
-              <td>{cat.name}</td>
-              <td>{cat.description}</td>
-              <td>
-                <button
-                  onClick={() => handleDeleteCategory(cat.id)}
-                  style={{ backgroundColor: "#dc3545", color: "white" }}
-                >
-                  Eliminar
-                </button>
-              </td>
+      <div className="table-wrapper">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {categories.map((cat) => (
+              <tr key={cat.id}>
+                <td>{cat.name}</td>
+                <td>{cat.description}</td>
+                <td>
+                  <button
+                    onClick={() => handleDeleteCategory(cat.id)}
+                    style={{ backgroundColor: "#dc3545", color: "white" }}
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

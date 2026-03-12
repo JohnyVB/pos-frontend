@@ -13,6 +13,7 @@ import { onGetCategories } from "../services/categories.services";
 import { onLoadInventory } from "../services/inventory.services";
 import { onGetProducts } from "../services/products.services";
 import userStore from "../store/userStore";
+import "../css/pages/Products.css"
 
 export default function Products() {
   const { token } = userStore();

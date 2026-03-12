@@ -192,51 +192,49 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
       </div>
 
       <h3>Lista de Productos</h3>
-      <table
-        border={1}
-        cellPadding={10}
-        style={{ width: "100%", borderCollapse: "collapse" }}
-      >
-        <thead>
-          <tr style={{ backgroundColor: "#f0f0f0" }}>
-            <th>Nombre</th>
-            <th>Barcode</th>
-            <th>Precio</th>
-            <th>IVA</th>
-            <th>Categoría</th>
-            <th>Fecha de Creación</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((p: Product) => (
-            <tr key={p.id}>
-              <td>{p.name}</td>
-              <td>{p.barcode}</td>
-              <td className="price">€{p.price}</td>
-              <td>{p.vat}%</td>
-              <td>
-                {categories.find((c: Category) => c.id === p.category_id)?.name || "N/A"}
-              </td>
-              <td>{formatDateToShow(p.created_at) || "N/A"}</td>
-              <td>
-                <button
-                  onClick={() => handleEdit(p)}
-                  style={{ marginRight: "5px" }}
-                >
-                  Editar
-                </button>
-                <button
-                  onClick={() => handleDelete(p.id!)}
-                  style={{ backgroundColor: "#dc3545", color: "white" }}
-                >
-                  Eliminar
-                </button>
-              </td>
+      <div className="table-wrapper">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Barcode</th>
+              <th>Precio</th>
+              <th>IVA</th>
+              <th>Categoría</th>
+              <th>Fecha de Creación</th>
+              <th>Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {products.map((p: Product) => (
+              <tr key={p.id}>
+                <td>{p.name}</td>
+                <td>{p.barcode}</td>
+                <td className="price">€{p.price}</td>
+                <td>{p.vat}%</td>
+                <td>
+                  {categories.find((c: Category) => c.id === p.category_id)?.name || "N/A"}
+                </td>
+                <td>{formatDateToShow(p.created_at) || "N/A"}</td>
+                <td>
+                  <button
+                    onClick={() => handleEdit(p)}
+                    style={{ marginRight: "5px" }}
+                  >
+                    Editar
+                  </button>
+                  <button
+                    onClick={() => handleDelete(p.id!)}
+                    style={{ backgroundColor: "#dc3545", color: "white" }}
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

@@ -4,6 +4,7 @@ import { onLogin } from "../services/login.services";
 import userStore from "../store/userStore";
 import { PageHeader } from "../components/common/PageHeader";
 import '../css/pages/Login.css'
+import toast, { Toaster } from "react-hot-toast";
 
 export default function Login() {
   const { setToken, setUserData } = userStore();
@@ -22,6 +23,7 @@ export default function Login() {
       resetForm();
     } else {
       alert(data.message || "Login failed");
+      toast.error(data.message || "Login failed", { duration: 4000 })
     }
     setLoading(false);
   };
@@ -59,6 +61,7 @@ export default function Login() {
           </div>
         </div>
       </div>
+      <Toaster position="top-right" />
     </div>
   );
 }

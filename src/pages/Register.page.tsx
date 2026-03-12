@@ -27,7 +27,7 @@ export default function Register() {
       toast.success("Usuario registrado correctamente", { duration: 4000 })
     } catch (error) {
       console.error(error);
-      toast.success("Error al registrar usuario", { duration: 4000 });
+      toast.error("Error al registrar usuario", { duration: 4000 });
     } finally {
       setLoading(false);
     }
@@ -94,7 +94,7 @@ export default function Register() {
           </div>
         </div>
       </div>
-      <Toaster />
+      <Toaster position="top-right" />
     </div>
   );
 }

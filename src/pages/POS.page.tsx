@@ -1,33 +1,47 @@
-import { useEffect, useState } from "react";
-import API from "../config/api.config";
-import type { CartItem, Product } from "../interfaces/global.interface";
+import { useEffect, useRef, useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 import { PageHeader } from "../components/common/PageHeader";
+import API from "../config/api.config";
+import type { ProductByBarcode } from "../interfaces/POS.interfaces";
+import { onGetProductByBarcode } from "../services/POS.services";
+import userStore from "../store/userStore";
+import './../css/pages/POS.css';
+import useSounds from "../hooks/useSounds";
 
 export default function POS() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [search, setSearch] = useState("");
+  const { token } = userStore();
+  // const [products, setProducts] = useState<ProductByBarcode[]>([]);
+  const [cart, setCart] = useState<ProductByBarcode[]>([]);
+  const [barcode, setBarcode] = useState<string>("");
+  const inputBarcodeRef = useRef<HTMLInputElement | null>(null);
+  const { playSuccessSound, playErrorSound } = useSounds()
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
 
-  const fetchProducts = async () => {
-    // const res = await API.get("/products");
-    // setProducts(res.data);
+  const searchProductByBarcode = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      const res = await onGetProductByBarcode(Number(barcode), token!)
+      if (res.response === "success" && res.product) {
+        addToCart(res.product)
+        setBarcode("")
+        playSuccessSound()
+      } else {
+        playErrorSound()
+      }
+    }
   };
 
-  const addToCart = (product: Product) => {
-    const existing = cart.find((p) => p.id === product.id);
-
-    if (existing) {
-      setCart(
-        cart.map((p) =>
-          p.id === product.id ? { ...p, quantity: p.quantity + 1 } : p,
-        ),
-      );
+  const addToCart = (product: ProductByBarcode) => {
+    if (product.stock > 0) {
+      const existing = cart.find((p) => p.id === product.id);
+      if (existing) {
+        setCart(cart.map((p) =>
+          p.id === product.id ? { ...p, quantity: Number(p.quantity) + 1 } : p,
+        ));
+      } else {
+        setCart([...cart, { ...product, quantity: 1 }]);
+      }
     } else {
-      setCart([...cart, { ...product, quantity: 1 }]);
+      toast.error("Producto agotado", { duration: 5000 })
     }
   };
 
@@ -67,75 +81,90 @@ export default function POS() {
     alert("Venta registrada");
   };
 
-  const filteredProducts = products.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  // const filteredProducts = products.filter((p) =>
+  //   p.name.toLowerCase().includes(barcode.toLowerCase()),
+  // );
+
+  useEffect(() => {
+    if (inputBarcodeRef.current) {
+      inputBarcodeRef.current.focus()
+    }
+  }, [])
+
 
   return (
     <div className="padding-container">
       <PageHeader title="Venta" />
-      <div style={{ display: "flex", gap: "40px" }}>
+      <div className="pos-container">
         {/* PRODUCTOS */}
-        <div style={{ width: "50%" }}>
+        <div className="products-section">
           <h2>Productos</h2>
 
           <input
+            className="search-input"
             placeholder="Buscar producto..."
-            onChange={(e) => setSearch(e.target.value)}
+            value={barcode}
+            onChange={(e) => setBarcode(e.target.value)}
+            onKeyDown={searchProductByBarcode}
           />
 
-          {filteredProducts.map((product) => (
-            <div
-              key={product.id}
-              style={{
-                border: "1px solid gray",
-                padding: "10px",
-                margin: "5px",
-              }}
-            >
-              <b>{product.name}</b>
-
-              <p>€{product.price}</p>
-
-              <button onClick={() => addToCart(product)}>Agregar</button>
-            </div>
-          ))}
+          {/* <div className="products-grid">
+            {filteredProducts.map((product) => (
+              <div key={product.id} className="product-card">
+                <b>{product.name}</b>
+                <p>€{product.price}</p>
+                <button onClick={() => addToCart(product)}>Agregar</button>
+              </div>
+            ))}
+          </div> */}
         </div>
 
         {/* CARRITO */}
-        <div style={{ width: "50%" }}>
+        <div className="cart-section">
           <h2>Carrito</h2>
+          <div className="cart-items">
+            {cart.map((item) => (
+              <div key={item.id} className="cart-item">
+                <span className="cart-item-name">{item.name}</span>
+                <input
+                  className="cart-item-quantity"
+                  type="text"
+                  value={item.quantity}
+                  onChange={(e) => {
+                    let value = e.target.value;
+                    const regex = /^[0-9]*$/;
+                    if (regex.test(value)) {
+                      updateQuantity(item.id, Number(e.target.value))
+                    }
+                  }}
+                />
+                <span className="cart-item-price">€{(item.price * item.quantity).toFixed(2)}</span>
+                <button className="cart-item-remove" onClick={() => removeItem(item.id)}>X</button>
+              </div>
+            ))}
+          </div>
 
-          {cart.map((item) => (
-            <div
-              key={item.id}
-              style={{
-                borderBottom: "1px solid gray",
-                marginBottom: "10px",
-              }}
-            >
-              {item.name}
-              <input
-                type="number"
-                value={item.quantity}
-                onChange={(e) => updateQuantity(item.id, Number(e.target.value))}
-              />
-              €{(item.price * item.quantity).toFixed(2)}
-              <button onClick={() => removeItem(item.id)}>X</button>
+          <div className="cart-summary">
+            <div className="summary-row">
+              <span>Subtotal:</span>
+              <span>€{subtotal.toFixed(2)}</span>
             </div>
-          ))}
+            <div className="summary-row">
+              <span>IVA:</span>
+              <span>€{vatTotal.toFixed(2)}</span>
+            </div>
+            <div className="summary-total">
+              <span>Total:</span>
+              <span>€{total.toFixed(2)}</span>
+            </div>
+          </div>
 
-          <hr />
-
-          <p>Subtotal: €{subtotal.toFixed(2)}</p>
-
-          <p>IVA: €{vatTotal.toFixed(2)}</p>
-
-          <h3>Total: €{total.toFixed(2)}</h3>
-
-          <button onClick={handleCheckout}>Cobrar</button>
+          <button className="checkout-btn" onClick={handleCheckout} disabled={cart.length === 0}>
+            Cobrar
+          </button>
         </div>
       </div>
+      <Toaster position="top-right" />
     </div>
   );
 }

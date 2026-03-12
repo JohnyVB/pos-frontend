@@ -1,5 +1,5 @@
 import type { Product, ToastFunction } from "./global.interface";
-import type { Category } from "./TabCategories.interface";
+import type { Category } from "./components/POSPage/TabCategories.interface";
 
 export interface createEditForm {
   name: string;

@@ -1,5 +1,5 @@
 import API from "../config/api.config";
-import type { verifyTokenResponse } from "../interfaces/Dashboard.interface";
+import type { verifyTokenResponse } from "../interfaces/pages/Dashboard.interface";
 
 export const onVerifyToken = async (token: string): Promise<verifyTokenResponse> => {
   try {

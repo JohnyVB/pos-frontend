@@ -1,20 +1,26 @@
 import { useEffect, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { PageHeader } from "../components/common/PageHeader";
+import CardPaymentForm from "../components/POSPage/CardPaymentForm";
+import CashPaymentKeyboard from "../components/POSPage/CashPaymentKeyboard";
+import PaymentModal from "../components/POSPage/PaymentModal";
 import API from "../config/api.config";
-import type { ProductByBarcode } from "../interfaces/POS.interfaces";
-import { onGetProductByBarcode } from "../services/POS.services";
+import useSounds from "../hooks/useSounds";
+import type { ProductByBarcode } from "../interfaces/pages/POS.interfaces";
+import { onGetProductByBarcode, onRegisterSale } from "../services/POS.services";
 import userStore from "../store/userStore";
 import './../css/pages/POS.css';
-import useSounds from "../hooks/useSounds";
 
 export default function POS() {
   const { token } = userStore();
-  // const [products, setProducts] = useState<ProductByBarcode[]>([]);
   const [cart, setCart] = useState<ProductByBarcode[]>([]);
   const [barcode, setBarcode] = useState<string>("");
   const inputBarcodeRef = useRef<HTMLInputElement | null>(null);
   const { playSuccessSound, playErrorSound } = useSounds()
+  const [showPaymentModal, setShowPaymentModal] = useState<boolean>(false)
+  const [paymentType, setPaymentType] = useState<string>("")
+  const [showCashKeyboard, setShowCashKeyboard] = useState<boolean>(false)
+  const [showCardForm, setShowCardForm] = useState<boolean>(false)
 
 
   const searchProductByBarcode = async (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -69,6 +75,8 @@ export default function POS() {
     const items = cart.map((item) => ({
       productId: item.id,
       quantity: item.quantity,
+      price: item.price,
+      vat: item.vat,
     }));
 
     await API.post("/sales", {
@@ -80,6 +88,51 @@ export default function POS() {
     setCart([]);
     alert("Venta registrada");
   };
+
+  const handleCashPayment = async (amount_received: number) => {
+    const items = cart.map((item) => ({
+      product_id: item.id,
+      quantity: item.quantity,
+      price: item.price,
+      vat: item.vat,
+    }));
+    const body = {
+      payment_method: paymentType,
+      amount_received,
+      cash_box_id: 1,
+      items,
+    }
+    const res = await onRegisterSale(body, token!)
+    if (res.response === "success") {
+      setCart([]);
+      setShowCashKeyboard(false)
+      toast.success("Pago registrado", { duration: 4000 })
+      console.log(JSON.stringify(res, null, 2))
+      // TODO: imprimir ticket
+    } else {
+      toast.error("Error al registrar pago", { duration: 4000 })
+    }
+  }
+
+  const handleCardPayment = (reference: string) => {
+    setCart([]);
+    setShowCardForm(false)
+    toast.success("Pago registrado")
+  }
+
+  const handlePayment = (method: string) => {
+    if (method === "CASH") {
+      setPaymentType("CASH")
+      setShowCashKeyboard(true)
+    }
+
+    if (method === "CARD") {
+      setPaymentType("CARD")
+      setShowCardForm(true)
+    }
+
+    setShowPaymentModal(false)
+  }
 
   // const filteredProducts = products.filter((p) =>
   //   p.name.toLowerCase().includes(barcode.toLowerCase()),
@@ -96,29 +149,6 @@ export default function POS() {
     <div className="padding-container">
       <PageHeader title="Venta" />
       <div className="pos-container">
-        {/* PRODUCTOS */}
-        <div className="products-section">
-          <h2>Productos</h2>
-
-          <input
-            className="search-input"
-            placeholder="Buscar producto..."
-            value={barcode}
-            onChange={(e) => setBarcode(e.target.value)}
-            onKeyDown={searchProductByBarcode}
-          />
-
-          {/* <div className="products-grid">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="product-card">
-                <b>{product.name}</b>
-                <p>€{product.price}</p>
-                <button onClick={() => addToCart(product)}>Agregar</button>
-              </div>
-            ))}
-          </div> */}
-        </div>
-
         {/* CARRITO */}
         <div className="cart-section">
           <h2>Carrito</h2>
@@ -159,12 +189,52 @@ export default function POS() {
             </div>
           </div>
 
-          <button className="checkout-btn" onClick={handleCheckout} disabled={cart.length === 0}>
+          <button
+            className="checkout-btn"
+            onClick={() => setShowPaymentModal(true)}
+            disabled={cart.length === 0}
+          >
             Cobrar
           </button>
         </div>
+
+        {/* PRODUCTOS */}
+        <div className="products-section">
+          <h2>Productos</h2>
+
+          <input
+            className="search-input"
+            placeholder="Buscar producto..."
+            value={barcode}
+            onChange={(e) => setBarcode(e.target.value)}
+            onKeyDown={searchProductByBarcode}
+          />
+
+          {showCashKeyboard && (
+            <CashPaymentKeyboard
+              total={total}
+              onConfirm={handleCashPayment}
+              onCancel={() => setShowCashKeyboard(false)}
+            />
+          )}
+
+          {showCardForm && (
+            <CardPaymentForm
+              total={total}
+              onConfirm={handleCardPayment}
+              onCancel={() => setShowCardForm(false)}
+            />
+          )}
+        </div>
       </div>
       <Toaster position="top-right" />
+      {showPaymentModal && (
+        <PaymentModal
+          total={total}
+          onSelectPayment={handlePayment}
+          onClose={() => setShowPaymentModal(false)}
+        />
+      )}
     </div>
   );
 }

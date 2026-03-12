@@ -7,7 +7,7 @@ import { TabInventory } from "../components/ProductsPage/TabInventory";
 import TabProducts from "../components/ProductsPage/TabProducts";
 import type { Product } from "../interfaces/global.interface";
 import type { ActiveTab } from "../interfaces/global.types";
-import type { Category } from "../interfaces/TabCategories.interface";
+import type { Category } from "../interfaces/components/POSPage/TabCategories.interface";
 import type { Inventory } from "../interfaces/TabInventory.interface";
 import { onGetCategories } from "../services/categories.services";
 import { onLoadInventory } from "../services/inventory.services";

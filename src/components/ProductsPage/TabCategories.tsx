@@ -2,7 +2,7 @@ import { useForm } from "../../hooks/useForm";
 import type {
   Category,
   TabCategoriesProps,
-} from "../../interfaces/TabCategories.interface";
+} from "../../interfaces/components/POSPage/TabCategories.interface";
 import {
   onCreateCategory,
   onDeactivateCategory,

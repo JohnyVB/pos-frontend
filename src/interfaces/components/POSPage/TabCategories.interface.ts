@@ -1,4 +1,4 @@
-import type { ToastFunction } from "./global.interface";
+import type { ToastFunction } from "../../global.interface";
 
 export interface categoryFormType {
   name: string;

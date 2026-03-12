@@ -1,0 +1,14 @@
+import { Navigate, Outlet } from 'react-router-dom';
+import { useCashStore } from '../store/useCashStore';
+
+export const CashBoxGuard = () => {
+  const { cashBox } = useCashStore();
+
+  // Si no hay caja o el estatus no es OPEN, bloqueamos el acceso
+  if (!cashBox || cashBox.status !== "OPEN") {
+    return <Navigate to="/cash-boxes" replace />;
+  }
+
+  // Si todo está bien, renderiza las rutas hijas
+  return <Outlet />;
+};

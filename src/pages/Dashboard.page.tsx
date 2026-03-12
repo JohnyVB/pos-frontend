@@ -32,6 +32,7 @@ export default function Dashboard() {
         <button className="btn-pos" onClick={() => navigation("/pos")}>Nueva Venta</button>
         <button className="btn-pos" onClick={() => navigation("/products")}>Productos</button>
         <button className="btn-pos" onClick={() => navigation("/register")}>Registrar Usuario</button>
+        <button className="btn-pos" onClick={() => navigation("/cash-boxes")}>Cajas</button>
         <button className="btn-pos btn-danger" onClick={handleLogout}>Cerrar Sesión</button>
       </div>
     </div>

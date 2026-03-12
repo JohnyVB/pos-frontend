@@ -4,12 +4,12 @@ import { PageHeader } from "../components/common/PageHeader";
 import CardPaymentForm from "../components/POSPage/CardPaymentForm";
 import CashPaymentKeyboard from "../components/POSPage/CashPaymentKeyboard";
 import PaymentModal from "../components/POSPage/PaymentModal";
-import API from "../config/api.config";
 import useSounds from "../hooks/useSounds";
 import type { ProductByBarcode } from "../interfaces/pages/POS.interfaces";
 import { onGetProductByBarcode, onRegisterSale } from "../services/POS.services";
 import userStore from "../store/userStore";
 import './../css/pages/POS.css';
+import { useCashStore } from "../store/useCashStore";
 
 export default function POS() {
   const { token } = userStore();
@@ -21,6 +21,7 @@ export default function POS() {
   const [paymentType, setPaymentType] = useState<string>("")
   const [showCashKeyboard, setShowCashKeyboard] = useState<boolean>(false)
   const [showCardForm, setShowCardForm] = useState<boolean>(false)
+  const { currentAmount, setCurrentAmount } = useCashStore()
 
 
   const searchProductByBarcode = async (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -71,24 +72,6 @@ export default function POS() {
 
   const total = subtotal + vatTotal;
 
-  const handleCheckout = async () => {
-    const items = cart.map((item) => ({
-      productId: item.id,
-      quantity: item.quantity,
-      price: item.price,
-      vat: item.vat,
-    }));
-
-    await API.post("/sales", {
-      items,
-      paymentType: "CASH",
-      cashBoxId: 1,
-    });
-
-    setCart([]);
-    alert("Venta registrada");
-  };
-
   const handleCashPayment = async (amount_received: number) => {
     const items = cart.map((item) => ({
       product_id: item.id,
@@ -103,11 +86,11 @@ export default function POS() {
       items,
     }
     const res = await onRegisterSale(body, token!)
-    if (res.response === "success") {
+    if (res.response === "success" && res.data) {
       setCart([]);
       setShowCashKeyboard(false)
       toast.success("Pago registrado", { duration: 4000 })
-      console.log(JSON.stringify(res, null, 2))
+      setCurrentAmount(currentAmount + Number(res.data.total))
       // TODO: imprimir ticket
     } else {
       toast.error("Error al registrar pago", { duration: 4000 })

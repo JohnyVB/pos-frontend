@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
+import { formatDateToShow } from "../../helper/formatDate.helper";
 import { useForm } from "../../hooks/useForm";
+import type { Category } from "../../interfaces/components/POSPage/TabCategories.interface";
+import type { createEditForm, TabProductsProps } from "../../interfaces/components/POSPage/TabCreateEdit.interface";
 import type { Product } from "../../interfaces/global.interface";
-import type { createEditForm, TabProductsProps } from "../../interfaces/TabCreateEdit.interface";
 import { onCreateProduct, onDeleteProduct, onUpdateProduct } from "../../services/products.services";
 import userStore from "../../store/userStore";
-import { formatDateToShow } from "../../helper/formatDate.helper";
 
 const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabProductsProps) => {
   const { token } = userStore();
@@ -23,12 +24,12 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
   });
 
   const addProductToList = (newProduct: Product) => {
-    setProducts((prev) => [...prev, newProduct]);
+    setProducts((prev: Product[]) => [...prev, newProduct]);
   }
 
   const updateProductInList = (updatedProduct: Product) => {
-    setProducts((prev) =>
-      prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
+    setProducts((prev: Product[]) =>
+      prev.map((p: Product) => (p.id === updatedProduct.id ? updatedProduct : p))
     );
   };
 
@@ -72,7 +73,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
     try {
       const res = await onDeleteProduct(id, token!);
       if (res.response === "success") {
-        setProducts((prev) => prev.filter((p) => p.id !== id));
+        setProducts((prev: Product[]) => prev.filter((p) => p.id !== id));
         toast.success("Producto eliminado exitosamente", { duration: 4000 });
       }
     } catch (error) {
@@ -166,7 +167,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
             className="select"
           >
             <option value={0}>Sin categoría</option>
-            {categories.map((cat) => (
+            {categories.map((cat: Category) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
               </option>
@@ -208,14 +209,14 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
           </tr>
         </thead>
         <tbody>
-          {products.map((p) => (
+          {products.map((p: Product) => (
             <tr key={p.id}>
               <td>{p.name}</td>
               <td>{p.barcode}</td>
               <td className="price">€{p.price}</td>
               <td>{p.vat}%</td>
               <td>
-                {categories.find((c) => c.id === p.category_id)?.name || "N/A"}
+                {categories.find((c: Category) => c.id === p.category_id)?.name || "N/A"}
               </td>
               <td>{formatDateToShow(p.created_at) || "N/A"}</td>
               <td>

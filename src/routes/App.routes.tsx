@@ -5,6 +5,8 @@ import Dashboard from "../pages/Dashboard.page";
 import Register from "../pages/Register.page";
 import POS from "../pages/POS.page";
 import Products from "../pages/Products.page";
+import CashBoxes from "../pages/CashBoxes.page";
+import { CashBoxGuard } from "./CashBoxGuard.routes";
 
 export default function AppRoutes() {
   const { token } = userStore();
@@ -14,9 +16,12 @@ export default function AppRoutes() {
         {token ? (
           <>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/pos" element={<POS />} />
+            <Route element={<CashBoxGuard />}>
+              <Route path="/pos" element={<POS />} />
+            </Route>
             <Route path="/products" element={<Products />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/cash-boxes" element={<CashBoxes />} />
           </>
         ) : (
           <Route path="/" element={<Login />} />

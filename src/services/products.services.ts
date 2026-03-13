@@ -4,7 +4,7 @@ import type {
   createProductResponse,
   getProductsResponse,
   updateProductResponse
-} from "../interfaces/TabCreateEdit.interface";
+} from "../interfaces/components/POSPage/TabCreateEdit.interface";
 
 export const onGetProducts = async (token: string): Promise<getProductsResponse> => {
   try {

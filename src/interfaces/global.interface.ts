@@ -9,6 +9,7 @@ export interface Product {
   category_id: number;
   active: boolean;
   created_at: string;
+  sale_type: "UNIT" | "WEIGHT";
 }
 
 export interface User {

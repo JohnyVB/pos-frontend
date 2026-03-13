@@ -216,10 +216,10 @@ export const TabInventory = ({
 
           {selectedProduct && (
             <div style={{ display: "flex", flexDirection: "row", gap: 5 }}>
-              <button onClick={handleAddInventory} style={{ padding: "10px" }}>
+              <button onClick={handleAddInventory} className="btn-pos btn-success">
                 Agregar a Inventario
               </button>
-              <button onClick={handleRemoveInventory} style={{ padding: "10px" }}>
+              <button onClick={handleRemoveInventory} className="btn-pos btn-danger">
                 Quitar de Inventario
               </button>
             </div>
@@ -229,12 +229,12 @@ export const TabInventory = ({
           {selectedProduct ? (
             <div style={{ marginBottom: "20px" }}>
               <h3>Producto Seleccionado</h3>
-              <div style={{ border: "1px solid #ccc", padding: "10px" }}>
+              <div style={{ border: "1px solid #ccc", padding: "10px", marginBottom: "10px" }}>
                 <p><strong>Nombre:</strong> {selectedProduct.name}</p>
                 <p><strong>Código de Barras:</strong> {selectedProduct.barcode}</p>
                 <p><strong>Cantidad en Inventario:</strong> {Number(selectedProduct.inventory_quantity)}</p>
               </div>
-              <button onClick={removeSelectedProduct} style={{ padding: "10px", marginTop: "10px", backgroundColor: "#dc3545", color: "white" }}>
+              <button onClick={removeSelectedProduct} className="btn-pos btn-danger">
                 Eliminar
               </button>
             </div>
@@ -259,7 +259,7 @@ export const TabInventory = ({
               return (
                 <tr key={inv.product_id}>
                   <td>{product?.name || "Producto no encontrado"}</td>
-                  <td className="quantity">{Number(inv.quantity)}</td>
+                  <td className="quantity" style={{ textAlign: "left" }}>{Number(inv.quantity)}</td>
                 </tr>
               );
             })}

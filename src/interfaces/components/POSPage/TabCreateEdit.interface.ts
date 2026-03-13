@@ -1,11 +1,12 @@
-import type { Product, ToastFunction } from "./global.interface";
-import type { Category } from "./components/POSPage/TabCategories.interface";
+import type { Product, ToastFunction } from "../../global.interface";
+import type { Category } from "./TabCategories.interface";
 
 export interface createEditForm {
   name: string;
   barcode: string;
   price: string;
   vat: string;
+  sale_type: "UNIT" | "WEIGHT";
   category_id: string;
 }
 

@@ -1,6 +1,7 @@
 export interface ProductByBarcode {
   id: number;
   name: string;
+  sale_type: "UNIT" | "WEIGHT";
   barcode: number;
   price: number;
   vat: number;
@@ -14,6 +15,13 @@ export interface SearchProductResponse {
   message?: string;
 }
 
+export interface ProductSale {
+  product_id: number;
+  quantity: number;
+  price: number;
+  vat: number;
+}
+
 export interface RegisterSaleData {
   sale_id: number;
   total: number;
@@ -23,12 +31,7 @@ export interface RegisterSaleData {
   amount_received: number;
   change_amount: number;
   cash_box_id: number;
-  items: {
-    product_id: number;
-    quantity: number;
-    price: number;
-    vat: number;
-  }[];
+  items: ProductSale[];
 }
 
 export interface RegisterSaleResponse {
@@ -41,10 +44,5 @@ export interface RegisterSaleBody {
   payment_method: string;
   amount_received: number;
   cash_box_id: number;
-  items: {
-    product_id: number;
-    quantity: number;
-    price: number;
-    vat: number;
-  }[];
+  items: ProductSale[];
 }

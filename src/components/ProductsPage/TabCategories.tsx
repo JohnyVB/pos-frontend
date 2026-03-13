@@ -102,7 +102,7 @@ const TabCategories = ({
                 <td>
                   <button
                     onClick={() => handleDeleteCategory(cat.id)}
-                    style={{ backgroundColor: "#dc3545", color: "white" }}
+                    className="btn-pos btn-danger"
                   >
                     Eliminar
                   </button>

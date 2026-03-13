@@ -11,6 +11,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
   const { token } = userStore();
   const [editingId, setEditingId] = useState<number | null>(null);
   const inputNameRef = useRef<HTMLInputElement | null>(null);
+  const inputSaleTypeRef = useRef<HTMLSelectElement | null>(null);
   const inputBarcodeRef = useRef<HTMLInputElement | null>(null);
   const inputPriceRef = useRef<HTMLInputElement | null>(null);
   const inputVatRef = useRef<HTMLInputElement | null>(null);
@@ -20,6 +21,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
     barcode: "",
     price: "0",
     vat: "21",
+    sale_type: "UNIT",
     category_id: "1",
   });
 
@@ -34,6 +36,10 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
   };
 
   const handleCreateEdit = async () => {
+    if (!form.name || !form.barcode || !form.price || !form.vat || !form.sale_type || !form.category_id) {
+      toast.error("Todos los campos son obligatorios", { duration: 4000 });
+      return;
+    }
     try {
       if (!editingId) {
         const res = await onCreateProduct(form, token!);
@@ -91,7 +97,6 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
       } else {
         handleCreateEdit()
       }
-
     }
   }
 
@@ -135,10 +140,20 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
             placeholder="Nombre"
             value={form.name}
             onChange={(e) => valueAjustment(e.target.value, "name")}
-            onKeyDown={(e) => handleKeyDown(e, inputPriceRef as React.RefObject<HTMLInputElement>)}
+            onKeyDown={(e) => handleKeyDown(e, inputSaleTypeRef as React.RefObject<HTMLSelectElement>)}
             required
             className="input"
           />
+          <select
+            ref={inputSaleTypeRef}
+            value={form.sale_type}
+            onChange={(e) => valueAjustment(e.target.value, "sale_type")}
+            onKeyDown={(e) => handleKeyDown(e, inputPriceRef as React.RefObject<HTMLInputElement>)}
+            className="select"
+          >
+            <option value="UNIT">Unidad</option>
+            <option value="WEIGHT">Peso</option>
+          </select>
           <input
             ref={inputPriceRef}
             type="text"
@@ -173,21 +188,23 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
               </option>
             ))}
           </select>
-          <button onClick={handleCreateEdit} style={{ padding: "10px", marginRight: "10px" }}>
-            {editingId ? "Actualizar" : "Agregar"}
-          </button>
-          {editingId && (
-            <button
-              type="button"
-              onClick={() => {
-                resetForm();
-                setEditingId(null);
-              }}
-              style={{ padding: "10px" }}
-            >
-              Cancelar
+          <div className="flex gap-2">
+            <button onClick={handleCreateEdit} className="btn-pos btn-success">
+              {editingId ? "Actualizar" : "Agregar"}
             </button>
-          )}
+            {editingId && (
+              <button
+                type="button"
+                onClick={() => {
+                  resetForm();
+                  setEditingId(null);
+                }}
+                className="btn-pos btn-danger"
+              >
+                Cancelar
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -201,6 +218,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
               <th>Precio</th>
               <th>IVA</th>
               <th>Categoría</th>
+              <th>Tipo de Venta</th>
               <th>Fecha de Creación</th>
               <th>Acciones</th>
             </tr>
@@ -210,22 +228,23 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
               <tr key={p.id}>
                 <td>{p.name}</td>
                 <td>{p.barcode}</td>
-                <td className="price">€{p.price}</td>
+                <td className="price" style={{ textAlign: "left" }}>€{p.price}</td>
                 <td>{p.vat}%</td>
                 <td>
                   {categories.find((c: Category) => c.id === p.category_id)?.name || "N/A"}
                 </td>
+                <td>{p.sale_type}</td>
                 <td>{formatDateToShow(p.created_at) || "N/A"}</td>
-                <td>
+                <td className="flex gap-2">
                   <button
                     onClick={() => handleEdit(p)}
-                    style={{ marginRight: "5px" }}
+                    className="btn-pos btn-secondary"
                   >
                     Editar
                   </button>
                   <button
                     onClick={() => handleDelete(p.id!)}
-                    style={{ backgroundColor: "#dc3545", color: "white" }}
+                    className="btn-pos btn-danger"
                   >
                     Eliminar
                   </button>

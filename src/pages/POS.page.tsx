@@ -7,9 +7,9 @@ import PaymentModal from "../components/POSPage/PaymentModal";
 import useSounds from "../hooks/useSounds";
 import type { ProductByBarcode } from "../interfaces/pages/POS.interfaces";
 import { onGetProductByBarcode, onRegisterSale } from "../services/POS.services";
+import { useCashStore } from "../store/useCashStore";
 import userStore from "../store/userStore";
 import './../css/pages/POS.css';
-import { useCashStore } from "../store/useCashStore";
 
 export default function POS() {
   const { token } = userStore();
@@ -23,14 +23,12 @@ export default function POS() {
   const [showCardForm, setShowCardForm] = useState<boolean>(false)
   const { cashBox, currentAmount, setCurrentAmount } = useCashStore()
 
-
   const searchProductByBarcode = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       const res = await onGetProductByBarcode(Number(barcode), token!)
       if (res.response === "success" && res.product) {
         addToCart(res.product)
         setBarcode("")
-        playSuccessSound()
       } else {
         playErrorSound()
       }
@@ -38,22 +36,35 @@ export default function POS() {
   };
 
   const addToCart = (product: ProductByBarcode) => {
-    if (product.stock > 0) {
-      const existing = cart.find((p) => p.id === product.id);
-      if (existing) {
-        setCart(cart.map((p) =>
-          p.id === product.id ? { ...p, quantity: Number(p.quantity) + 1 } : p,
-        ));
+    if (Number(product.stock) > 0) {
+      const existingInCart = cart.find((p) => p.id === product.id);
+      if (existingInCart) {
+        if (Number(product.stock) >= Number(existingInCart?.quantity!)) {
+          setCart(cart.map((p) =>
+            p.id === product.id ? { ...p, quantity: Number(p.quantity) + 1 } : p,
+          ));
+          playSuccessSound()
+        } else {
+          toast.error("Producto agotado", { duration: 5000 })
+          playErrorSound()
+        }
       } else {
         setCart([...cart, { ...product, quantity: 1 }]);
+        playSuccessSound()
       }
     } else {
       toast.error("Producto agotado", { duration: 5000 })
+      playErrorSound()
     }
   };
 
   const updateQuantity = (id: number, quantity: number) => {
-    setCart(cart.map((p) => (p.id === id ? { ...p, quantity } : p)));
+    const getProductInCart = cart.find((p) => p.id === id)
+    if (Number(getProductInCart?.stock) >= Number(quantity)) {
+      setCart(cart.map((p) => (p.id === id ? { ...p, quantity } : p)));
+    } else {
+      toast.error("Producto agotado", { duration: 5000 })
+    }
   };
 
   const removeItem = (id: number) => {
@@ -117,16 +128,11 @@ export default function POS() {
     setShowPaymentModal(false)
   }
 
-  // const filteredProducts = products.filter((p) =>
-  //   p.name.toLowerCase().includes(barcode.toLowerCase()),
-  // );
-
   useEffect(() => {
     if (inputBarcodeRef.current) {
       inputBarcodeRef.current.focus()
     }
   }, [])
-
 
   return (
     <div className="padding-container">

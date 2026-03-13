@@ -7,17 +7,22 @@ import './../css/pages/Register.css'
 
 export default function Register() {
   const [loading, setLoading] = useState<boolean>(false);
-  const { name, email, password, role, onChangeForm, resetForm } = useForm({
+  const { name, email, username, password, role, onChangeForm, resetForm } = useForm({
     name: "",
+    username: "",
     email: "",
     password: "",
     role: "cashier",
   });
 
   const handleRegister = async () => {
+    if (!name || !username || !password) {
+      toast.error("Los campos nombre, usuario y contraseña son obligatorios", { duration: 4000 })
+      return;
+    }
     setLoading(true);
     try {
-      const result = await onRegister(name, email, password, role);
+      const result = await onRegister(name, username, email, password, role);
       if (result.response === "error") {
         toast.error(result.message || "Error al registrar usuario", { duration: 4000 })
         setLoading(false);
@@ -51,15 +56,26 @@ export default function Register() {
             />
           </div>
           <div>
+            <label>Usuario</label>
+            <input
+              className="input"
+              placeholder="username"
+              type="text"
+              name="username"
+              value={username}
+              onChange={(e) => onChangeForm(e.target.value, "username")}
+              required
+            />
+          </div>
+          <div>
             <label>Email</label>
             <input
               className="input"
-              placeholder="example@example.co"
+              placeholder="example@example.com (opcional)"
               type="email"
               name="email"
               value={email}
               onChange={(e) => onChangeForm(e.target.value, "email")}
-              required
             />
           </div>
           <div>

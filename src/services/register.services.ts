@@ -3,6 +3,7 @@ import type { registerResponse } from "../interfaces/global.interface";
 
 export const onRegister = async (
   name: string,
+  username: string,
   email: string,
   password: string,
   role: string,
@@ -10,13 +11,14 @@ export const onRegister = async (
   try {
     const { data } = await API.post<registerResponse>("/auth/register", {
       name,
+      username,
       email,
       password,
       role,
     });
     return data;
-  } catch (error) {
+  } catch (error: any) {
     console.log("Registration failed:", error);
-    return { response: "error", message: "Registration failed" };
+    return { response: "error", message: error.response.data.message };
   }
 };

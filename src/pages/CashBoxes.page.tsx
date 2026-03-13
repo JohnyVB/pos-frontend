@@ -9,7 +9,7 @@ import { useCashStore } from "../store/useCashStore"
 import { formatDateToShow } from "../helper/formatDate.helper"
 
 export default function CashBoxes() {
-  const { token } = userStore();
+  const { userData, token } = userStore();
   const [cashBoxes, setCashBoxes] = useState<CashBox[]>([])
   const [openingAmount, setOpeningAmount] = useState<number>(0)
   const { cashBox, setCashBox, currentAmount, setCurrentAmount } = useCashStore()
@@ -17,8 +17,8 @@ export default function CashBoxes() {
   const openCashBox = async () => {
     const res = await onOpenCashBox(openingAmount, token!)
     if (res.response === "success" && res.cashBox) {
-      setCashBoxes(prev => [res.cashBox!, ...prev])
-      setCashBox(res.cashBox)
+      setCashBoxes(prev => [{ ...res.cashBox!, user_name: userData?.name! }, ...prev])
+      setCashBox({ ...res.cashBox!, user_name: userData?.name! })
       setCurrentAmount(openingAmount)
       toast.success("Caja abierta correctamente")
     } else {
@@ -28,9 +28,13 @@ export default function CashBoxes() {
   }
 
   const closeCashBox = async (id: number) => {
+    if (currentAmount <= openingAmount) {
+      toast.error("El monto de cierre debe ser mayor al monto de apertura")
+      return
+    }
     const res = await onCloseCashBox(id, currentAmount, token!)
     if (res.response === "success" && res.cashBox) {
-      setCashBoxes(prev => prev.map(cb => cb.id === id ? res.cashBox! : cb))
+      setCashBoxes(prev => prev.map(cb => cb.id === id ? { ...res.cashBox!, user_name: userData?.name! } : cb))
       setCashBox(null)
       setCurrentAmount(0)
       toast.success("Caja cerrada correctamente")
@@ -43,8 +47,16 @@ export default function CashBoxes() {
     const res = await onGetCashBoxes(token!)
     if (res.response === "success" && res.cashBoxes) {
       setCashBoxes(res.cashBoxes)
+      updateCashBox(res.cashBoxes)
     } else {
       toast.error(res.message || "Error al obtener las cajas")
+    }
+  }
+
+  const updateCashBox = (cashBoxes: CashBox[]) => {
+    const openCashBox = cashBoxes.find((cb: CashBox) => cb.status === "OPEN")
+    if (openCashBox) {
+      setCashBox(openCashBox)
     }
   }
 

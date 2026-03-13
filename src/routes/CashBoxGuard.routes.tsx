@@ -6,7 +6,7 @@ export const CashBoxGuard = () => {
 
   // Si no hay caja o el estatus no es OPEN, bloqueamos el acceso
   if (!cashBox || cashBox.status !== "OPEN") {
-    return <Navigate to="/cash-boxes" replace />;
+    return <Navigate to="/" replace />;
   }
 
   // Si todo está bien, renderiza las rutas hijas

@@ -2,19 +2,14 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { User } from "../interfaces/global.interface";
 
-type State = {
+interface UserStore {
   token: string | null;
   userData: User | null;
-};
-
-type Actions = {
   setToken: (token: string | null) => void;
   setUserData: (user: User | null) => void;
-};
+}
 
-type PersistedState = State & Actions;
-
-const userStore = create<PersistedState>()(
+const userStore = create<UserStore>()(
   persist(
     (set) => ({
       token: null,

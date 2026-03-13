@@ -125,14 +125,22 @@
   flex: 1;
   font-weight: 500;
   color: #333;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.cart-item-price-unit {
+  flex: 1;
+  font-weight: bold;
+  color: #333;
+  max-width:  110px;
+  text-align: right;
 }
 
 .cart-item-quantity {
-  width: 60px;
+  width: 70px;
   padding: 0.35rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  text-align: center;
   font-size: 0.9rem;
 }
 

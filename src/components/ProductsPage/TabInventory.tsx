@@ -216,11 +216,11 @@ export const TabInventory = ({
 
           {selectedProduct && (
             <div style={{ display: "flex", flexDirection: "row", gap: 5 }}>
-              <button onClick={handleAddInventory} className="btn-pos btn-success">
-                Agregar a Inventario
+              <button onClick={handleAddInventory} className="btn-pos btn-primary">
+                Agregar
               </button>
               <button onClick={handleRemoveInventory} className="btn-pos btn-danger">
-                Quitar de Inventario
+                Quitar
               </button>
             </div>
           )}

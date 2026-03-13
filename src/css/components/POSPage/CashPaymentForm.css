@@ -1,8 +1,8 @@
-.overlay {
+.overlay-cash-payment {
   display: flex;
 }
 
-.modal {
+.modal-cash-payment {
   background: white;
   padding: 20px;
   width: 100%;
@@ -11,27 +11,24 @@
   text-align: center;
 }
 
-.displayBox {
+.input-cash {
+  font-size: 28px;
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #ccc;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.displayBox-cash-payment {
   font-size: 28px;
   margin: 10px 0;
   padding: 10px;
   border: 1px solid #ccc;
 }
 
-.keyboard {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.key {
-  padding: 12px;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.buttonsContainer {
+.buttons-cash-payment {
   display: flex;
   justify-content: space-between;
   margin-top: 20px;

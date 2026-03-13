@@ -78,8 +78,8 @@ const TabCategories = ({
             onChange={(e) => onChangeForm(e.target.value, "description")}
             className="input"
           />
-          <button onClick={handleAddCategory} style={{ padding: "10px" }}>
-            Agregar Categoría
+          <button onClick={handleAddCategory} className="btn-pos btn-primary">
+            Agregar
           </button>
         </div>
       </div>
@@ -102,7 +102,7 @@ const TabCategories = ({
                 <td>
                   <button
                     onClick={() => handleDeleteCategory(cat.id)}
-                    className="btn-pos btn-danger"
+                    className="btn-pos-actions btn-danger"
                   >
                     Eliminar
                   </button>

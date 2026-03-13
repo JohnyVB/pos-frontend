@@ -5,7 +5,7 @@ import "../css/pages/CashBoxes.css"
 import { onCloseCashBox, onGetCashBoxes, onOpenCashBox } from "../services/cashBoxes.services"
 import userStore from "../store/userStore"
 import toast, { Toaster } from "react-hot-toast";
-import { useCashStore } from "../store/useCashStore"
+import useCashStore from "../store/useCashStore"
 import { formatDateToShow } from "../helper/formatDate.helper"
 
 export default function CashBoxes() {

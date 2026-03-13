@@ -7,6 +7,7 @@ export interface ProductByBarcode {
   vat: number;
   quantity: number;
   stock: number;
+  total?: number;
 }
 
 export interface SearchProductResponse {

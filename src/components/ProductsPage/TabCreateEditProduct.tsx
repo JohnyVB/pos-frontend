@@ -189,7 +189,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
             ))}
           </select>
           <div className="flex gap-2">
-            <button onClick={handleCreateEdit} className="btn-pos btn-success">
+            <button onClick={handleCreateEdit} className="btn-pos btn-primary">
               {editingId ? "Actualizar" : "Agregar"}
             </button>
             {editingId && (
@@ -238,13 +238,13 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
                 <td className="flex gap-2">
                   <button
                     onClick={() => handleEdit(p)}
-                    className="btn-pos btn-secondary"
+                    className="btn-pos-actions btn-secondary"
                   >
                     Editar
                   </button>
                   <button
                     onClick={() => handleDelete(p.id!)}
-                    className="btn-pos btn-danger"
+                    className="btn-pos-actions btn-danger"
                   >
                     Eliminar
                   </button>

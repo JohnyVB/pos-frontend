@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { PageHeader } from "../components/common/PageHeader";
 import CardPaymentForm from "../components/POSPage/CardPaymentForm";
-import CashPaymentKeyboard from "../components/POSPage/CashPaymentKeyboard";
+import CashPaymentForm from "../components/POSPage/CashPaymentForm";
 import PaymentModal from "../components/POSPage/PaymentModal";
+import WeightForm from "../components/POSPage/WeightForm";
 import useSounds from "../hooks/useSounds";
 import type { ProductByBarcode } from "../interfaces/pages/POS.interfaces";
 import { onGetProductByBarcode, onRegisterSale } from "../services/POS.services";
-import { useCashStore } from "../store/useCashStore";
+import useCashStore from "../store/useCashStore";
 import userStore from "../store/userStore";
 import './../css/pages/POS.css';
 
@@ -19,14 +20,21 @@ export default function POS() {
   const { playSuccessSound, playErrorSound } = useSounds()
   const [showPaymentModal, setShowPaymentModal] = useState<boolean>(false)
   const [paymentType, setPaymentType] = useState<string>("")
-  const [showCashKeyboard, setShowCashKeyboard] = useState<boolean>(false)
+  const [showCashForm, setShowCashForm] = useState<boolean>(false)
   const [showCardForm, setShowCardForm] = useState<boolean>(false)
   const { cashBox, currentAmount, setCurrentAmount } = useCashStore()
+  const [showWeightForm, setShowWeightForm] = useState<boolean>(false)
+  const [productWeight, setProductWeight] = useState<ProductByBarcode | null>(null)
 
   const searchProductByBarcode = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       const res = await onGetProductByBarcode(Number(barcode), token!)
       if (res.response === "success" && res.product) {
+        if (res.product.sale_type === "WEIGHT") {
+          setProductWeight(res.product)
+          setShowWeightForm(true)
+          return
+        }
         addToCart(res.product)
         setBarcode("")
       } else {
@@ -35,28 +43,50 @@ export default function POS() {
     }
   };
 
-  const addToCart = (product: ProductByBarcode) => {
+  const addToCart = (product: ProductByBarcode, weight?: number) => {
     if (Number(product.stock) > 0) {
       const existingInCart = cart.find((p) => p.id === product.id);
       if (existingInCart) {
         if (Number(product.stock) >= Number(existingInCart?.quantity!)) {
+          const quantity = weight ? Number(weight) + Number(existingInCart?.quantity) : Number(existingInCart?.quantity) + 1
+          const total = (Number(quantity) * Number(product.price))
           setCart(cart.map((p) =>
-            p.id === product.id ? { ...p, quantity: Number(p.quantity) + 1 } : p,
+            p.id === product.id ? {
+              ...p,
+              quantity,
+              total
+            } : p,
           ));
           playSuccessSound()
+          inputBarcodeRef.current?.focus()
         } else {
           toast.error("Producto agotado", { duration: 5000 })
           playErrorSound()
         }
       } else {
-        setCart([...cart, { ...product, quantity: 1 }]);
+        const total = Number(product.price) * Number(weight ? weight : 1)
+        setCart([...cart, { ...product, quantity: weight ? Number(weight) : 1, total }]);
         playSuccessSound()
+        inputBarcodeRef.current?.focus()
       }
     } else {
       toast.error("Producto agotado", { duration: 5000 })
       playErrorSound()
     }
   };
+
+  const handleWeightConfirm = (weight: number) => {
+    if (!productWeight) return;
+    if (Number(productWeight.stock) >= Number(weight)) {
+      addToCart(productWeight, weight)
+      setShowWeightForm(false)
+      setProductWeight(null)
+      setBarcode("")
+    } else {
+      toast.error("Stock insuficiente", { duration: 5000 })
+      playErrorSound()
+    }
+  }
 
   const updateQuantity = (id: number, quantity: number) => {
     const getProductInCart = cart.find((p) => p.id === id)
@@ -99,7 +129,7 @@ export default function POS() {
     const res = await onRegisterSale(body, token!)
     if (res.response === "success" && res.data) {
       setCart([]);
-      setShowCashKeyboard(false)
+      setShowCashForm(false)
       toast.success("Pago registrado", { duration: 4000 })
       setCurrentAmount(currentAmount + Number(res.data.total))
       // TODO: imprimir ticket
@@ -117,14 +147,16 @@ export default function POS() {
   const handlePayment = (method: string) => {
     if (method === "CASH") {
       setPaymentType("CASH")
-      setShowCashKeyboard(true)
+      setShowCashForm(true)
+      setShowCardForm(false)
     }
 
     if (method === "CARD") {
       setPaymentType("CARD")
       setShowCardForm(true)
+      setShowCashForm(false)
     }
-
+    setBarcode("")
     setShowPaymentModal(false)
   }
 
@@ -144,20 +176,10 @@ export default function POS() {
           <div className="cart-items">
             {cart.map((item) => (
               <div key={item.id} className="cart-item">
+                <span className="cart-item-quantity">{item.quantity} {item.sale_type === "WEIGHT" ? "kg" : "ud"}</span>
                 <span className="cart-item-name">{item.name}</span>
-                <input
-                  className="cart-item-quantity"
-                  type="text"
-                  value={item.quantity}
-                  onChange={(e) => {
-                    let value = e.target.value;
-                    const regex = /^[0-9]*$/;
-                    if (regex.test(value)) {
-                      updateQuantity(item.id, Number(e.target.value))
-                    }
-                  }}
-                />
-                <span className="cart-item-price">€{(item.price * item.quantity).toFixed(2)}</span>
+                <span className="cart-item-price-unit">{item.price} €/{item.sale_type === "WEIGHT" ? "kg" : "ud"}</span>
+                <span className="cart-item-price">€{item.total?.toFixed(2)}</span>
                 <button className="cart-item-remove" onClick={() => removeItem(item.id)}>X</button>
               </div>
             ))}
@@ -181,7 +203,9 @@ export default function POS() {
           <button
             className="checkout-btn"
             onClick={() => setShowPaymentModal(true)}
-            disabled={cart.length === 0}
+            disabled={
+              cart.length === 0 || showWeightForm || showCashForm || showCardForm
+            }
           >
             Cobrar
           </button>
@@ -192,6 +216,7 @@ export default function POS() {
           <h2>Productos</h2>
 
           <input
+            ref={inputBarcodeRef}
             className="search-input"
             placeholder="Buscar producto..."
             value={barcode}
@@ -199,31 +224,44 @@ export default function POS() {
             onKeyDown={searchProductByBarcode}
           />
 
-          {showCashKeyboard && (
-            <CashPaymentKeyboard
-              total={total}
-              onConfirm={handleCashPayment}
-              onCancel={() => setShowCashKeyboard(false)}
-            />
-          )}
+          <CashPaymentForm
+            isOpen={showCashForm}
+            total={total}
+            onConfirm={handleCashPayment}
+            onCancel={() => {
+              setShowCashForm(false)
+              inputBarcodeRef.current?.focus()
+            }}
+          />
 
-          {showCardForm && (
-            <CardPaymentForm
-              total={total}
-              onConfirm={handleCardPayment}
-              onCancel={() => setShowCardForm(false)}
-            />
-          )}
+          <CardPaymentForm
+            isOpen={showCardForm}
+            total={total}
+            onConfirm={handleCardPayment}
+            onCancel={() => {
+              setShowCardForm(false)
+              inputBarcodeRef.current?.focus()
+            }}
+          />
+
+          <WeightForm
+            isOpen={showWeightForm}
+            product={productWeight!}
+            onConfirm={handleWeightConfirm}
+            onClose={() => {
+              setShowWeightForm(false)
+              inputBarcodeRef.current?.focus()
+            }}
+          />
         </div>
       </div>
       <Toaster position="top-right" />
-      {showPaymentModal && (
-        <PaymentModal
-          total={total}
-          onSelectPayment={handlePayment}
-          onClose={() => setShowPaymentModal(false)}
-        />
-      )}
+      <PaymentModal
+        isOpen={showPaymentModal}
+        total={total}
+        onSelectPayment={handlePayment}
+        onClose={() => setShowPaymentModal(false)}
+      />
     </div>
   );
 }

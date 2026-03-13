@@ -41,9 +41,22 @@
   font-family: 'Inter', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  /* box-shadow: 0 2px 4px rgba(0,0,0,0.1); */
 }
 
+.btn-pos-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 12px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 /* Efecto al presionar (Feedback táctil) */
 .btn-pos:active {
   transform: scale(0.95);

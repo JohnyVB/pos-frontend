@@ -2,12 +2,12 @@ import API from "../config/api.config";
 import type { loginResponse } from "../interfaces/global.interface";
 
 export const onLogin = async (
-  email: string,
+  user: string,
   password: string,
 ): Promise<loginResponse> => {
   try {
     const { data } = await API.post<loginResponse>("/auth/login", {
-      email,
+      user,
       password,
     });
     return data;

@@ -14,6 +14,7 @@ export interface Product {
 export interface User {
   id: number;
   name: string;
+  username: string;
   email: string;
   role: string;
   created_at: string;

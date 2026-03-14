@@ -3,15 +3,15 @@ import { Badge, Button, Card, Col, Container, Row, Table } from "react-bootstrap
 import toast, { Toaster } from "react-hot-toast"
 import { useNavigate } from "react-router-dom"
 import { CloseSessionModal } from "../components/Dashboard/CloseSessionModal"
+import { OpenSessionModal } from "../components/Dashboard/OpenSessionModal"
 import { PageHeader } from "../components/common/PageHeader"
 import { formatDateToShow } from "../helper/formatDate.helper"
+import type { Terminal } from "../interfaces/global.interface"
 import type { CashBoxSession } from "../interfaces/pages/CashBoxSessions.interface"
 import { onCloseCashBoxSession, onGetCashBoxSessions, onOpenCashBoxSession } from "../services/cashbox-sessions.services"
+import { onGetTerminals } from "../services/terminals.services"
 import useCashStore from "../store/useCashStore"
 import userStore from "../store/userStore"
-import type { Terminal } from "../interfaces/global.interface"
-import { onGetTerminals } from "../services/terminals.services"
-import { OpenSessionModal } from "../components/Dashboard/OpenSessionModal"
 
 export default function CashboxSessions() {
   const { userData, token } = userStore();
@@ -215,7 +215,6 @@ export default function CashboxSessions() {
         isOpen={showCloseBoxModal}
         cashBoxId={cashBoxId}
         currentAmount={currentAmount}
-        setCurrentAmount={setCurrentAmount}
         onCancel={() => setShowCloseBoxModal(false)}
         onConfirm={closeCashBoxSession}
       />

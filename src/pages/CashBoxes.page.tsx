@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react"
-import { Container, Row, Col, Card, Form, Button, Table, Badge } from "react-bootstrap"
-import type { CashBox } from "../interfaces/pages/CashBoxes.interface"
-import { PageHeader } from "../components/common/PageHeader"
-import { onCloseCashBox, onGetCashBoxes, onOpenCashBox } from "../services/cashBoxes.services"
-import userStore from "../store/userStore"
-import toast, { Toaster } from "react-hot-toast";
-import useCashStore from "../store/useCashStore"
-import { formatDateToShow } from "../helper/formatDate.helper"
+import { useEffect, useState } from "react"
+import { Badge, Button, Card, Col, Container, Form, Row, Table } from "react-bootstrap"
+import toast, { Toaster } from "react-hot-toast"
 import { useNavigate } from "react-router-dom"
 import { CloseBoxModal } from "../components/CashBoxPage/CloseBoxModal"
+import { PageHeader } from "../components/common/PageHeader"
+import { formatDateToShow } from "../helper/formatDate.helper"
+import type { CashBox } from "../interfaces/pages/CashBoxes.interface"
+import { onCloseCashBox, onGetCashBoxes, onOpenCashBox } from "../services/cashBoxes.services"
+import useCashStore from "../store/useCashStore"
+import userStore from "../store/userStore"
 
 export default function CashBoxes() {
   const { userData, token } = userStore();
@@ -141,12 +141,6 @@ export default function CashBoxes() {
           </Row>
         </Card.Body>
       </Card>
-      <CloseBoxModal
-        isOpen={showCloseBoxModal}
-        cashBoxId={cashBoxId}
-        onCancel={() => setShowCloseBoxModal(false)}
-        onConfirm={closeCashBox}
-      />
       <Card className="shadow-sm border-0 bg-white">
         <Card.Body className="p-0">
           <Table responsive hover className="mb-0 align-middle">
@@ -230,6 +224,12 @@ export default function CashBoxes() {
         </Card.Body>
       </Card>
       <Toaster position="top-center" />
+      <CloseBoxModal
+        isOpen={showCloseBoxModal}
+        cashBoxId={cashBoxId}
+        onCancel={() => setShowCloseBoxModal(false)}
+        onConfirm={closeCashBox}
+      />
     </Container>
   )
 }

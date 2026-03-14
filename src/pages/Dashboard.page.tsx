@@ -31,6 +31,7 @@ export default function Dashboard() {
     { label: "Productos", icon: "📦", path: "/products", bg: "success" },
     { label: "Reporte Cajas", icon: "💶", path: "/cash-boxes", bg: "info" },
     { label: "Usuarios", icon: "👥", path: "/register", bg: "warning" },
+    { label: "Terminales", icon: "🖥️", path: "/terminals", bg: "secondary" },
   ];
 
   return (

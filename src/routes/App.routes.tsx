@@ -9,6 +9,7 @@ import CashBoxes from "../pages/CashBoxes.page";
 import { CashBoxGuard } from "./CashBoxGuard.routes";
 import { AdminGuard } from "./AdminGuard.routes";
 import { SalesHistory } from "../pages/SalesHistory.page";
+import Terminals from "../pages/Terminals.page";
 
 export default function AppRoutes() {
   const { token } = userStore();
@@ -25,6 +26,7 @@ export default function AppRoutes() {
             <Route element={<AdminGuard />}>
               <Route path="/register" element={<Register />} />
               <Route path="/sales-history" element={<SalesHistory />} />
+              <Route path="/terminals" element={<Terminals />} />
             </Route>
             <Route path="/cash-boxes" element={<CashBoxes />} />
           </>

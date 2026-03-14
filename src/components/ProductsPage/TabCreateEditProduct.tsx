@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Form, Button, Table, Row, Col, Card } from "react-bootstrap";
+import { Form, Button, Table, Row, Col, Card, Badge } from "react-bootstrap";
 import { formatDateToShow } from "../../helper/formatDate.helper";
 import { useForm } from "../../hooks/useForm";
 import type { Category } from "../../interfaces/components/POSPage/TabCategories.interface";
@@ -141,7 +141,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
                 />
               </Form.Group>
             </Col>
-            
+
             <Col md={6} lg={4}>
               <Form.Group>
                 <Form.Label className="fw-semibold">Nombre</Form.Label>
@@ -241,69 +241,77 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
         </Card.Body>
       </Card>
 
-      <h3 className="mb-3">Lista de Productos</h3>
-      <Table responsive hover bordered className="align-middle bg-white">
-        <thead className="table-light">
-          <tr>
-            <th>Nombre</th>
-            <th>Barcode</th>
-            <th>Precio</th>
-            <th>IVA</th>
-            <th>Categoría</th>
-            <th>Tipo de Venta</th>
-            <th>Creación</th>
-            <th className="text-center">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((p: Product) => (
-            <tr key={p.id}>
-              <td className="fw-semibold">{p.name}</td>
-              <td className="text-muted"><small>{p.barcode}</small></td>
-              <td className="font-monospace text-end">€{p.price}</td>
-              <td>{p.vat}%</td>
-              <td>
-                <span className="badge bg-secondary text-wrap" style={{ maxWidth: '120px' }}>
-                  {categories.find((c: Category) => c.id === p.category_id)?.name || "N/A"}
-                </span>
-              </td>
-              <td>
-                {p.sale_type === 'WEIGHT' ? (
-                  <span className="badge bg-info">Granel</span>
-                ) : (
-                  <span className="badge bg-primary">Unidad</span>
-                )}
-              </td>
-              <td className="text-muted"><small>{formatDateToShow(p.created_at) || "N/A"}</small></td>
-              <td>
-                <div className="d-flex gap-2 justify-content-center">
-                  <Button
-                    size="sm"
-                    variant="outline-primary"
-                    onClick={() => handleEdit(p)}
-                  >
-                    Editar
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline-danger"
-                    onClick={() => handleDelete(p.id!)}
-                  >
-                    Eliminar
-                  </Button>
-                </div>
-              </td>
-            </tr>
-          ))}
-          {products.length === 0 && (
-            <tr>
-              <td colSpan={8} className="text-center text-muted py-4">
-                No hay productos registrados.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </Table>
+      <h3 className="mb-4">Lista de Productos</h3>
+      <Card className="shadow-sm border-0 bg-white">
+        <Card.Body className="p-0">
+          <Table responsive hover className="mb-0 align-middle">
+            <thead className="table-light">
+              <tr>
+                <th className="px-4 py-3">Nombre</th>
+                <th className="py-3">Barcode</th>
+                <th className="text-end py-3">Precio</th>
+                <th className="text-center py-3">IVA</th>
+                <th className="py-3">Categoría</th>
+                <th className="text-center py-3">Tipo de Venta</th>
+                <th className="py-3">Creación</th>
+                <th className="text-center px-4 py-3">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((p: Product) => (
+                <tr key={p.id}>
+                  <td className="px-4 fw-semibold">{p.name}</td>
+                  <td className="text-muted"><small className="font-monospace">{p.barcode}</small></td>
+                  <td className="font-monospace text-end fw-bold text-success">€{p.price}</td>
+                  <td className="text-center">
+                    <Badge bg="secondary" className="px-2 py-1">{p.vat}%</Badge>
+                  </td>
+                  <td>
+                    <Badge bg="light" text="dark" className="border shadow-sm px-2 py-1 text-wrap" style={{ maxWidth: '120px' }}>
+                      {categories.find((c: Category) => c.id === p.category_id)?.name || "N/A"}
+                    </Badge>
+                  </td>
+                  <td className="text-center">
+                    {p.sale_type === 'WEIGHT' ? (
+                      <Badge bg="info" className="px-2 py-1 rounded-pill">Granel</Badge>
+                    ) : (
+                      <Badge bg="primary" className="px-2 py-1 rounded-pill">Unidad</Badge>
+                    )}
+                  </td>
+                  <td className="text-muted"><small>{formatDateToShow(p.created_at) || "N/A"}</small></td>
+                  <td className="text-center px-4">
+                    <div className="d-flex gap-2 justify-content-center">
+                      <Button
+                        size="sm"
+                        variant="outline-primary"
+                        className="fw-bold shadow-sm"
+                        onClick={() => handleEdit(p)}
+                      >
+                        Editar
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline-danger"
+                        className="fw-bold shadow-sm"
+                        onClick={() => handleDelete(p.id!)}
+                      >
+                        Eliminar
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {products.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="text-center text-muted py-5">
+                    No hay productos registrados.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </Table>
+        </Card.Body>
+      </Card>
     </div>
   );
 };

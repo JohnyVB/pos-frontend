@@ -101,40 +101,45 @@ const TabCategories = ({
         </Card.Body>
       </Card>
 
-      <h3 className="mb-3">Lista de Categorías</h3>
-      <Table responsive hover bordered className="align-middle bg-white">
-        <thead className="table-light">
-          <tr>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th className="text-center" style={{ width: "120px" }}>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {categories.map((cat) => (
-            <tr key={cat.id}>
-              <td className="fw-semibold">{cat.name}</td>
-              <td className="text-muted">{cat.description}</td>
-              <td className="text-center">
-                <Button
-                  size="sm"
-                  variant="outline-danger"
-                  onClick={() => handleDeleteCategory(cat.id)}
-                >
-                  Eliminar
-                </Button>
-              </td>
-            </tr>
-          ))}
-          {categories.length === 0 && (
-            <tr>
-              <td colSpan={3} className="text-center text-muted py-4">
-                No hay categorías registradas.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </Table>
+      <h3 className="mb-4">Lista de Categorías</h3>
+      <Card className="shadow-sm border-0 bg-white">
+        <Card.Body className="p-0">
+          <Table responsive hover className="mb-0 align-middle">
+            <thead className="table-light">
+              <tr>
+                <th className="px-4 py-3">Nombre</th>
+                <th className="py-3">Descripción</th>
+                <th className="text-center px-4 py-3" style={{ width: "120px" }}>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {categories.map((cat) => (
+                <tr key={cat.id}>
+                  <td className="px-4 fw-semibold text-dark">{cat.name}</td>
+                  <td className="text-secondary">{cat.description}</td>
+                  <td className="text-center px-4">
+                    <Button
+                      size="sm"
+                      variant="outline-danger"
+                      className="fw-bold shadow-sm"
+                      onClick={() => handleDeleteCategory(cat.id)}
+                    >
+                      Eliminar
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+              {categories.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="text-center text-muted py-5">
+                    No hay categorías registradas.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </Table>
+        </Card.Body>
+      </Card>
     </div>
   );
 };

@@ -282,35 +282,41 @@ export const TabInventory = ({
         </Col>
       </Row>
 
-      <h3 className="mb-3">Inventario Actual Global</h3>
-      <Table responsive hover bordered className="align-middle bg-white">
-        <thead className="table-light">
-          <tr>
-            <th>Producto</th>
-            <th className="text-end" style={{ width: "200px" }}>Stock Disponible</th>
-          </tr>
-        </thead>
-        <tbody>
-          {inventory.map((inv: Inventory) => {
-            const product = products.find((p: Product) => p.id === inv.product_id);
-            return (
-              <tr key={inv.product_id}>
-                <td className="fw-semibold text-secondary">{product?.name || "Producto no encontrado"}</td>
-                <td className={`text-end font-monospace fw-bold ${Number(inv.quantity) <= 0 ? 'text-danger' : 'text-success'}`}>
-                  {Number(inv.quantity)}
-                </td>
+      <h3 className="mb-4">Inventario Actual Global</h3>
+      <Card className="shadow-sm border-0 bg-white">
+        <Card.Body className="p-0">
+          <Table responsive hover className="mb-0 align-middle">
+            <thead className="table-light">
+              <tr>
+                <th className="px-4 py-3">Producto</th>
+                <th className="text-end px-4 py-3" style={{ width: "200px" }}>Stock Disponible</th>
               </tr>
-            );
-          })}
-          {inventory.length === 0 && (
-            <tr>
-              <td colSpan={2} className="text-center text-muted py-4">
-                El inventario está vacío.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </Table>
+            </thead>
+            <tbody>
+              {inventory.map((inv: Inventory) => {
+                const product = products.find((p: Product) => p.id === inv.product_id);
+                return (
+                  <tr key={inv.product_id}>
+                    <td className="px-4 fw-semibold text-secondary">{product?.name || "Producto no encontrado"}</td>
+                    <td className="text-end px-4">
+                      <span className={`font-monospace fw-bold fs-5 ${Number(inv.quantity) <= 0 ? 'text-danger' : 'text-success'}`}>
+                        {Number(inv.quantity)}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+              {inventory.length === 0 && (
+                <tr>
+                  <td colSpan={2} className="text-center text-muted py-5">
+                    El inventario está vacío.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </Table>
+        </Card.Body>
+      </Card>
     </div >
   );
 };

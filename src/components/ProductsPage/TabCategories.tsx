@@ -1,3 +1,4 @@
+import { Form, Button, Table, Card, Row, Col } from "react-bootstrap";
 import { useForm } from "../../hooks/useForm";
 import type {
   Category,
@@ -62,56 +63,78 @@ const TabCategories = ({
 
   return (
     <div>
-      <h2>Crear Categorías</h2>
-      <div style={{ marginBottom: "20px", maxWidth: "585px" }}>
-        <div style={{ flex: 1, backgroundColor: "#f9f9f9", padding: "20px", borderRadius: "5px" }}>
-          <input
-            placeholder="Nombre de categoría"
-            value={form.name}
-            onChange={(e) => onChangeForm(e.target.value, "name")}
-            required
-            className="input"
-          />
-          <input
-            placeholder="Descripción (opcional)"
-            value={form.description}
-            onChange={(e) => onChangeForm(e.target.value, "description")}
-            className="input"
-          />
-          <button onClick={handleAddCategory} className="btn-pos btn-primary">
-            Agregar
-          </button>
-        </div>
-      </div>
+      <h3 className="mb-4">Nueva Categoría</h3>
+      <Card className="mb-5 shadow-sm border-0 bg-light" style={{ maxWidth: "600px" }}>
+        <Card.Body>
+          <Row className="g-3 align-items-end">
+            <Col md={12}>
+              <Form.Group>
+                <Form.Label className="fw-semibold">Nombre de categoría</Form.Label>
+                <Form.Control
+                  placeholder="Ej: Bebidas"
+                  value={form.name}
+                  onChange={(e) => onChangeForm(e.target.value, "name")}
+                  required
+                />
+              </Form.Group>
+            </Col>
+            
+            <Col md={12}>
+              <Form.Group>
+                <Form.Label className="fw-semibold">Descripción</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={2}
+                  placeholder="Descripción breve (opcional)"
+                  value={form.description}
+                  onChange={(e) => onChangeForm(e.target.value, "description")}
+                />
+              </Form.Group>
+            </Col>
 
-      <h3>Lista de Categorías</h3>
-      <div className="table-wrapper">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Descripción</th>
-              <th>Acciones</th>
+            <Col xs={12} className="mt-4">
+              <Button onClick={handleAddCategory} variant="primary" className="fw-bold px-4">
+                Agregar Categoría
+              </Button>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
+
+      <h3 className="mb-3">Lista de Categorías</h3>
+      <Table responsive hover bordered className="align-middle bg-white">
+        <thead className="table-light">
+          <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th className="text-center" style={{ width: "120px" }}>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {categories.map((cat) => (
+            <tr key={cat.id}>
+              <td className="fw-semibold">{cat.name}</td>
+              <td className="text-muted">{cat.description}</td>
+              <td className="text-center">
+                <Button
+                  size="sm"
+                  variant="outline-danger"
+                  onClick={() => handleDeleteCategory(cat.id)}
+                >
+                  Eliminar
+                </Button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {categories.map((cat) => (
-              <tr key={cat.id}>
-                <td>{cat.name}</td>
-                <td>{cat.description}</td>
-                <td>
-                  <button
-                    onClick={() => handleDeleteCategory(cat.id)}
-                    className="btn-pos-actions btn-danger"
-                  >
-                    Eliminar
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+          {categories.length === 0 && (
+            <tr>
+              <td colSpan={3} className="text-center text-muted py-4">
+                No hay categorías registradas.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </Table>
     </div>
   );
 };

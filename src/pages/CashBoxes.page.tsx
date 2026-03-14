@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
+import { Container, Row, Col, Card, Form, Button, Table, Badge } from "react-bootstrap"
 import type { CashBox } from "../interfaces/pages/CashBoxes.interface"
 import { PageHeader } from "../components/common/PageHeader"
-import "../css/pages/CashBoxes.css"
 import { onCloseCashBox, onGetCashBoxes, onOpenCashBox } from "../services/cashBoxes.services"
 import userStore from "../store/userStore"
 import toast, { Toaster } from "react-hot-toast";
@@ -65,6 +65,7 @@ export default function CashBoxes() {
     const regex = /^\d*(\.\d{0,2})?$/;
     if (value === "" || value === "." || regex.test(value)) {
       setOpeningAmount(Number(value));
+      setCurrentAmount(Number(value)); // Mantenemos en sincronía para el input actual
     }
   }
 
@@ -73,102 +74,120 @@ export default function CashBoxes() {
   }, [])
 
   return (
-    <div className="padding-container">
+    <Container fluid className="p-4 bg-light min-vh-100">
       <PageHeader title="Gestión de Cajas" />
-      <div className="cashbox-container">
-        <div className="cashbox-actions">
-          <div className="cashbox-input-group">
-            {cashBox && (
-              <div>
-                <label>Monto Actual</label>
-                <input
-                  type="text"
-                  className="input"
-                  placeholder="Dinero actual en caja"
-                  value={currentAmount}
-                  onChange={e => valueAjustment(e.target.value)}
-                  style={{ marginBottom: 0 }}
-                />
-              </div>
-            )}
-            {!cashBox && (
-              <div>
-                <label>Monto de Apertura</label>
-                <input
-                  type="text"
-                  className="input"
-                  placeholder="Dinero inicial en caja"
-                  value={openingAmount}
-                  onChange={e => valueAjustment(e.target.value)}
-                  style={{ marginBottom: 0 }}
-                />
-              </div>
-            )}
-          </div>
-          {!cashBox && (
-            <button
-              disabled={cashBox !== null || openingAmount === 0}
-              className="btn-pos btn-primary"
-              onClick={openCashBox}
-            >
-              Abrir Caja
-            </button>
-          )}
-        </div>
 
-        <div className="cashbox-table-wrapper">
-          <table className="cashbox-table">
-            <thead>
+      <Card className="shadow-sm border-0 mb-4 bg-white mt-3">
+        <Card.Body className="p-4">
+          <Row className="align-items-end g-3">
+            <Col xs={12} md={6} lg={4}>
+              {cashBox ? (
+                <Form.Group>
+                  <Form.Label className="fw-semibold text-primary">Monto Actual en Caja</Form.Label>
+                  <Form.Control
+                    type="text"
+                    size="lg"
+                    placeholder="Dinero actual en caja"
+                    value={currentAmount}
+                    onChange={e => {
+                      let val = e.target.value.replace(',', '.');
+                      if (/^\d*(\.\d{0,2})?$/.test(val)) {
+                        setCurrentAmount(Number(val))
+                      }
+                    }}
+                    className="font-monospace text-success fw-bold"
+                  />
+                </Form.Group>
+              ) : (
+                <Form.Group>
+                  <Form.Label className="fw-semibold text-secondary">Monto de Apertura Inicial</Form.Label>
+                  <Form.Control
+                    type="text"
+                    size="lg"
+                    placeholder="Dinero inicial en caja"
+                    value={openingAmount}
+                    onChange={e => valueAjustment(e.target.value)}
+                    className="font-monospace fw-bold"
+                  />
+                </Form.Group>
+              )}
+            </Col>
+
+            <Col xs={12} md="auto" className="d-flex gap-2">
+              {!cashBox && (
+                <Button
+                  size="lg"
+                  variant="primary"
+                  className="fw-bold px-4 shadow-sm"
+                  disabled={cashBox !== null || openingAmount === 0}
+                  onClick={openCashBox}
+                >
+                  Abrir Caja
+                </Button>
+              )}
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
+
+      <Card className="shadow-sm border-0 bg-white">
+        <Card.Body className="p-0">
+          <Table responsive hover className="mb-0 align-middle">
+            <thead className="table-light">
               <tr>
-                <th>ID</th>
-                <th>Usuario</th>
-                <th>Apertura</th>
-                <th>Cierre</th>
-                <th style={{ textAlign: "right" }}>Monto apertura</th>
-                <th style={{ textAlign: "right" }}>Monto cierre</th>
-                <th style={{ textAlign: "center" }}>Estado</th>
-                <th style={{ textAlign: "center" }}>Acciones</th>
+                <th className="px-4 py-3">ID</th>
+                <th className="py-3">Usuario</th>
+                <th className="py-3">Apertura</th>
+                <th className="py-3">Cierre</th>
+                <th className="text-end py-3">Monto Apertura</th>
+                <th className="text-end py-3">Monto Cierre</th>
+                <th className="text-center py-3">Estado</th>
+                <th className="text-center px-4 py-3">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {cashBoxes.map(cb => (
                 <tr key={cb.id}>
-                  <td>{cb.id}</td>
-                  <td>{cb.user_name}</td>
-                  <td>{cb.opened_at ? formatDateToShow(cb.opened_at) : "-"}</td>
-                  <td>{cb.closed_at ? formatDateToShow(cb.closed_at) : "-"}</td>
-                  <td className="price" style={{ paddingRight: "16px" }}>${cb.opening_amount}</td>
-                  <td className="price" style={{ paddingRight: "16px" }}>{cb.closing_amount ? `$${cb.closing_amount}` : "-"}</td>
-                  <td style={{ textAlign: "center" }}>
-                    <span className={`status-badge ${cb.status === "OPEN" ? "status-open" : "status-closed"}`}>
-                      {cb.status === "OPEN" ? "Abierta" : "Cerrada"}
-                    </span>
+                  <td className="px-4"><small className="text-muted">#{cb.id}</small></td>
+                  <td className="fw-semibold">{cb.user_name}</td>
+                  <td><small>{cb.opened_at ? formatDateToShow(cb.opened_at) : "-"}</small></td>
+                  <td><small>{cb.closed_at ? formatDateToShow(cb.closed_at) : "-"}</small></td>
+                  <td className="text-end font-monospace">€{cb.opening_amount}</td>
+                  <td className="text-end font-monospace">{cb.closing_amount ? `€${cb.closing_amount}` : "-"}</td>
+                  <td className="text-center">
+                    <Badge bg={cb.status === "OPEN" ? "success" : "danger"} className="px-3 py-2 rounded-pill">
+                      {cb.status === "OPEN" ? "ABIERTA" : "CERRADA"}
+                    </Badge>
                   </td>
-                  <td style={{ textAlign: "center" }}>
-                    {cb.status === "OPEN" && (
-                      <button
-                        className="btn-pos btn-danger"
-                        style={{ padding: "8px 16px", minWidth: "auto", fontSize: "14px", margin: "0 auto" }}
+                  <td className="text-center px-4">
+                    {cb.status === "OPEN" ? (
+                      <Button
+                        variant="outline-danger"
+                        size="sm"
+                        className="fw-bold"
                         onClick={() => closeCashBox(cb.id)}
                       >
-                        Cerrar
-                      </button>
+                        Cerrar Caja
+                      </Button>
+                    ) : (
+                      <span className="text-muted">-</span>
                     )}
                   </td>
                 </tr>
               ))}
               {cashBoxes.length === 0 && (
                 <tr>
-                  <td colSpan={8} style={{ textAlign: "center", padding: "20px", color: "#64748b" }}>
-                    No hay cajas registradas.
+                  <td colSpan={8} className="text-center text-muted py-5">
+                    No hay registros de cajas.
                   </td>
                 </tr>
               )}
             </tbody>
-          </table>
-        </div>
-      </div>
+          </Table>
+        </Card.Body>
+      </Card>
+      
       <Toaster position="top-right" />
-    </div>
+    </Container>
   )
 }

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import { Container, Card, Nav } from "react-bootstrap";
 import { PageHeader } from "../components/common/PageHeader";
 import TabCategories from "../components/ProductsPage/TabCategories";
 import TabCreateEditProduct from "../components/ProductsPage/TabCreateEditProduct";
 import { TabInventory } from "../components/ProductsPage/TabInventory";
-import TabProducts from "../components/ProductsPage/TabProducts";
 import type { Category } from "../interfaces/components/POSPage/TabCategories.interface";
 import type { Inventory } from "../interfaces/components/POSPage/TabInventory.interface";
 import type { Product } from "../interfaces/global.interface";
@@ -13,7 +13,6 @@ import { onGetCategories } from "../services/categories.services";
 import { onLoadInventory } from "../services/inventory.services";
 import { onGetProducts } from "../services/products.services";
 import userStore from "../store/userStore";
-import "../css/pages/Products.css"
 
 export default function Products() {
   const { token } = userStore();
@@ -70,41 +69,60 @@ export default function Products() {
   };
 
   return (
-    <div className="padding-container">
+    <Container fluid className="p-4 bg-light min-vh-100">
       <PageHeader title="Gestión de productos" />
 
-      {/* Tabs */}
-      <TabProducts activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Card className="shadow-sm border-0 mt-3">
+        <Card.Header className="bg-white border-bottom-0 pt-3 pb-0 px-4">
+          <Nav variant="tabs" activeKey={activeTab} onSelect={(k) => setActiveTab(k as ActiveTab)}>
+            <Nav.Item>
+              <Nav.Link eventKey="products" className="fw-bold fs-5 px-4 text-dark">
+                Productos
+              </Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="categories" className="fw-bold fs-5 px-4 text-dark">
+                Categorías
+              </Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="inventory" className="fw-bold fs-5 px-4 text-dark">
+                Inventario
+              </Nav.Link>
+            </Nav.Item>
+          </Nav>
+        </Card.Header>
 
-      {/* TAB PRODUCTOS */}
-      {activeTab === "products" && (
-        <TabCreateEditProduct
-          products={products}
-          setProducts={setProducts}
-          categories={categories}
-          toast={toast}
-        />
-      )}
+        <Card.Body className="p-4">
+          {activeTab === "products" && (
+            <TabCreateEditProduct
+              products={products}
+              setProducts={setProducts}
+              categories={categories}
+              toast={toast}
+            />
+          )}
 
-      {/* TAB CATEGORÍAS */}
-      {activeTab === "categories" && (
-        <TabCategories
-          categories={categories}
-          setCategories={setCategories}
-          toast={toast}
-        />
-      )}
+          {activeTab === "categories" && (
+            <TabCategories
+              categories={categories}
+              setCategories={setCategories}
+              toast={toast}
+            />
+          )}
 
-      {/* TAB INVENTARIO */}
-      {activeTab === "inventory" && (
-        <TabInventory
-          products={products}
-          inventory={inventory}
-          setInventory={setInventory}
-          toast={toast}
-        />
-      )}
+          {activeTab === "inventory" && (
+            <TabInventory
+              products={products}
+              inventory={inventory}
+              setInventory={setInventory}
+              toast={toast}
+            />
+          )}
+        </Card.Body>
+      </Card>
+
       <Toaster position="top-right" />
-    </div>
+    </Container>
   );
 }

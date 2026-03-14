@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Form, Button, Table, Row, Col, Card } from "react-bootstrap";
 import { formatDateToShow } from "../../helper/formatDate.helper";
 import { useForm } from "../../hooks/useForm";
 import type { Category } from "../../interfaces/components/POSPage/TabCategories.interface";
@@ -88,12 +89,12 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
   };
 
   const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>,
-    nextRef?: React.RefObject<HTMLInputElement | HTMLSelectElement>
+    e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement | any>,
+    nextRef?: React.RefObject<any>
   ) => {
     if (e.key === "Enter") {
       if (nextRef) {
-        nextRef.current.focus()
+        nextRef.current?.focus()
       } else {
         handleCreateEdit()
       }
@@ -123,139 +124,189 @@ const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabP
 
   return (
     <div>
-      <h2>Crear/Editar Productos</h2>
-      <div style={{ marginBottom: "20px", maxWidth: "585px" }}>
-        <div style={{ flex: 1, backgroundColor: "#f9f9f9", padding: "20px", borderRadius: "5px" }}>
-          <input
-            ref={inputBarcodeRef}
-            placeholder="Código de barras"
-            value={form.barcode}
-            onChange={(e) => valueAjustment(e.target.value, "barcode")}
-            onKeyDown={(e) => handleKeyDown(e, inputNameRef as React.RefObject<HTMLInputElement>)}
-            required
-            className="input"
-          />
-          <input
-            ref={inputNameRef}
-            placeholder="Nombre"
-            value={form.name}
-            onChange={(e) => valueAjustment(e.target.value, "name")}
-            onKeyDown={(e) => handleKeyDown(e, inputSaleTypeRef as React.RefObject<HTMLSelectElement>)}
-            required
-            className="input"
-          />
-          <select
-            ref={inputSaleTypeRef}
-            value={form.sale_type}
-            onChange={(e) => valueAjustment(e.target.value, "sale_type")}
-            onKeyDown={(e) => handleKeyDown(e, inputPriceRef as React.RefObject<HTMLInputElement>)}
-            className="select"
-          >
-            <option value="UNIT">Unidad</option>
-            <option value="WEIGHT">Peso</option>
-          </select>
-          <input
-            ref={inputPriceRef}
-            type="text"
-            placeholder="Precio"
-            value={form.price}
-            onChange={(e) => valueAjustment(e.target.value, "price")}
-            onKeyDown={(e) => handleKeyDown(e, inputVatRef as React.RefObject<HTMLInputElement>)}
-            required
-            className="input"
-          />
-          <input
-            ref={inputVatRef}
-            type="text"
-            placeholder="IVA"
-            value={form.vat}
-            onChange={(e) => valueAjustment(e.target.value, "vat")}
-            onKeyDown={(e) => handleKeyDown(e, inputCategoryRef as React.RefObject<HTMLSelectElement>)}
-            required
-            className="input"
-          />
-          <select
-            ref={inputCategoryRef}
-            value={form.category_id}
-            onChange={(e) => valueAjustment(e.target.value, "category_id")}
-            onKeyDown={(e) => handleKeyDown(e)}
-            className="select"
-          >
-            <option value={0}>Sin categoría</option>
-            {categories.map((cat: Category) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-          <div className="flex gap-2">
-            <button onClick={handleCreateEdit} className="btn-pos btn-primary">
-              {editingId ? "Actualizar" : "Agregar"}
-            </button>
-            {editingId && (
-              <button
-                type="button"
-                onClick={() => {
-                  resetForm();
-                  setEditingId(null);
-                }}
-                className="btn-pos btn-danger"
-              >
-                Cancelar
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+      <h3 className="mb-4">{editingId ? "Editar Producto" : "Nuevo Producto"}</h3>
+      <Card className="mb-5 shadow-sm border-0 bg-light">
+        <Card.Body>
+          <Row className="g-3">
+            <Col md={6} lg={4}>
+              <Form.Group>
+                <Form.Label className="fw-semibold">Código de barras</Form.Label>
+                <Form.Control
+                  ref={inputBarcodeRef}
+                  placeholder="Ej: 123456789"
+                  value={form.barcode}
+                  onChange={(e) => valueAjustment(e.target.value, "barcode")}
+                  onKeyDown={(e) => handleKeyDown(e, inputNameRef)}
+                  required
+                />
+              </Form.Group>
+            </Col>
+            
+            <Col md={6} lg={4}>
+              <Form.Group>
+                <Form.Label className="fw-semibold">Nombre</Form.Label>
+                <Form.Control
+                  ref={inputNameRef}
+                  placeholder="Nombre del producto"
+                  value={form.name}
+                  onChange={(e) => valueAjustment(e.target.value, "name")}
+                  onKeyDown={(e) => handleKeyDown(e, inputSaleTypeRef)}
+                  required
+                />
+              </Form.Group>
+            </Col>
 
-      <h3>Lista de Productos</h3>
-      <div className="table-wrapper">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Barcode</th>
-              <th>Precio</th>
-              <th>IVA</th>
-              <th>Categoría</th>
-              <th>Tipo de Venta</th>
-              <th>Fecha de Creación</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((p: Product) => (
-              <tr key={p.id}>
-                <td>{p.name}</td>
-                <td>{p.barcode}</td>
-                <td className="price" style={{ textAlign: "left" }}>€{p.price}</td>
-                <td>{p.vat}%</td>
-                <td>
+            <Col md={6} lg={4}>
+              <Form.Group>
+                <Form.Label className="fw-semibold">Tipo de Venta</Form.Label>
+                <Form.Select
+                  ref={inputSaleTypeRef}
+                  value={form.sale_type}
+                  onChange={(e) => valueAjustment(e.target.value, "sale_type")}
+                  onKeyDown={(e) => handleKeyDown(e, inputPriceRef)}
+                >
+                  <option value="UNIT">Unidad</option>
+                  <option value="WEIGHT">Peso</option>
+                </Form.Select>
+              </Form.Group>
+            </Col>
+
+            <Col md={4} lg={3}>
+              <Form.Group>
+                <Form.Label className="fw-semibold">Precio (€)</Form.Label>
+                <Form.Control
+                  ref={inputPriceRef}
+                  type="text"
+                  placeholder="0.00"
+                  value={form.price}
+                  onChange={(e) => valueAjustment(e.target.value, "price")}
+                  onKeyDown={(e) => handleKeyDown(e, inputVatRef)}
+                  required
+                />
+              </Form.Group>
+            </Col>
+
+            <Col md={4} lg={3}>
+              <Form.Group>
+                <Form.Label className="fw-semibold">IVA (%)</Form.Label>
+                <Form.Control
+                  ref={inputVatRef}
+                  type="text"
+                  placeholder="21"
+                  value={form.vat}
+                  onChange={(e) => valueAjustment(e.target.value, "vat")}
+                  onKeyDown={(e) => handleKeyDown(e, inputCategoryRef)}
+                  required
+                />
+              </Form.Group>
+            </Col>
+
+            <Col md={4} lg={6}>
+              <Form.Group>
+                <Form.Label className="fw-semibold">Categoría</Form.Label>
+                <Form.Select
+                  ref={inputCategoryRef}
+                  value={form.category_id}
+                  onChange={(e) => valueAjustment(e.target.value, "category_id")}
+                  onKeyDown={(e) => handleKeyDown(e)}
+                >
+                  <option value={0}>Sin categoría</option>
+                  {categories.map((cat: Category) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+
+            <Col xs={12} className="d-flex gap-2 mt-4">
+              <Button onClick={handleCreateEdit} variant="primary" className="fw-bold px-4">
+                {editingId ? "Actualizar" : "Agregar Producto"}
+              </Button>
+              {editingId && (
+                <Button
+                  variant="outline-danger"
+                  className="fw-bold px-4"
+                  onClick={() => {
+                    resetForm();
+                    setEditingId(null);
+                  }}
+                >
+                  Cancelar
+                </Button>
+              )}
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
+
+      <h3 className="mb-3">Lista de Productos</h3>
+      <Table responsive hover bordered className="align-middle bg-white">
+        <thead className="table-light">
+          <tr>
+            <th>Nombre</th>
+            <th>Barcode</th>
+            <th>Precio</th>
+            <th>IVA</th>
+            <th>Categoría</th>
+            <th>Tipo de Venta</th>
+            <th>Creación</th>
+            <th className="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((p: Product) => (
+            <tr key={p.id}>
+              <td className="fw-semibold">{p.name}</td>
+              <td className="text-muted"><small>{p.barcode}</small></td>
+              <td className="font-monospace text-end">€{p.price}</td>
+              <td>{p.vat}%</td>
+              <td>
+                <span className="badge bg-secondary text-wrap" style={{ maxWidth: '120px' }}>
                   {categories.find((c: Category) => c.id === p.category_id)?.name || "N/A"}
-                </td>
-                <td>{p.sale_type}</td>
-                <td>{formatDateToShow(p.created_at) || "N/A"}</td>
-                <td className="flex gap-2">
-                  <button
+                </span>
+              </td>
+              <td>
+                {p.sale_type === 'WEIGHT' ? (
+                  <span className="badge bg-info">Granel</span>
+                ) : (
+                  <span className="badge bg-primary">Unidad</span>
+                )}
+              </td>
+              <td className="text-muted"><small>{formatDateToShow(p.created_at) || "N/A"}</small></td>
+              <td>
+                <div className="d-flex gap-2 justify-content-center">
+                  <Button
+                    size="sm"
+                    variant="outline-primary"
                     onClick={() => handleEdit(p)}
-                    className="btn-pos-actions btn-secondary"
                   >
                     Editar
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline-danger"
                     onClick={() => handleDelete(p.id!)}
-                    className="btn-pos-actions btn-danger"
                   >
                     Eliminar
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  </Button>
+                </div>
+              </td>
+            </tr>
+          ))}
+          {products.length === 0 && (
+            <tr>
+              <td colSpan={8} className="text-center text-muted py-4">
+                No hay productos registrados.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </Table>
     </div>
   );
 };
 
 export default TabCreateEditProduct;
+

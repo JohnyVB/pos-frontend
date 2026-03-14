@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Form, Button, Table, Card, Row, Col, Badge } from "react-bootstrap";
 import { useForm } from "../../hooks/useForm";
 
 import { onGetProductByQuery, onMovement } from "../../services/inventory.services";
@@ -175,97 +176,141 @@ export const TabInventory = ({
 
   return (
     <div>
-      <h2>Gestionar Inventario</h2>
-      <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
-        <div style={{ marginBottom: "20px", flex: 1, backgroundColor: "#f9f9f9", padding: "20px", borderRadius: "5px" }}>
-          <input
-            ref={inputSearchRef}
-            type="text"
-            value={query}
-            placeholder="Código de barras o nombre..."
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleKeyDownSearch}
-            className="input"
-          />
+      <h3 className="mb-4">Gestionar Inventario</h3>
+      <Row className="g-4 mb-5">
+        <Col lg={7}>
+          <Card className="h-100 shadow-sm border-0 bg-light">
+            <Card.Body>
+              <h5 className="mb-3 text-secondary">Registro de Movimiento</h5>
+              <Row className="g-3">
+                <Col md={12}>
+                  <Form.Group>
+                    <Form.Label className="fw-semibold">Buscar producto</Form.Label>
+                    <Form.Control
+                      ref={inputSearchRef}
+                      type="text"
+                      value={query}
+                      placeholder="Escanea el código de barras o escribe el nombre y presiona Enter..."
+                      onChange={(e) => setQuery(e.target.value)}
+                      onKeyDown={handleKeyDownSearch}
+                      size="lg"
+                    />
+                  </Form.Group>
+                </Col>
 
-          <input
-            ref={inputQuantityRef}
-            type="text"
-            placeholder="Cantidad"
-            value={form.quantity}
-            onChange={(e) => {
-              let value = e.target.value;
-              const regex = /^[0-9]*$/;
-              if (regex.test(value)) {
-                onChangeForm(Number(value), "quantity")
-              }
-            }}
-            onKeyDown={handleKeyDownQuantity}
-            required
-            className="input"
-          />
+                <Col md={12}>
+                  <Form.Group>
+                    <Form.Label className="fw-semibold">Cantidad a mover</Form.Label>
+                    <Form.Control
+                      ref={inputQuantityRef}
+                      type="text"
+                      placeholder="0"
+                      value={form.quantity}
+                      onChange={(e) => {
+                        let value = e.target.value;
+                        const regex = /^[0-9]*$/;
+                        if (regex.test(value)) {
+                          onChangeForm(Number(value), "quantity")
+                        }
+                      }}
+                      onKeyDown={handleKeyDownQuantity}
+                      required
+                    />
+                  </Form.Group>
+                </Col>
 
-          <textarea
-            ref={inputReferenceRef}
-            placeholder="Referencia obligatoria para movimientos OUT"
-            value={form.reference}
-            onChange={(e) => onChangeForm(e.target.value, "reference")}
-            onKeyDown={handleKeyDownReference}
-            className="textarea"
-          />
+                <Col md={12}>
+                  <Form.Group>
+                    <Form.Label className="fw-semibold">Referencia (Requerido para Salidas)</Form.Label>
+                    <Form.Control
+                      ref={inputReferenceRef}
+                      as="textarea"
+                      rows={2}
+                      placeholder="Ej: Merma, Caducidad, Devolución..."
+                      value={form.reference}
+                      onChange={(e) => onChangeForm(e.target.value, "reference")}
+                      onKeyDown={handleKeyDownReference}
+                    />
+                  </Form.Group>
+                </Col>
 
-          {selectedProduct && (
-            <div style={{ display: "flex", flexDirection: "row", gap: 5 }}>
-              <button onClick={handleAddInventory} className="btn-pos btn-primary">
-                Agregar
-              </button>
-              <button onClick={handleRemoveInventory} className="btn-pos btn-danger">
-                Quitar
-              </button>
-            </div>
-          )}
-        </div>
-        <div style={{ marginBottom: "20px", flex: 1, backgroundColor: "#f9f9f9", padding: "20px", borderRadius: "5px" }}>
-          {selectedProduct ? (
-            <div style={{ marginBottom: "20px" }}>
-              <h3>Producto Seleccionado</h3>
-              <div style={{ border: "1px solid #ccc", padding: "10px", marginBottom: "10px" }}>
-                <p><strong>Nombre:</strong> {selectedProduct.name}</p>
-                <p><strong>Código de Barras:</strong> {selectedProduct.barcode}</p>
-                <p><strong>Cantidad en Inventario:</strong> {Number(selectedProduct.inventory_quantity)}</p>
-              </div>
-              <button onClick={removeSelectedProduct} className="btn-pos btn-danger">
-                Eliminar
-              </button>
-            </div>
-          ) : (
-            <p>No hay producto seleccionado</p>
-          )}
-        </div>
-      </div>
+                {selectedProduct && (
+                  <Col xs={12} className="d-flex gap-2 mt-4">
+                    <Button onClick={handleAddInventory} variant="success" className="fw-bold px-4">
+                      Ingresar (+)
+                    </Button>
+                    <Button onClick={handleRemoveInventory} variant="warning" className="fw-bold px-4">
+                      Retirar (-)
+                    </Button>
+                  </Col>
+                )}
+              </Row>
+            </Card.Body>
+          </Card>
+        </Col>
 
-      <h3>Inventario Actual</h3>
-      <div className="table-wrapper">
-        <table className="table">
-          <thead>
+        <Col lg={5}>
+          <Card className="h-100 shadow-sm border-0 text-white" style={{ backgroundColor: selectedProduct ? '#3b82f6' : '#94a3b8' }}>
+            <Card.Body className="d-flex flex-column justify-content-center">
+              {selectedProduct ? (
+                <>
+                  <h4 className="mb-4">Producto Seleccionado</h4>
+                  <div className="bg-white text-dark p-3 rounded mb-4 shadow-sm">
+                    <p className="mb-2"><span className="fw-bold text-secondary">Nombre:</span> <br/>{selectedProduct.name}</p>
+                    <p className="mb-2"><span className="fw-bold text-secondary">Código:</span> <br/><span className="font-monospace">{selectedProduct.barcode}</span></p>
+                    <p className="mb-0"><span className="fw-bold text-secondary">Stock actual:</span> <br/>
+                      <Badge bg="primary" className="fs-5">{Number(selectedProduct.inventory_quantity)}</Badge>
+                    </p>
+                  </div>
+                  <Button 
+                    variant="light" 
+                    className="text-danger fw-bold mt-auto align-self-start" 
+                    onClick={removeSelectedProduct}
+                  >
+                    Olvidar Producto
+                  </Button>
+                </>
+              ) : (
+                <div className="text-center py-5 opacity-75">
+                  <span className="display-4 d-block mb-3">🔍</span>
+                  <h5>Ningún producto seleccionado</h5>
+                  <p className="mb-0 small">Usa el buscador para seleccionar un producto y registrar movimientos de stock.</p>
+                </div>
+              )}
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
+      <h3 className="mb-3">Inventario Actual Global</h3>
+      <Table responsive hover bordered className="align-middle bg-white">
+        <thead className="table-light">
+          <tr>
+            <th>Producto</th>
+            <th className="text-end" style={{ width: "200px" }}>Stock Disponible</th>
+          </tr>
+        </thead>
+        <tbody>
+          {inventory.map((inv: Inventory) => {
+            const product = products.find((p: Product) => p.id === inv.product_id);
+            return (
+              <tr key={inv.product_id}>
+                <td className="fw-semibold text-secondary">{product?.name || "Producto no encontrado"}</td>
+                <td className={`text-end font-monospace fw-bold ${Number(inv.quantity) <= 0 ? 'text-danger' : 'text-success'}`}>
+                  {Number(inv.quantity)}
+                </td>
+              </tr>
+            );
+          })}
+          {inventory.length === 0 && (
             <tr>
-              <th>Producto</th>
-              <th>Cantidad</th>
+              <td colSpan={2} className="text-center text-muted py-4">
+                El inventario está vacío.
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {inventory.map((inv: Inventory) => {
-              const product = products.find((p: Product) => p.id === inv.product_id);
-              return (
-                <tr key={inv.product_id}>
-                  <td>{product?.name || "Producto no encontrado"}</td>
-                  <td className="quantity" style={{ textAlign: "left" }}>{Number(inv.quantity)}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+          )}
+        </tbody>
+      </Table>
     </div >
   );
 };

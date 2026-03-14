@@ -1,5 +1,5 @@
 import API from "../config/api.config";
-import type { InventoryMovementResponse, LoadInventoryResponse, ProductSearchResponse } from "../interfaces/TabInventory.interface";
+import type { InventoryMovementResponse, LoadInventoryResponse, ProductSearchResponse } from "../interfaces/components/POSPage/TabInventory.interface";
 
 export const onMovement = async (
   product_id: number,

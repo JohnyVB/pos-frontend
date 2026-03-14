@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import { Container, Row, Col, Card, Button, Form, InputGroup } from 'react-bootstrap';
 import { PageHeader } from "../components/common/PageHeader";
 import CardPaymentForm from "../components/POSPage/CardPaymentForm";
 import CashPaymentForm from "../components/POSPage/CashPaymentForm";
@@ -10,7 +11,6 @@ import type { ProductByBarcode } from "../interfaces/pages/POS.interfaces";
 import { onGetProductByBarcode, onRegisterSale } from "../services/POS.services";
 import useCashStore from "../store/useCashStore";
 import userStore from "../store/userStore";
-import './../css/pages/POS.css';
 
 export default function POS() {
   const { token } = userStore();
@@ -178,62 +178,104 @@ export default function POS() {
   }, [])
 
   return (
-    <div className="padding-container">
+    <Container fluid className="p-4" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <PageHeader title="Venta" />
-      <div className="pos-container">
-        {/* CARRITO */}
-        <div className="cart-section">
-          <h2>Carrito</h2>
-          <div className="cart-items">
-            {cart.map((item) => (
-              <div key={item.id} className="cart-item">
-                <span className="cart-item-quantity">{item.quantity} {item.sale_type === "WEIGHT" ? "kg" : "ud"}</span>
-                <span className="cart-item-name">{item.name}</span>
-                <span className="cart-item-price-unit">{item.price} €/{item.sale_type === "WEIGHT" ? "kg" : "ud"}</span>
-                <span className="cart-item-price">€{item.total?.toFixed(2)}</span>
-                <button className="cart-item-remove" onClick={() => removeItem(item.id)}>X</button>
+      
+      <Row className="flex-grow-1 overflow-hidden gx-4">
+        {/* LADO IZQUIERDO: CARRITO */}
+        <Col md={6} lg={5} className="d-flex flex-column h-100">
+          <Card className="h-100 shadow-sm border-0 d-flex flex-column">
+            <Card.Header className="bg-white border-bottom py-3">
+              <h4 className="m-0 fw-bold">Carrito</h4>
+            </Card.Header>
+            
+            <Card.Body className="overflow-auto flex-grow-1 p-3" style={{ backgroundColor: '#f8fafc' }}>
+              <div className="d-flex flex-column gap-2">
+                {cart.map((item) => (
+                  <Card key={item.id} className="border-0 shadow-sm">
+                    <Card.Body className="p-3 d-flex align-items-center justify-content-between gap-3">
+                      <div className="fw-bold px-2 py-1 bg-light rounded" style={{ minWidth: "60px", textAlign: "center" }}>
+                        {item.quantity} <span className="text-muted small">{item.sale_type === "WEIGHT" ? "kg" : "ud"}</span>
+                      </div>
+                      <div className="flex-grow-1 text-truncate fw-semibold">
+                        {item.name}
+                      </div>
+                      <div className="text-muted small text-end" style={{ minWidth: "90px" }}>
+                        {item.price} €/{item.sale_type === "WEIGHT" ? "kg" : "ud"}
+                      </div>
+                      <div className="fw-bold text-primary text-end fs-5" style={{ minWidth: "80px" }}>
+                        €{item.total?.toFixed(2)}
+                      </div>
+                      <Button 
+                        variant="outline-danger" 
+                        size="sm" 
+                        className="fw-bold border-0"
+                        onClick={() => removeItem(item.id)}
+                      >
+                        ✕
+                      </Button>
+                    </Card.Body>
+                  </Card>
+                ))}
+                {cart.length === 0 && (
+                 <div className="text-center text-muted my-5 pb-5">
+                   <p className="fs-5">El carrito está vacío</p>
+                   <p className="small">Escanea un producto para empezar</p>
+                 </div>
+                )}
               </div>
-            ))}
+            </Card.Body>
+
+            <Card.Footer className="bg-white border-top-0 p-4 shadow-sm" style={{ zIndex: 10 }}>
+              <div className="d-flex justify-content-between text-muted mb-2">
+                <span>Subtotal:</span>
+                <span className="fw-semibold">€{subtotal.toFixed(2)}</span>
+              </div>
+              <div className="d-flex justify-content-between text-muted mb-3">
+                <span>IVA:</span>
+                <span className="fw-semibold">€{vatTotal.toFixed(2)}</span>
+              </div>
+              <div className="d-flex justify-content-between align-items-center border-top pt-3 mb-4">
+                <span className="fs-4 fw-bold">Total:</span>
+                <span className="fs-2 fw-bold text-dark">€{total.toFixed(2)}</span>
+              </div>
+              
+              <Button
+                variant="primary"
+                size="lg"
+                className="w-100 py-3 fw-bold shadow-sm"
+                style={{ fontSize: '1.25rem' }}
+                onClick={() => setShowPaymentModal(true)}
+                disabled={cart.length === 0 || showWeightForm || showCashForm || showCardForm}
+              >
+                C O B R A R
+              </Button>
+            </Card.Footer>
+          </Card>
+        </Col>
+
+        {/* LADO DERECHO: PRODUCTOS / ESCÁNER */}
+        <Col md={6} lg={7} className="d-flex flex-column h-100">
+          <div className="mb-4">
+            <h4 className="fw-bold mb-3">Escáner de Productos</h4>
+            <InputGroup size="lg" className="shadow-sm">
+              <InputGroup.Text className="bg-white text-muted border-end-0 px-4">
+                <span fs-5="true">🔍</span>
+              </InputGroup.Text>
+              <Form.Control
+                ref={inputBarcodeRef}
+                placeholder="Escanea el código de barras o ingresa código interno..."
+                value={barcode}
+                onChange={(e) => setBarcode(e.target.value)}
+                onKeyDown={searchProductByBarcode}
+                className="border-start-0 py-3 bg-white"
+                style={{ fontSize: '1.1rem' }}
+              />
+            </InputGroup>
+            <Form.Text className="text-muted mt-2 d-block ms-1">
+              Presiona Enter después de ingresar el código manualmente. El escáner lo hará automáticamente.
+            </Form.Text>
           </div>
-
-          <div className="cart-summary">
-            <div className="summary-row">
-              <span>Subtotal:</span>
-              <span>€{subtotal.toFixed(2)}</span>
-            </div>
-            <div className="summary-row">
-              <span>IVA:</span>
-              <span>€{vatTotal.toFixed(2)}</span>
-            </div>
-            <div className="summary-total">
-              <span>Total:</span>
-              <span>€{total.toFixed(2)}</span>
-            </div>
-          </div>
-
-          <button
-            className="checkout-btn"
-            onClick={() => setShowPaymentModal(true)}
-            disabled={
-              cart.length === 0 || showWeightForm || showCashForm || showCardForm
-            }
-          >
-            Cobrar
-          </button>
-        </div>
-
-        {/* PRODUCTOS */}
-        <div className="products-section">
-          <h2>Productos</h2>
-
-          <input
-            ref={inputBarcodeRef}
-            className="search-input"
-            placeholder="Codigo de barras o codigo interno"
-            value={barcode}
-            onChange={(e) => setBarcode(e.target.value)}
-            onKeyDown={searchProductByBarcode}
-          />
 
           <CashPaymentForm
             isOpen={showCashForm}
@@ -264,8 +306,9 @@ export default function POS() {
               inputBarcodeRef.current?.focus()
             }}
           />
-        </div>
-      </div>
+        </Col>
+      </Row>
+      
       <Toaster position="top-right" />
       <PaymentModal
         isOpen={showPaymentModal}
@@ -273,6 +316,7 @@ export default function POS() {
         onSelectPayment={handlePayment}
         onClose={() => setShowPaymentModal(false)}
       />
-    </div>
+    </Container>
   );
 }
+

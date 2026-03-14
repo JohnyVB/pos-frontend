@@ -1,20 +1,20 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { CashBox } from '../interfaces/pages/CashBoxes.interface';
+import type { CashBoxSession } from '../interfaces/pages/CashBoxSessions.interface';
 
 interface CashStore {
-  cashBox: CashBox | null
+  cashBoxSession: CashBoxSession | null
   currentAmount: number
-  setCashBox: (cashBox: CashBox | null) => void
+  setCashBoxSession: (cashBoxSession: CashBoxSession | null) => void
   setCurrentAmount: (amount: number) => void
 }
 
 const useCashStore = create<CashStore>()(
   persist(
     (set) => ({
-      cashBox: null,
+      cashBoxSession: null,
       currentAmount: 0,
-      setCashBox: (cashBox: CashBox | null) => set({ cashBox }),
+      setCashBoxSession: (cashBoxSession: CashBoxSession | null) => set({ cashBoxSession }),
       setCurrentAmount: (amount: number) => set({ currentAmount: amount }),
     }),
     {

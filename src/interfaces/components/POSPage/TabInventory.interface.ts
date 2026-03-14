@@ -1,4 +1,4 @@
-import type { Product, ToastFunction } from "../../global.interface";
+import type { Product } from "../../global.interface";
 
 
 export interface Inventory {
@@ -12,12 +12,10 @@ export interface InventoryForm {
   quantity: string;
   reference: string;
 }
-
 export interface TabInventoryProps {
   products: Product[];
   inventory: Inventory[];
   setInventory: React.Dispatch<React.SetStateAction<Inventory[]>>;
-  toast: ToastFunction;
 };
 
 export interface InventoryMovementResponse {

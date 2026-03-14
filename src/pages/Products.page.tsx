@@ -99,7 +99,6 @@ export default function Products() {
               products={products}
               setProducts={setProducts}
               categories={categories}
-              toast={toast}
             />
           )}
 
@@ -107,7 +106,6 @@ export default function Products() {
             <TabCategories
               categories={categories}
               setCategories={setCategories}
-              toast={toast}
             />
           )}
 
@@ -116,7 +114,6 @@ export default function Products() {
               products={products}
               inventory={inventory}
               setInventory={setInventory}
-              toast={toast}
             />
           )}
         </Card.Body>

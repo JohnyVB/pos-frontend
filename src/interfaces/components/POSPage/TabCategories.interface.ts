@@ -1,4 +1,3 @@
-import type { ToastFunction } from "../../global.interface";
 
 export interface categoryFormType {
   name: string;
@@ -16,7 +15,6 @@ export interface Category {
 export interface TabCategoriesProps {
   categories: Category[];
   setCategories: (categories: Category[]) => void;
-  toast: ToastFunction;
 }
 
 export interface createCategoryResponse {

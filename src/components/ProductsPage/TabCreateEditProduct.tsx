@@ -7,8 +7,9 @@ import type { createEditForm, TabProductsProps } from "../../interfaces/componen
 import type { Product } from "../../interfaces/global.interface";
 import { onCreateProduct, onDeleteProduct, onUpdateProduct } from "../../services/products.services";
 import userStore from "../../store/userStore";
+import toast from "react-hot-toast";
 
-const TabCreateEditProduct = ({ products, setProducts, categories, toast }: TabProductsProps) => {
+const TabCreateEditProduct = ({ products, setProducts, categories }: TabProductsProps) => {
   const { token } = userStore();
   const [editingId, setEditingId] = useState<number | null>(null);
   const inputNameRef = useRef<HTMLInputElement | null>(null);

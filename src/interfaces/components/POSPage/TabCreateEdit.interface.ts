@@ -1,4 +1,4 @@
-import type { Product, ToastFunction } from "../../global.interface";
+import type { Product } from "../../global.interface";
 import type { Category } from "./TabCategories.interface";
 
 export interface createEditForm {
@@ -14,7 +14,6 @@ export interface TabProductsProps {
   products: Product[];
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
   categories: Category[];
-  toast: ToastFunction;
 };
 
 export interface createProductResponse {

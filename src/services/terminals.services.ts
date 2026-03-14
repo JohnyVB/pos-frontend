@@ -1,6 +1,7 @@
 import API from "../config/api.config";
+import type { getTerminalsResponse } from "../interfaces/pages/Terminals.interfaces";
 
-export const onGetTerminals = async (token: string) => {
+export const onGetTerminals = async (token: string): Promise<getTerminalsResponse> => {
   try {
     const { data } = await API.get("/terminals", {
       headers: {

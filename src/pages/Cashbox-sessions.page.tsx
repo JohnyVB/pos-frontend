@@ -5,76 +5,86 @@ import { useNavigate } from "react-router-dom"
 import { CloseBoxModal } from "../components/CashBoxPage/CloseBoxModal"
 import { PageHeader } from "../components/common/PageHeader"
 import { formatDateToShow } from "../helper/formatDate.helper"
-import type { CashBox } from "../interfaces/pages/CashBoxes.interface"
-import { onCloseCashBox, onGetCashBoxes, onOpenCashBox } from "../services/cashBoxes.services"
+import type { CashBoxSession } from "../interfaces/pages/CashBoxSessions.interface"
+import { onCloseCashBoxSession, onGetCashBoxSessions, onOpenCashBoxSession } from "../services/cashbox-sessions.services"
 import useCashStore from "../store/useCashStore"
 import userStore from "../store/userStore"
+import type { Terminal } from "../interfaces/global.interface"
+import { onGetTerminals } from "../services/terminals.services"
+import { OpenCloseSessionModal } from "../components/Dashboard/OpenCloseSessionModal"
 
-export default function CashBoxes() {
+export default function CashboxSessions() {
   const { userData, token } = userStore();
-  const [cashBoxes, setCashBoxes] = useState<CashBox[]>([])
-  const [openingAmount, setOpeningAmount] = useState<number>(0)
+  const [cashBoxSessions, setCashBoxSessions] = useState<CashBoxSession[]>([])
   const [showCloseBoxModal, setShowCloseBoxModal] = useState<boolean>(false)
   const [cashBoxId, setCashBoxId] = useState<number>(0)
-  const { cashBox, setCashBox, currentAmount, setCurrentAmount } = useCashStore()
+  const { cashBoxSession, setCashBoxSession, currentAmount, setCurrentAmount } = useCashStore()
+  const [terminals, setTerminals] = useState<Terminal[]>([]);
+  const [showTerminalModal, setShowTerminalModal] = useState<boolean>(false)
+  const [openingAmount, setOpeningAmount] = useState<string>("");
   const navigate = useNavigate()
 
-  const openCashBox = async () => {
-    const res = await onOpenCashBox(openingAmount, token!)
-    if (res.response === "success" && res.cashBox) {
-      setCashBoxes(prev => [{ ...res.cashBox!, user_name: userData?.name! }, ...prev])
-      setCashBox({ ...res.cashBox!, user_name: userData?.name! })
-      setCurrentAmount(openingAmount)
-      toast.success("Caja abierta correctamente")
-    } else {
-      toast.error(res.message || "Error al abrir la caja")
-      setOpeningAmount(0)
+  const getTerminals = async () => {
+    const data = await onGetTerminals(token!);
+    if (data.response === "success" && data.terminals) {
+      setTerminals(data.terminals);
     }
   }
 
-  const closeCashBox = async (id: number) => {
-    const res = await onCloseCashBox(id, currentAmount, token!)
-    if (res.response === "success" && res.cashBox) {
-      setCashBoxes(prev => prev.map(cb => cb.id === id ? { ...res.cashBox!, user_name: userData?.name! } : cb))
-      setCashBox(null)
-      setCurrentAmount(0)
+  const openCashBoxSession = async (terminal: Terminal, openingAmount: number) => {
+    const res = await onOpenCashBoxSession(openingAmount, terminal.id, token!);
+    if (res.response === "success" && res.cashBoxSession) {
+      setCashBoxSessions(prev => [{ ...res.cashBoxSession!, terminal_name: terminal.name, user_name: userData!.name }, ...prev])
+      setCashBoxSession(res.cashBoxSession);
+      setShowTerminalModal(false);
+      setCurrentAmount(openingAmount)
+      toast.success(`Caja abierta en ${terminal.name}`);
+    } else {
+      toast.error(res.message || "Error al abrir la caja");
+    }
+  };
+
+  const handleShowTerminalModal = () => {
+    setShowTerminalModal(true)
+  }
+
+  const closeCashBoxSession = async (id: number) => {
+    const res = await onCloseCashBoxSession(id, currentAmount, token!)
+    if (res.response === "success" && res.cashBoxSession) {
+      setCashBoxSessions(prev =>
+        prev.map(cb => cb.session_id === id
+          ? { ...res.cashBoxSession!, terminal_name: cb.terminal_name, user_name: userData!.name }
+          : cb
+        ))
+      setCashBoxSession(null)
       setShowCloseBoxModal(false)
       setCashBoxId(0)
-      setOpeningAmount(0)
+      setCurrentAmount(0)
       toast.success("Caja cerrada correctamente")
     } else {
       toast.error(res.message || "Error al cerrar la caja")
     }
   }
 
-  const getCashBoxes = async () => {
-    const res = await onGetCashBoxes(token!)
-    if (res.response === "success" && res.cashBoxes) {
-      setCashBoxes(res.cashBoxes)
-      updateCashBox(res.cashBoxes)
+  const getCashBoxSessions = async () => {
+    const res = await onGetCashBoxSessions(token!)
+    if (res.response === "success" && res.cashBoxSessions) {
+      setCashBoxSessions(res.cashBoxSessions)
+      updateCashBox(res.cashBoxSessions)
     } else {
-      toast.error(res.message || "Error al obtener las cajas")
+      toast.error(res.message || "Error al obtener las sessiones")
     }
   }
 
-  const updateCashBox = (cashBoxes: CashBox[]) => {
-    const openCashBox = cashBoxes.find((cb: CashBox) => cb.status === "OPEN")
+  const updateCashBox = (cashBoxSessions: CashBoxSession[]) => {
+    const openCashBox = cashBoxSessions.find((cb: CashBoxSession) => cb.status === "OPEN")
     if (openCashBox) {
-      setCashBox(openCashBox)
-    }
-  }
-
-  const valueAjustment = (value: string) => {
-    value = value.replace(',', '.');
-    const regex = /^\d*(\.\d{0,2})?$/;
-    if (value === "" || value === "." || regex.test(value)) {
-      setOpeningAmount(Number(value));
-      setCurrentAmount(Number(value)); // Mantenemos en sincronía para el input actual
+      setCashBoxSession(openCashBox)
     }
   }
 
   const handleCloseBox = (id: number) => {
-    if (currentAmount <= openingAmount) {
+    if (currentAmount <= cashBoxSession?.opening_amount!) {
       toast.error("El monto de cierre debe ser mayor al monto de apertura")
       return
     }
@@ -83,7 +93,10 @@ export default function CashBoxes() {
   }
 
   useEffect(() => {
-    getCashBoxes()
+    getCashBoxSessions()
+    if (!cashBoxSession?.pos_terminal_id && userData?.role === "admin") {
+      getTerminals()
+    }
   }, [])
 
   return (
@@ -92,8 +105,8 @@ export default function CashBoxes() {
       <Card className="shadow-sm border-0 mb-4 bg-white mt-3">
         <Card.Body className="p-4">
           <Row className="align-items-end g-3">
-            <Col xs={12} md={6} lg={4}>
-              {cashBox ? (
+            {cashBoxSession && (
+              <Col xs={12} md={6} lg={4}>
                 <Form.Group>
                   <Form.Label className="fw-semibold text-primary">Monto Actual en Caja</Form.Label>
                   <Form.Control
@@ -110,34 +123,21 @@ export default function CashBoxes() {
                     className="font-monospace text-success fw-bold"
                   />
                 </Form.Group>
-              ) : (
-                <Form.Group>
-                  <Form.Label className="fw-semibold text-secondary">Monto de Apertura Inicial</Form.Label>
-                  <Form.Control
-                    type="text"
-                    size="lg"
-                    placeholder="Dinero inicial en caja"
-                    value={openingAmount}
-                    onChange={e => valueAjustment(e.target.value)}
-                    className="font-monospace fw-bold"
-                  />
-                </Form.Group>
-              )}
-            </Col>
-
-            <Col xs={12} md="auto" className="d-flex gap-2">
-              {!cashBox && (
+              </Col>
+            )}
+            {!cashBoxSession && (
+              <Col xs={12} md="auto" className="d-flex gap-2">
                 <Button
                   size="lg"
                   variant="primary"
                   className="fw-bold px-4 shadow-sm"
-                  disabled={cashBox !== null || openingAmount === 0}
-                  onClick={openCashBox}
+                  disabled={cashBoxSession !== null}
+                  onClick={handleShowTerminalModal}
                 >
                   Abrir Caja
                 </Button>
-              )}
-            </Col>
+              </Col>
+            )}
           </Row>
         </Card.Body>
       </Card>
@@ -147,6 +147,7 @@ export default function CashBoxes() {
             <thead className="table-light">
               <tr>
                 <th className="px-4 py-3">ID</th>
+                <th className="py-3">Terminal</th>
                 <th className="py-3">Usuario</th>
                 <th className="py-3">Apertura</th>
                 <th className="py-3">Cierre</th>
@@ -157,9 +158,10 @@ export default function CashBoxes() {
               </tr>
             </thead>
             <tbody>
-              {cashBoxes.map(cb => (
-                <tr key={cb.id}>
-                  <td className="px-4"><small className="text-muted">#{cb.id}</small></td>
+              {cashBoxSessions.map(cb => (
+                <tr key={cb.session_id}>
+                  <td className="px-4"><small className="text-muted">#{cb.session_id}</small></td>
+                  <td className="fw-semibold">{cb.terminal_name}</td>
                   <td className="fw-semibold">{cb.user_name}</td>
                   <td><small>{cb.opened_at ? formatDateToShow(cb.opened_at) : "-"}</small></td>
                   <td><small>{cb.closed_at ? formatDateToShow(cb.closed_at) : "-"}</small></td>
@@ -177,7 +179,7 @@ export default function CashBoxes() {
                           variant="outline-danger"
                           size="sm"
                           className="fw-bold"
-                          onClick={() => handleCloseBox(cb.id)}
+                          onClick={() => handleCloseBox(cb.session_id)}
                         >
                           Cerrar Caja
                         </Button>
@@ -186,7 +188,7 @@ export default function CashBoxes() {
                             variant="outline-primary"
                             size="sm"
                             className="fw-bold"
-                            onClick={() => navigate(`/sales-history?cashBoxId=${cb.id}`)}
+                            onClick={() => navigate(`/sales-history?cashBoxId=${cb.session_id}`)}
                           >
                             Ver
                           </Button>
@@ -199,7 +201,7 @@ export default function CashBoxes() {
                             variant="outline-primary"
                             size="sm"
                             className="fw-bold"
-                            onClick={() => navigate(`/sales-history?cashBoxId=${cb.id}`)}
+                            onClick={() => navigate(`/sales-history?cashBoxId=${cb.session_id}`)}
                           >
                             Ver Movimientos
                           </Button>
@@ -212,7 +214,7 @@ export default function CashBoxes() {
                   </td>
                 </tr>
               ))}
-              {cashBoxes.length === 0 && (
+              {cashBoxSessions.length === 0 && (
                 <tr>
                   <td colSpan={8} className="text-center text-muted py-5">
                     No hay registros de cajas.
@@ -228,7 +230,16 @@ export default function CashBoxes() {
         isOpen={showCloseBoxModal}
         cashBoxId={cashBoxId}
         onCancel={() => setShowCloseBoxModal(false)}
-        onConfirm={closeCashBox}
+        onConfirm={closeCashBoxSession}
+      />
+      <OpenCloseSessionModal
+        isOpen={showTerminalModal}
+        onCancel={() => setShowTerminalModal(false)}
+        onSelectTerminal={openCashBoxSession}
+        terminals={terminals}
+        setTerminals={setTerminals}
+        openingAmount={openingAmount}
+        setOpeningAmount={setOpeningAmount}
       />
     </Container>
   )

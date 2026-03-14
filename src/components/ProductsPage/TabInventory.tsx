@@ -6,12 +6,12 @@ import { onGetProductByQuery, onMovement } from "../../services/inventory.servic
 import userStore from "../../store/userStore";
 import type { Inventory, InventoryForm, productSearchQuery, TabInventoryProps } from "../../interfaces/components/POSPage/TabInventory.interface";
 import type { Product } from "../../interfaces/global.interface";
+import toast from "react-hot-toast";
 
 export const TabInventory = ({
   products,
   inventory,
   setInventory,
-  toast
 }: TabInventoryProps) => {
   const { token } = userStore();
   const [query, setQuery] = useState<string>("");
@@ -256,15 +256,15 @@ export const TabInventory = ({
                 <>
                   <h4 className="mb-4">Producto Seleccionado</h4>
                   <div className="bg-white text-dark p-3 rounded mb-4 shadow-sm">
-                    <p className="mb-2"><span className="fw-bold text-secondary">Nombre:</span> <br/>{selectedProduct.name}</p>
-                    <p className="mb-2"><span className="fw-bold text-secondary">Código:</span> <br/><span className="font-monospace">{selectedProduct.barcode}</span></p>
-                    <p className="mb-0"><span className="fw-bold text-secondary">Stock actual:</span> <br/>
+                    <p className="mb-2"><span className="fw-bold text-secondary">Nombre:</span> <br />{selectedProduct.name}</p>
+                    <p className="mb-2"><span className="fw-bold text-secondary">Código:</span> <br /><span className="font-monospace">{selectedProduct.barcode}</span></p>
+                    <p className="mb-0"><span className="fw-bold text-secondary">Stock actual:</span> <br />
                       <Badge bg="primary" className="fs-5">{Number(selectedProduct.inventory_quantity)}</Badge>
                     </p>
                   </div>
-                  <Button 
-                    variant="light" 
-                    className="text-danger fw-bold mt-auto align-self-start" 
+                  <Button
+                    variant="light"
+                    className="text-danger fw-bold mt-auto align-self-start"
                     onClick={removeSelectedProduct}
                   >
                     Olvidar Producto

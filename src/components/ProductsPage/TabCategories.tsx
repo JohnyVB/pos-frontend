@@ -9,11 +9,11 @@ import {
   onDeactivateCategory,
 } from "../../services/categories.services";
 import userStore from "../../store/userStore";
+import toast from "react-hot-toast";
 
 const TabCategories = ({
   categories,
   setCategories,
-  toast,
 }: TabCategoriesProps) => {
   const { token } = userStore();
   const { form, onChangeForm, resetForm } = useForm({
@@ -78,7 +78,7 @@ const TabCategories = ({
                 />
               </Form.Group>
             </Col>
-            
+
             <Col md={12}>
               <Form.Group>
                 <Form.Label className="fw-semibold">Descripción</Form.Label>

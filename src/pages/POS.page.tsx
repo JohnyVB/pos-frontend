@@ -22,7 +22,7 @@ export default function POS() {
   const [paymentType, setPaymentType] = useState<string>("")
   const [showCashForm, setShowCashForm] = useState<boolean>(false)
   const [showCardForm, setShowCardForm] = useState<boolean>(false)
-  const { cashBox, currentAmount, setCurrentAmount } = useCashStore()
+  const { cashBoxSession, currentAmount, setCurrentAmount } = useCashStore()
   const [showWeightForm, setShowWeightForm] = useState<boolean>(false)
   const [productWeight, setProductWeight] = useState<ProductByBarcode | null>(null)
 
@@ -119,7 +119,7 @@ export default function POS() {
       payment_method: paymentType,
       amount_received,
       reference: null,
-      cash_box_id: cashBox!.id,
+      cash_box_id: cashBoxSession!.session_id,
       items,
     }
     const res = await onRegisterSale(body, token!)
@@ -140,7 +140,7 @@ export default function POS() {
       payment_method: paymentType,
       amount_received: 0,
       reference,
-      cash_box_id: cashBox!.id,
+      cash_box_id: cashBoxSession!.session_id,
       items,
     }
     const res = await onRegisterSale(body, token!)

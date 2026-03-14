@@ -1,5 +1,5 @@
 import API from "../config/api.config";
-import type { loginResponse } from "../interfaces/global.interface";
+import type { loginResponse } from "../interfaces/pages/Login.interface";
 
 export const onLogin = async (
   user: string,

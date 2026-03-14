@@ -11,7 +11,7 @@ import useCashStore from "../store/useCashStore"
 import userStore from "../store/userStore"
 import type { Terminal } from "../interfaces/global.interface"
 import { onGetTerminals } from "../services/terminals.services"
-import { OpenCloseSessionModal } from "../components/Dashboard/OpenCloseSessionModal"
+import { OpenSessionModal } from "../components/Dashboard/OpenSessionModal"
 
 export default function CashboxSessions() {
   const { userData, token } = userStore();
@@ -232,7 +232,7 @@ export default function CashboxSessions() {
         onCancel={() => setShowCloseBoxModal(false)}
         onConfirm={closeCashBoxSession}
       />
-      <OpenCloseSessionModal
+      <OpenSessionModal
         isOpen={showTerminalModal}
         onCancel={() => setShowTerminalModal(false)}
         onSelectTerminal={openCashBoxSession}

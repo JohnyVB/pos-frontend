@@ -15,7 +15,7 @@ interface OpenCloseSessionModalProps {
   setOpeningAmount: (openingAmount: string) => void;
 }
 
-export const OpenCloseSessionModal = ({
+export const OpenSessionModal = ({
   isOpen,
   onCancel,
   onSelectTerminal,

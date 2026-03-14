@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { useCashStore } from '../store/useCashStore';
+import useCashStore from '../store/useCashStore';
 
 export const CashBoxGuard = () => {
   const { cashBox } = useCashStore();

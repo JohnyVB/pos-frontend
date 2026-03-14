@@ -44,6 +44,7 @@ export interface RegisterSaleResponse {
 export interface RegisterSaleBody {
   payment_method: string;
   amount_received: number;
+  reference: string | null;
   cash_box_id: number;
   items: ProductSale[];
 }

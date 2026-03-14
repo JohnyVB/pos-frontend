@@ -23,8 +23,8 @@ export default function CashBoxes() {
       toast.success("Caja abierta correctamente")
     } else {
       toast.error(res.message || "Error al abrir la caja")
+      setOpeningAmount(0)
     }
-    setOpeningAmount(0)
   }
 
   const closeCashBox = async (id: number) => {
@@ -60,15 +60,11 @@ export default function CashBoxes() {
     }
   }
 
-  const valueAjustment = (value: string, type: "OPENING" | "CLOSING") => {
+  const valueAjustment = (value: string) => {
     value = value.replace(',', '.');
     const regex = /^\d*(\.\d{0,2})?$/;
     if (value === "" || value === "." || regex.test(value)) {
-      if (type === "OPENING") {
-        setOpeningAmount(Number(value));
-      } else {
-        setCurrentAmount(Number(value));
-      }
+      setOpeningAmount(Number(value));
     }
   }
 
@@ -79,7 +75,6 @@ export default function CashBoxes() {
   return (
     <div className="padding-container">
       <PageHeader title="Gestión de Cajas" />
-
       <div className="cashbox-container">
         <div className="cashbox-actions">
           <div className="cashbox-input-group">
@@ -91,7 +86,7 @@ export default function CashBoxes() {
                   className="input"
                   placeholder="Dinero actual en caja"
                   value={currentAmount}
-                  onChange={e => valueAjustment(e.target.value, "CLOSING")}
+                  onChange={e => valueAjustment(e.target.value)}
                   style={{ marginBottom: 0 }}
                 />
               </div>
@@ -104,7 +99,7 @@ export default function CashBoxes() {
                   className="input"
                   placeholder="Dinero inicial en caja"
                   value={openingAmount}
-                  onChange={e => valueAjustment(e.target.value, "OPENING")}
+                  onChange={e => valueAjustment(e.target.value)}
                   style={{ marginBottom: 0 }}
                 />
               </div>

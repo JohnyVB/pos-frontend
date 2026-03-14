@@ -10,40 +10,19 @@ const TabProducts = ({ activeTab, setActiveTab }: TabProductsProps) => {
     <div style={{ marginBottom: "20px", display: "flex", gap: "10px" }}>
       <button
         onClick={() => setActiveTab("products")}
-        style={{
-          padding: "10px 20px",
-          backgroundColor: activeTab === "products" ? "#007bff" : "#e9ecef",
-          color: activeTab === "products" ? "white" : "black",
-          border: "none",
-          cursor: "pointer",
-          borderRadius: "4px",
-        }}
+        className={`btn-pos ${activeTab === "products" ? "btn-primary" : "btn-secondary"}`}
       >
         Productos
       </button>
       <button
         onClick={() => setActiveTab("categories")}
-        style={{
-          padding: "10px 20px",
-          backgroundColor: activeTab === "categories" ? "#007bff" : "#e9ecef",
-          color: activeTab === "categories" ? "white" : "black",
-          border: "none",
-          cursor: "pointer",
-          borderRadius: "4px",
-        }}
+        className={`btn-pos ${activeTab === "categories" ? "btn-primary" : "btn-secondary"}`}
       >
         Categorías
       </button>
       <button
         onClick={() => setActiveTab("inventory")}
-        style={{
-          padding: "10px 20px",
-          backgroundColor: activeTab === "inventory" ? "#007bff" : "#e9ecef",
-          color: activeTab === "inventory" ? "white" : "black",
-          border: "none",
-          cursor: "pointer",
-          borderRadius: "4px",
-        }}
+        className={`btn-pos ${activeTab === "inventory" ? "btn-primary" : "btn-secondary"}`}
       >
         Inventario
       </button>

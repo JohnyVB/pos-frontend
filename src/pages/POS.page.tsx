@@ -88,15 +88,6 @@ export default function POS() {
     }
   }
 
-  const updateQuantity = (id: number, quantity: number) => {
-    const getProductInCart = cart.find((p) => p.id === id)
-    if (Number(getProductInCart?.stock) >= Number(quantity)) {
-      setCart(cart.map((p) => (p.id === id ? { ...p, quantity } : p)));
-    } else {
-      toast.error("Producto agotado", { duration: 5000 })
-    }
-  };
-
   const removeItem = (id: number) => {
     setCart(cart.filter((p) => p.id !== id));
   };
@@ -113,16 +104,21 @@ export default function POS() {
 
   const total = subtotal + vatTotal;
 
-  const handleCashPayment = async (amount_received: number) => {
-    const items = cart.map((item) => ({
+  const filteredProducts = () => {
+    return cart.map((item) => ({
       product_id: item.id,
       quantity: item.quantity,
       price: item.price,
       vat: item.vat,
     }));
+  }
+
+  const handleCashPayment = async (amount_received: number) => {
+    const items = filteredProducts()
     const body = {
       payment_method: paymentType,
       amount_received,
+      reference: null,
       cash_box_id: cashBox!.id,
       items,
     }
@@ -131,17 +127,32 @@ export default function POS() {
       setCart([]);
       setShowCashForm(false)
       toast.success("Pago registrado", { duration: 4000 })
-      setCurrentAmount(currentAmount + Number(res.data.total))
+      setCurrentAmount(Number((Number(currentAmount) + Number(res.data.total)).toFixed(2)));
       // TODO: imprimir ticket
     } else {
       toast.error("Error al registrar pago", { duration: 4000 })
     }
   }
 
-  const handleCardPayment = (reference: string) => {
-    setCart([]);
-    setShowCardForm(false)
-    toast.success("Pago registrado")
+  const handleCardPayment = async (reference: string) => {
+    const items = filteredProducts()
+    const body = {
+      payment_method: paymentType,
+      amount_received: 0,
+      reference,
+      cash_box_id: cashBox!.id,
+      items,
+    }
+    const res = await onRegisterSale(body, token!)
+    if (res.response === "success" && res.data) {
+      setCart([]);
+      setShowCardForm(false)
+      toast.success("Pago registrado", { duration: 4000 })
+      setCurrentAmount(currentAmount + Number(res.data.total))
+      // TODO: imprimir ticket
+    } else {
+      toast.error("Error al registrar pago", { duration: 4000 })
+    }
   }
 
   const handlePayment = (method: string) => {
@@ -218,7 +229,7 @@ export default function POS() {
           <input
             ref={inputBarcodeRef}
             className="search-input"
-            placeholder="Buscar producto..."
+            placeholder="Codigo de barras o codigo interno"
             value={barcode}
             onChange={(e) => setBarcode(e.target.value)}
             onKeyDown={searchProductByBarcode}

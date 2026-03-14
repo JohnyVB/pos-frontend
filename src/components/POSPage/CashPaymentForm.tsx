@@ -38,7 +38,7 @@ export default function CashPaymentForm({ isOpen, total, onConfirm, onCancel }: 
   }, [isOpen])
 
   return (
-    <Modal show={isOpen} onHide={onCancel} centered backdrop="static" size="sm">
+    <Modal show={isOpen} onHide={onCancel} centered backdrop="static" size="lg">
       <Modal.Header closeButton>
         <Modal.Title>Pago en Efectivo</Modal.Title>
       </Modal.Header>
@@ -69,11 +69,11 @@ export default function CashPaymentForm({ isOpen, total, onConfirm, onCancel }: 
         </Form.Group>
 
         <Keyboard number={amount} addNumber={valueAjustment} clear={clear} />
-        
+
         <div className="d-flex gap-2 mt-4">
-          <Button 
-            variant="secondary" 
-            className="w-100 py-2 fw-bold" 
+          <Button
+            variant="secondary"
+            className="w-100 py-2 fw-bold"
             onClick={onCancel}
           >
             Cancelar

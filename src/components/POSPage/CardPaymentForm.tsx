@@ -30,11 +30,11 @@ export default function CardPaymentForm({ isOpen, total, onConfirm, onCancel }: 
   }, [isOpen])
 
   return (
-    <Modal show={isOpen} onHide={onCancel} centered backdrop="static" size="sm">
+    <Modal show={isOpen} onHide={onCancel} centered backdrop="static" size="lg">
       <Modal.Header closeButton>
         <Modal.Title>Pago con Tarjeta</Modal.Title>
       </Modal.Header>
-      
+
       <Modal.Body className="pb-4">
         <div className="text-center mb-4">
           <h2 className="display-6 fw-bold text-primary">€{total.toFixed(2)}</h2>
@@ -55,11 +55,11 @@ export default function CardPaymentForm({ isOpen, total, onConfirm, onCancel }: 
         </Form.Group>
 
         <Keyboard number={reference} addNumber={addNumber} clear={clear} />
-        
+
         <div className="d-flex gap-2 mt-4">
-          <Button 
-            variant="secondary" 
-            className="w-100 py-2 fw-bold" 
+          <Button
+            variant="secondary"
+            className="w-100 py-2 fw-bold"
             onClick={onCancel}
           >
             Cancelar

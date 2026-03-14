@@ -1,4 +1,4 @@
-import "../../css/components/POSPage/Keyboard.css"
+import { Row, Col, Button } from "react-bootstrap"
 
 interface Props {
   number: string
@@ -8,20 +8,28 @@ interface Props {
 
 const Keyboard = ({ number, addNumber, clear }: Props) => {
   return (
-    <div className="keyboard">
+    <Row className="g-2 mt-3">
       {["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0"].map(n => (
-        <button
-          key={n}
-          className="key"
-          onClick={() => addNumber(number + n)}
-        >
-          {n}
-        </button>
+        <Col xs={4} key={n}>
+          <Button
+            variant="outline-secondary"
+            className="w-100 fs-4 py-3 fw-bold shadow-sm"
+            onClick={() => addNumber(number + n)}
+          >
+            {n}
+          </Button>
+        </Col>
       ))}
-      <button className="key" onClick={clear}>
-        c
-      </button>
-    </div>
+      <Col xs={4}>
+        <Button 
+          variant="danger" 
+          className="w-100 fs-4 py-3 fw-bold text-uppercase shadow-sm"
+          onClick={clear}
+        >
+          C
+        </Button>
+      </Col>
+    </Row>
   )
 }
 

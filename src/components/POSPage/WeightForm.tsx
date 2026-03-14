@@ -43,13 +43,13 @@ export default function WeightForm({
   if (!product) return null;
 
   return (
-    <Modal show={isOpen} onHide={onClose} centered backdrop="static" size="sm">
+    <Modal show={isOpen} onHide={onClose} centered backdrop="static" size="lg">
       <Modal.Header closeButton>
         <Modal.Title className="text-truncate" style={{ maxWidth: '90%' }}>
           {product.name}
         </Modal.Title>
       </Modal.Header>
-      
+
       <Modal.Body className="pb-4">
         <div className="text-center mb-4">
           <h2 className="display-6 fw-bold text-primary">€{total.toFixed(2)}</h2>
@@ -75,11 +75,11 @@ export default function WeightForm({
         </Form.Group>
 
         <Keyboard number={weight} addNumber={valueAjustment} clear={clear} />
-        
+
         <div className="d-flex gap-2 mt-4">
-          <Button 
-            variant="secondary" 
-            className="w-100 py-2 fw-bold" 
+          <Button
+            variant="secondary"
+            className="w-100 py-2 fw-bold"
             onClick={onClose}
           >
             Cancelar

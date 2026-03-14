@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
-import { Badge, Button, Card, Col, Container, Form, Row, Table } from "react-bootstrap"
+import { Badge, Button, Card, Col, Container, Row, Table } from "react-bootstrap"
 import toast, { Toaster } from "react-hot-toast"
 import { useNavigate } from "react-router-dom"
-import { CloseBoxModal } from "../components/CashBoxPage/CloseBoxModal"
+import { CloseSessionModal } from "../components/Dashboard/CloseSessionModal"
 import { PageHeader } from "../components/common/PageHeader"
 import { formatDateToShow } from "../helper/formatDate.helper"
 import type { CashBoxSession } from "../interfaces/pages/CashBoxSessions.interface"
@@ -37,7 +37,7 @@ export default function CashboxSessions() {
       setCashBoxSessions(prev => [{ ...res.cashBoxSession!, terminal_name: terminal.name, user_name: userData!.name }, ...prev])
       setCashBoxSession(res.cashBoxSession);
       setShowTerminalModal(false);
-      setCurrentAmount(openingAmount)
+      setCurrentAmount(openingAmount.toString())
       toast.success(`Caja abierta en ${terminal.name}`);
     } else {
       toast.error(res.message || "Error al abrir la caja");
@@ -48,8 +48,8 @@ export default function CashboxSessions() {
     setShowTerminalModal(true)
   }
 
-  const closeCashBoxSession = async (id: number) => {
-    const res = await onCloseCashBoxSession(id, currentAmount, token!)
+  const closeCashBoxSession = async (id: number, closingAmount: number) => {
+    const res = await onCloseCashBoxSession(id, closingAmount, token!)
     if (res.response === "success" && res.cashBoxSession) {
       setCashBoxSessions(prev =>
         prev.map(cb => cb.session_id === id
@@ -59,7 +59,7 @@ export default function CashboxSessions() {
       setCashBoxSession(null)
       setShowCloseBoxModal(false)
       setCashBoxId(0)
-      setCurrentAmount(0)
+      setCurrentAmount("0")
       toast.success("Caja cerrada correctamente")
     } else {
       toast.error(res.message || "Error al cerrar la caja")
@@ -84,10 +84,6 @@ export default function CashboxSessions() {
   }
 
   const handleCloseBox = (id: number) => {
-    if (currentAmount <= cashBoxSession?.opening_amount!) {
-      toast.error("El monto de cierre debe ser mayor al monto de apertura")
-      return
-    }
     setShowCloseBoxModal(true)
     setCashBoxId(id)
   }
@@ -103,39 +99,28 @@ export default function CashboxSessions() {
     <Container fluid className="p-4 bg-light min-vh-100">
       <PageHeader title="Gestión de Cajas" />
       <Card className="shadow-sm border-0 mb-4 bg-white mt-3">
-        <Card.Body className="p-4">
-          <Row className="align-items-end g-3">
-            {cashBoxSession && (
-              <Col xs={12} md={6} lg={4}>
-                <Form.Group>
-                  <Form.Label className="fw-semibold text-primary">Monto Actual en Caja</Form.Label>
-                  <Form.Control
-                    type="text"
-                    size="lg"
-                    placeholder="Dinero actual en caja"
-                    value={currentAmount}
-                    onChange={e => {
-                      let val = e.target.value.replace(',', '.');
-                      if (/^\d*(\.\d{0,2})?$/.test(val)) {
-                        setCurrentAmount(Number(val))
-                      }
-                    }}
-                    className="font-monospace text-success fw-bold"
-                  />
-                </Form.Group>
-              </Col>
-            )}
-            {!cashBoxSession && (
-              <Col xs={12} md="auto" className="d-flex gap-2">
+        <Card.Body className="p-4 text-center">
+          <Row className="justify-content-center">
+            {!cashBoxSession ? (
+              <Col xs={12} md="auto">
                 <Button
                   size="lg"
                   variant="primary"
-                  className="fw-bold px-4 shadow-sm"
-                  disabled={cashBoxSession !== null}
+                  className="fw-bold px-5 shadow-sm py-3"
                   onClick={handleShowTerminalModal}
                 >
-                  Abrir Caja
+                  Abrir Sesión de Caja
                 </Button>
+              </Col>
+            ) : (
+              <Col xs={12}>
+                <div className="d-flex align-items-center justify-content-center gap-3 bg-light p-3 rounded-3 border">
+                  <Badge bg="success" className="px-3 py-2 rounded-pill fs-6 uppercase">Caja Abierta</Badge>
+                  <span className="fw-bold text-dark fs-5">Terminal: {cashBoxSession.terminal_name}</span>
+                  <span className="text-muted">|</span>
+                  <span className="fw-bold text-primary fs-5">Monto Inicial: €{cashBoxSession.opening_amount}</span>
+                  <span className="fw-bold text-primary fs-5">Monto Actual: €{currentAmount}</span>
+                </div>
               </Col>
             )}
           </Row>
@@ -226,9 +211,11 @@ export default function CashboxSessions() {
         </Card.Body>
       </Card>
       <Toaster position="top-center" />
-      <CloseBoxModal
+      <CloseSessionModal
         isOpen={showCloseBoxModal}
         cashBoxId={cashBoxId}
+        currentAmount={currentAmount}
+        setCurrentAmount={setCurrentAmount}
         onCancel={() => setShowCloseBoxModal(false)}
         onConfirm={closeCashBoxSession}
       />

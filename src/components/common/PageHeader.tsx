@@ -6,9 +6,9 @@ import { Button, Badge, Row, Col } from 'react-bootstrap';
 
 export const PageHeader = ({ title, nav = true }: { title: string, nav?: boolean }) => {
   const navigation = useNavigate();
-  const { cashBox } = useCashStore();
+  const { cashBoxSession } = useCashStore();
   const { userData } = userStore();
-  
+
   return (
     <div className="mb-4">
       {/* Información de Sesión / Caja */}
@@ -18,7 +18,7 @@ export const PageHeader = ({ title, nav = true }: { title: string, nav?: boolean
             <div className="d-flex align-items-center gap-1">
               <span title="Apertura de Caja">🕒</span>
               <span className="fw-semibold">
-                {cashBox ? formatDateToShow(cashBox.opened_at) : "Caja no abierta"}
+                {cashBoxSession ? formatDateToShow(cashBoxSession.opened_at) : "Caja no abierta"}
               </span>
             </div>
             <div className="vr d-none d-md-block mx-1"></div>
@@ -40,8 +40,8 @@ export const PageHeader = ({ title, nav = true }: { title: string, nav?: boolean
       <div className="d-flex justify-content-between align-items-center bg-white p-3 border rounded shadow-sm">
         <div className="d-flex align-items-center" style={{ width: "120px" }}>
           {nav && (
-            <Button 
-              variant="outline-secondary" 
+            <Button
+              variant="outline-secondary"
               onClick={() => navigation(-1)}
               className="fw-bold d-flex align-items-center gap-2"
               size="sm"
@@ -50,9 +50,9 @@ export const PageHeader = ({ title, nav = true }: { title: string, nav?: boolean
             </Button>
           )}
         </div>
-        
+
         <h2 className="m-0 fw-bold text-dark text-center flex-grow-1">{title}</h2>
-        
+
         <div style={{ width: "120px" }} /> {/* Spacer */}
       </div>
     </div>

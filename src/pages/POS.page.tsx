@@ -127,7 +127,7 @@ export default function POS() {
       setCart([]);
       setShowCashForm(false)
       toast.success("Pago registrado", { duration: 4000 })
-      setCurrentAmount(Number((Number(currentAmount) + Number(res.data.total)).toFixed(2)));
+      setCurrentAmount((Number(currentAmount) + Number(res.data.total)).toFixed(2));
       // TODO: imprimir ticket
     } else {
       toast.error("Error al registrar pago", { duration: 4000 })
@@ -148,7 +148,6 @@ export default function POS() {
       setCart([]);
       setShowCardForm(false)
       toast.success("Pago registrado", { duration: 4000 })
-      setCurrentAmount(currentAmount + Number(res.data.total))
       // TODO: imprimir ticket
     } else {
       toast.error("Error al registrar pago", { duration: 4000 })

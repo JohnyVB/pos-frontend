@@ -4,18 +4,18 @@ import type { CashBoxSession } from '../interfaces/pages/CashBoxSessions.interfa
 
 interface CashStore {
   cashBoxSession: CashBoxSession | null
-  currentAmount: number
+  currentAmount: string
   setCashBoxSession: (cashBoxSession: CashBoxSession | null) => void
-  setCurrentAmount: (amount: number) => void
+  setCurrentAmount: (amount: string) => void
 }
 
 const useCashStore = create<CashStore>()(
   persist(
     (set) => ({
       cashBoxSession: null,
-      currentAmount: 0,
+      currentAmount: "0",
       setCashBoxSession: (cashBoxSession: CashBoxSession | null) => set({ cashBoxSession }),
-      setCurrentAmount: (amount: number) => set({ currentAmount: amount }),
+      setCurrentAmount: (amount: string) => set({ currentAmount: amount }),
     }),
     {
       name: "cash-storage",

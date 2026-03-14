@@ -8,6 +8,7 @@ import Products from "../pages/Products.page";
 import CashBoxes from "../pages/CashBoxes.page";
 import { CashBoxGuard } from "./CashBoxGuard.routes";
 import { AdminGuard } from "./AdminGuard.routes";
+import { SalesHistory } from "../pages/SalesHistory.page";
 
 export default function AppRoutes() {
   const { token } = userStore();
@@ -23,6 +24,7 @@ export default function AppRoutes() {
             <Route path="/products" element={<Products />} />
             <Route element={<AdminGuard />}>
               <Route path="/register" element={<Register />} />
+              <Route path="/sales-history" element={<SalesHistory />} />
             </Route>
             <Route path="/cash-boxes" element={<CashBoxes />} />
           </>

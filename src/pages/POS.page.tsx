@@ -180,7 +180,6 @@ export default function POS() {
   return (
     <Container fluid className="p-4" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <PageHeader title="Venta" />
-      
       <Row className="flex-grow-1 overflow-hidden gx-4">
         {/* LADO IZQUIERDO: CARRITO */}
         <Col md={6} lg={5} className="d-flex flex-column h-100">
@@ -188,7 +187,7 @@ export default function POS() {
             <Card.Header className="bg-white border-bottom py-3">
               <h4 className="m-0 fw-bold">Carrito</h4>
             </Card.Header>
-            
+
             <Card.Body className="overflow-auto flex-grow-1 p-3" style={{ backgroundColor: '#f8fafc' }}>
               <div className="d-flex flex-column gap-2">
                 {cart.map((item) => (
@@ -206,9 +205,9 @@ export default function POS() {
                       <div className="fw-bold text-primary text-end fs-5" style={{ minWidth: "80px" }}>
                         €{item.total?.toFixed(2)}
                       </div>
-                      <Button 
-                        variant="outline-danger" 
-                        size="sm" 
+                      <Button
+                        variant="outline-danger"
+                        size="sm"
                         className="fw-bold border-0"
                         onClick={() => removeItem(item.id)}
                       >
@@ -218,10 +217,10 @@ export default function POS() {
                   </Card>
                 ))}
                 {cart.length === 0 && (
-                 <div className="text-center text-muted my-5 pb-5">
-                   <p className="fs-5">El carrito está vacío</p>
-                   <p className="small">Escanea un producto para empezar</p>
-                 </div>
+                  <div className="text-center text-muted my-5 pb-5">
+                    <p className="fs-5">El carrito está vacío</p>
+                    <p className="small">Escanea un producto para empezar</p>
+                  </div>
                 )}
               </div>
             </Card.Body>
@@ -239,7 +238,7 @@ export default function POS() {
                 <span className="fs-4 fw-bold">Total:</span>
                 <span className="fs-2 fw-bold text-dark">€{total.toFixed(2)}</span>
               </div>
-              
+
               <Button
                 variant="primary"
                 size="lg"
@@ -308,8 +307,8 @@ export default function POS() {
           />
         </Col>
       </Row>
-      
-      <Toaster position="top-right" />
+
+      <Toaster position="top-center" />
       <PaymentModal
         isOpen={showPaymentModal}
         total={total}

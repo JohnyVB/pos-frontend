@@ -122,7 +122,7 @@ export default function Products() {
         </Card.Body>
       </Card>
 
-      <Toaster position="top-right" />
+      <Toaster position="top-center" />
     </Container>
   );
 }

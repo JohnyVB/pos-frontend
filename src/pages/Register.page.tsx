@@ -42,7 +42,7 @@ export default function Register() {
   return (
     <Container fluid className="vh-100 bg-light p-4 d-flex flex-column">
       <PageHeader title="Registrar Trabajador" />
-      
+
       <Row className="flex-grow-1 justify-content-center align-items-center">
         <Col xs={12} md={8} lg={6} xl={5}>
           <Card className="shadow-lg border-0 rounded-4">
@@ -126,10 +126,10 @@ export default function Register() {
 
                   <Col xs={12} className="mt-4">
                     <div className="d-grid">
-                      <Button 
-                        variant="primary" 
-                        size="lg" 
-                        type="submit" 
+                      <Button
+                        variant="primary"
+                        size="lg"
+                        type="submit"
                         disabled={loading}
                         className="fw-bold rounded-3 py-2 shadow-sm"
                       >
@@ -143,7 +143,7 @@ export default function Register() {
           </Card>
         </Col>
       </Row>
-      <Toaster position="top-right" />
+      <Toaster position="top-center" />
     </Container>
   );
 }

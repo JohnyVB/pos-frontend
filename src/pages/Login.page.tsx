@@ -31,7 +31,7 @@ export default function Login() {
   return (
     <Container fluid className="vh-100 d-flex flex-column bg-light p-4">
       <PageHeader title="POS Local" nav={false} />
-      
+
       <Row className="flex-grow-1 justify-content-center align-items-center">
         <Col xs={12} md={8} lg={5} xl={4}>
           <Card className="shadow-lg border-0 rounded-4">
@@ -66,10 +66,10 @@ export default function Login() {
                 </Form.Group>
 
                 <div className="d-grid gap-2">
-                  <Button 
-                    variant="primary" 
-                    size="lg" 
-                    type="submit" 
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    type="submit"
                     disabled={loading}
                     className="fw-bold rounded-3 py-2 shadow-sm"
                   >
@@ -81,7 +81,7 @@ export default function Login() {
           </Card>
         </Col>
       </Row>
-      <Toaster position="top-right" />
+      <Toaster position="top-center" />
     </Container>
   );
 }

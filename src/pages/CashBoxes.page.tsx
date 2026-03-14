@@ -7,12 +7,17 @@ import userStore from "../store/userStore"
 import toast, { Toaster } from "react-hot-toast";
 import useCashStore from "../store/useCashStore"
 import { formatDateToShow } from "../helper/formatDate.helper"
+import { useNavigate } from "react-router-dom"
+import { CloseBoxModal } from "../components/CashBoxPage/CloseBoxModal"
 
 export default function CashBoxes() {
   const { userData, token } = userStore();
   const [cashBoxes, setCashBoxes] = useState<CashBox[]>([])
   const [openingAmount, setOpeningAmount] = useState<number>(0)
+  const [showCloseBoxModal, setShowCloseBoxModal] = useState<boolean>(false)
+  const [cashBoxId, setCashBoxId] = useState<number>(0)
   const { cashBox, setCashBox, currentAmount, setCurrentAmount } = useCashStore()
+  const navigate = useNavigate()
 
   const openCashBox = async () => {
     const res = await onOpenCashBox(openingAmount, token!)
@@ -28,15 +33,14 @@ export default function CashBoxes() {
   }
 
   const closeCashBox = async (id: number) => {
-    if (currentAmount <= openingAmount) {
-      toast.error("El monto de cierre debe ser mayor al monto de apertura")
-      return
-    }
     const res = await onCloseCashBox(id, currentAmount, token!)
     if (res.response === "success" && res.cashBox) {
       setCashBoxes(prev => prev.map(cb => cb.id === id ? { ...res.cashBox!, user_name: userData?.name! } : cb))
       setCashBox(null)
       setCurrentAmount(0)
+      setShowCloseBoxModal(false)
+      setCashBoxId(0)
+      setOpeningAmount(0)
       toast.success("Caja cerrada correctamente")
     } else {
       toast.error(res.message || "Error al cerrar la caja")
@@ -69,6 +73,15 @@ export default function CashBoxes() {
     }
   }
 
+  const handleCloseBox = (id: number) => {
+    if (currentAmount <= openingAmount) {
+      toast.error("El monto de cierre debe ser mayor al monto de apertura")
+      return
+    }
+    setShowCloseBoxModal(true)
+    setCashBoxId(id)
+  }
+
   useEffect(() => {
     getCashBoxes()
   }, [])
@@ -76,7 +89,6 @@ export default function CashBoxes() {
   return (
     <Container fluid className="p-4 bg-light min-vh-100">
       <PageHeader title="Gestión de Cajas" />
-
       <Card className="shadow-sm border-0 mb-4 bg-white mt-3">
         <Card.Body className="p-4">
           <Row className="align-items-end g-3">
@@ -129,7 +141,12 @@ export default function CashBoxes() {
           </Row>
         </Card.Body>
       </Card>
-
+      <CloseBoxModal
+        isOpen={showCloseBoxModal}
+        cashBoxId={cashBoxId}
+        onCancel={() => setShowCloseBoxModal(false)}
+        onConfirm={closeCashBox}
+      />
       <Card className="shadow-sm border-0 bg-white">
         <Card.Body className="p-0">
           <Table responsive hover className="mb-0 align-middle">
@@ -161,16 +178,42 @@ export default function CashBoxes() {
                   </td>
                   <td className="text-center px-4">
                     {cb.status === "OPEN" ? (
-                      <Button
-                        variant="outline-danger"
-                        size="sm"
-                        className="fw-bold"
-                        onClick={() => closeCashBox(cb.id)}
-                      >
-                        Cerrar Caja
-                      </Button>
+                      <div className="d-flex gap-2 justify-content-center">
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          className="fw-bold"
+                          onClick={() => handleCloseBox(cb.id)}
+                        >
+                          Cerrar Caja
+                        </Button>
+                        {userData?.role === "admin" && (
+                          <Button
+                            variant="outline-primary"
+                            size="sm"
+                            className="fw-bold"
+                            onClick={() => navigate(`/sales-history?cashBoxId=${cb.id}`)}
+                          >
+                            Ver
+                          </Button>
+                        )}
+                      </div>
                     ) : (
-                      <span className="text-muted">-</span>
+                      <>
+                        {userData?.role === "admin" ? (
+                          <Button
+                            variant="outline-primary"
+                            size="sm"
+                            className="fw-bold"
+                            onClick={() => navigate(`/sales-history?cashBoxId=${cb.id}`)}
+                          >
+                            Ver Movimientos
+                          </Button>
+
+                        ) : (
+                          <span className="text-muted">-</span>
+                        )}
+                      </>
                     )}
                   </td>
                 </tr>
@@ -186,8 +229,7 @@ export default function CashBoxes() {
           </Table>
         </Card.Body>
       </Card>
-      
-      <Toaster position="top-right" />
+      <Toaster position="top-center" />
     </Container>
   )
 }

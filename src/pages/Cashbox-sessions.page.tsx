@@ -261,7 +261,7 @@ export default function CashboxSessions() {
                         variant="outline-primary"
                         size="sm"
                         className="fw-bold"
-                        onClick={() => navigate(`/sales-history?cashBoxId=${cb.session_id}`)}
+                        onClick={() => navigate(`/sales-history?session_id=${cb.session_id}`)}
                       >
                         Ver
                       </Button>

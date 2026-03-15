@@ -37,7 +37,7 @@ export interface GetCashBoxSessionsResponse {
 }
 
 export interface CashBoxSessionFilters {
-  pos_terminal?: string
+  pos_terminal_id?: string
   start_date?: string
   end_date?: string
   user_id?: number

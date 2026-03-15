@@ -1,26 +1,27 @@
-import { Badge, Button, Card, Col, Container, Form, InputGroup, Modal, Row, Table } from "react-bootstrap"
+import React, { useEffect, useRef, useState } from "react"
+import { Badge, Button, Card, Col, Container, Form, InputGroup, Row, Table } from "react-bootstrap"
+import toast, { Toaster } from "react-hot-toast"
 import { useLocation, useNavigate } from "react-router-dom"
 import { PageHeader } from "../components/common/PageHeader"
-import { useEffect, useState } from "react"
+import { ReturnModal } from "../components/SalesHistory/ReturnModal"
+import { formatDateToShow } from "../helper/formatDate.helper"
+import type { CashBoxSession } from "../interfaces/pages/CashBoxSessions.interface"
+import type { Sale, SaleItem } from "../interfaces/pages/Sales-history.interface"
 import { onGetSalesBySessionId } from "../services/sales-history.services"
 import userStore from "../store/userStore"
-import type { Sale, SaleItem } from "../interfaces/pages/Sales-history.interface"
-import { formatDateToShow } from "../helper/formatDate.helper"
-import Keyboard from "../components/POSPage/Keyboard"
-import toast, { Toaster } from "react-hot-toast"
 
 export const SalesHistory = () => {
   const { token, userData } = userStore();
   const location = useLocation()
   const navigate = useNavigate()
-  const sale_history = location.state?.sale_history
-
+  const sale_history: CashBoxSession = location.state?.sale_history
   const [sales, setSales] = useState<Sale[]>([])
-  const [barcode, setBarcode] = useState("")
-
-  const [showModal, setShowModal] = useState(false)
-  const [quantity, setQuantity] = useState("")
+  const [barcode, setBarcode] = useState<string>("")
+  const [quantity, setQuantity] = useState<string>("")
   const [selectedItem, setSelectedItem] = useState<SaleItem | null>(null)
+  const [selectedSale, setSelectedSale] = useState<Sale | null>(null)
+  const [expandedSaleId, setExpandedSaleId] = useState<number | null>(null)
+  const inputBarcodeRef = useRef<HTMLInputElement>(null)
 
   const getSalesBySessionId = async (session_id: number, token: string) => {
     const res = await onGetSalesBySessionId(session_id, token)
@@ -29,40 +30,41 @@ export const SalesHistory = () => {
     }
   }
 
-  useEffect(() => {
-    if (!sale_history) {
-      navigate("/cashbox-sessions")
-      return
-    }
-    getSalesBySessionId(Number(sale_history.session_id), token!)
-  }, [sale_history])
-
-  const handleBarcodeSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!barcode.trim()) return
-
-    let itemFound: SaleItem | null = null
-    for (const sale of sales) {
-      const item = sale.items.find(i => i && i.barcode === barcode)
-      if (item) {
-        itemFound = item
-        break
-      }
-    }
-
-    if (itemFound) {
-      setSelectedItem(itemFound)
-      setQuantity("")
-      setShowModal(true)
-    } else {
-      toast.error("Producto no encontrado en esta sesión")
-    }
-    setBarcode("")
+  const toggleSaleExpand = (sale_id: number) => {
+    setExpandedSaleId(expandedSaleId === sale_id ? null : sale_id)
   }
 
-  const handleAddNumber = (num: string) => {
-    if (num.includes('.') && num.split('.').length > 2) return
-    setQuantity(num)
+  const handleSelectSale = (sale: Sale) => {
+    setSelectedSale(prev => {
+      if (prev) {
+        return null
+      } else {
+        inputBarcodeRef.current?.focus()
+        return sale
+      }
+    })
+  }
+
+  const searchProductByBarcode = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      if (!barcode.trim()) return
+      const item = selectedSale?.items.find(item => item.barcode === barcode) || null
+      if (item) {
+        setSelectedItem(item)
+      } else {
+        toast.error("Producto no encontrado")
+      }
+    }
+  }
+
+  const valueAjustment = (value: string) => {
+    if (Number(value) <= selectedItem?.quantity!) {
+      const numValue = value.replace(",", ".")
+      const regex = /^\d*(\.\d{0,3})?$/
+      if (value === "" || regex.test(numValue)) {
+        setQuantity(value)
+      }
+    }
   }
 
   const handleConfirmReturn = () => {
@@ -76,15 +78,23 @@ export const SalesHistory = () => {
     }
 
     toast.success(`Devolución de ${quantity}x ${selectedItem.product_name} iniciada`)
-    setShowModal(false)
+    setSelectedItem(null)
     // Aquí el usuario se encargará del servicio después
   }
+
+  useEffect(() => {
+    if (!sale_history) {
+      navigate("/cashbox-sessions")
+      return
+    }
+    getSalesBySessionId(Number(sale_history.session_id), token!)
+  }, [sale_history])
 
   return (
     <Container fluid className="p-4 bg-light min-vh-100">
       <PageHeader title="Historial de Ventas" />
 
-      {userData?.role === "admin" && (
+      {userData?.role === "admin" && sale_history.session_status === "OPEN" && (
         <Card className="shadow-sm border-0 mb-4 bg-white mt-3">
           <Card.Body className="p-4">
             <Row className="align-items-center">
@@ -93,20 +103,17 @@ export const SalesHistory = () => {
                 <p className="text-muted small mb-0">Escanea el código de barras para iniciar una devolución</p>
               </Col>
               <Col md={6}>
-                <Form onSubmit={handleBarcodeSearch}>
-                  <InputGroup>
-                    <Form.Control
-                      placeholder="Escanear código de barras..."
-                      value={barcode}
-                      onChange={(e) => setBarcode(e.target.value)}
-                      className="py-2 border-2"
-                      autoFocus
-                    />
-                    <Button variant="primary" type="submit" className="px-4 fw-bold">
-                      Buscar
-                    </Button>
-                  </InputGroup>
-                </Form>
+                <InputGroup>
+                  <Form.Control
+                    ref={inputBarcodeRef}
+                    placeholder="Escanear código de barras..."
+                    value={barcode}
+                    onChange={(e) => setBarcode(e.target.value)}
+                    onKeyDown={searchProductByBarcode}
+                    className="py-2 border-2"
+                    autoFocus
+                  />
+                </InputGroup>
               </Col>
             </Row>
           </Card.Body>
@@ -125,37 +132,69 @@ export const SalesHistory = () => {
                 <th className="text-end py-3">IVA</th>
                 <th className="text-end py-3">Total</th>
                 <th className="text-center py-3">Estado</th>
-                <th className="text-center py-3">Productos</th>
+                <th className="text-center py-3">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {sales.map(sale => (
-                <tr key={sale.sale_id}>
-                  <td className="px-4 fw-bold text-primary">#{sale.sale_id}</td>
-                  <td>{formatDateToShow(sale.created_at)}</td>
-                  <td>
-                    <Badge bg="info" className="text-dark bg-opacity-10 py-2 px-3 rounded-pill uppercase">
-                      {sale.payment_method}
-                    </Badge>
-                  </td>
-                  <td className="text-end font-monospace">€{sale.sale_subtotal}</td>
-                  <td className="text-end font-monospace">€{sale.sale_vat_total}</td>
-                  <td className="text-end fw-bold font-monospace">€{sale.total}</td>
-                  <td className="text-center">
-                    <Badge bg={sale.sale_status === "COMPLETED" ? "success" : "danger"} className="px-3 py-2 rounded-pill">
-                      {sale.sale_status}
-                    </Badge>
-                  </td>
-                  <td className="text-center">
-                    <div className="d-flex flex-wrap gap-1 justify-content-center">
-                      {sale.items.map(item => (
-                        <Badge key={item.item_id} bg="secondary" className="bg-opacity-10 text-dark fw-normal">
-                          {item.quantity}x {item.product_name}
-                        </Badge>
-                      ))}
-                    </div>
-                  </td>
-                </tr>
+                <React.Fragment key={sale.sale_id}>
+                  <tr
+                    onClick={() => toggleSaleExpand(sale.sale_id)}
+                    style={{ cursor: 'pointer' }}
+                    className={expandedSaleId === sale.sale_id ? 'table-primary bg-opacity-10' : ''}
+                  >
+                    <td className="px-4 fw-bold text-primary">#{sale.sale_id}</td>
+                    <td>{formatDateToShow(sale.created_at)}</td>
+                    <td>
+                      <Badge bg="info" className="text-dark bg-opacity-10 py-2 px-3 rounded-pill uppercase">
+                        {sale.payment_method}
+                      </Badge>
+                    </td>
+                    <td className="text-end font-monospace">€{sale.sale_subtotal}</td>
+                    <td className="text-end font-monospace">€{sale.sale_vat_total}</td>
+                    <td className="text-end fw-bold font-monospace">€{sale.total}</td>
+                    <td className="text-center">
+                      <Badge bg={sale.sale_status === "COMPLETED" ? "success" : "danger"} className="px-3 py-2 rounded-pill">
+                        {sale.sale_status}
+                      </Badge>
+                    </td>
+                    <td className="text-center">
+                      <Button variant="link" className="text-decoration-none fw-bold p-0" onClick={() => handleSelectSale(sale)}>
+                        {expandedSaleId === sale.sale_id ? 'Ocultar' : 'Ver Detalles'}
+                      </Button>
+                    </td>
+                  </tr>
+
+                  {expandedSaleId === sale.sale_id && (
+                    <tr>
+                      <td colSpan={8} className="p-0 bg-light">
+                        <div className="p-4 animate__animated animate__fadeIn">
+                          <h6 className="fw-bold mb-3 border-bottom pb-2">Productos de la Venta #{sale.sale_id}</h6>
+                          <Table size="sm" className="mb-0 bg-white shadow-sm border rounded">
+                            <thead className="table-secondary">
+                              <tr>
+                                <th className="px-3">Producto</th>
+                                <th className="text-center">Cantidad</th>
+                                <th className="text-end">Precio Unit.</th>
+                                <th className="text-end px-3">Subtotal</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {sale.items.map(item => (
+                                <tr key={item.item_id}>
+                                  <td className="px-3">{item.product_name} {item.barcode}</td>
+                                  <td className="text-center fw-bold">{item.quantity}</td>
+                                  <td className="text-end">€{item.price_at_sale}</td>
+                                  <td className="text-end px-3 fw-bold text-primary">€{item.item_subtotal}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </Table>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               ))}
               {sales.length === 0 && (
                 <tr>
@@ -170,7 +209,7 @@ export const SalesHistory = () => {
       </Card>
 
       {/* Modal de Devolución */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} centered backdrop="static">
+      {/* <Modal show={selectedItem !== null} onHide={() => setSelectedItem(null)} centered backdrop="static">
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold">Ingresar Cantidad</Modal.Title>
         </Modal.Header>
@@ -194,7 +233,7 @@ export const SalesHistory = () => {
 
           <Keyboard
             number={quantity}
-            addNumber={handleAddNumber}
+            addNumber={valueAjustment}
             clear={() => setQuantity("")}
           />
 
@@ -210,9 +249,17 @@ export const SalesHistory = () => {
             </Button>
           </div>
         </Modal.Body>
-      </Modal>
+      </Modal> */}
+      <ReturnModal
+        selectedItem={selectedItem}
+        setSelectedItem={setSelectedItem}
+        quantity={quantity}
+        setQuantity={setQuantity}
+        valueAjustment={valueAjustment}
+        handleConfirmReturn={handleConfirmReturn}
+      />
 
-      <Toaster position="top-right" />
+      <Toaster position="top-center" />
     </Container>
   )
 }

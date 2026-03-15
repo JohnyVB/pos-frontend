@@ -1,8 +1,6 @@
 import { useEffect } from "react";
 import { Button, Col, Form, Modal, Row } from "react-bootstrap";
 import type { Terminal } from "../../interfaces/global.interface";
-import { onGetTerminals } from "../../services/terminals.services";
-import userStore from "../../store/userStore";
 import Keyboard from "../POSPage/Keyboard";
 
 interface OpenCloseSessionModalProps {
@@ -10,7 +8,6 @@ interface OpenCloseSessionModalProps {
   onCancel: () => void;
   onSelectTerminal: (terminal: Terminal, openingAmount: number) => void;
   terminals: Terminal[];
-  setTerminals: (terminals: Terminal[]) => void;
   openingAmount: string;
   setOpeningAmount: (openingAmount: string) => void;
 }
@@ -20,18 +17,9 @@ export const OpenSessionModal = ({
   onCancel,
   onSelectTerminal,
   terminals,
-  setTerminals,
   openingAmount,
   setOpeningAmount
 }: OpenCloseSessionModalProps) => {
-  const { token } = userStore();
-
-  const getTerminals = async () => {
-    const data = await onGetTerminals(token!);
-    if (data.response === "success" && data.terminals) {
-      setTerminals(data.terminals);
-    }
-  }
 
   const valueAjustment = (value: string) => {
     const numValue = value.replace(",", ".")
@@ -47,7 +35,6 @@ export const OpenSessionModal = ({
 
   useEffect(() => {
     if (!isOpen) return;
-    getTerminals();
     setOpeningAmount("");
   }, [isOpen]);
 

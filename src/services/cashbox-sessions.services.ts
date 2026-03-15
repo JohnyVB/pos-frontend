@@ -1,5 +1,5 @@
 import API from "../config/api.config";
-import type { CloseCashBoxSessionResponse, GetCashBoxSessionsResponse, OpenCashBoxSessionResponse } from "../interfaces/pages/CashBoxSessions.interface";
+import type { CashBoxSessionFilters, CloseCashBoxSessionResponse, GetCashBoxSessionsResponse, OpenCashBoxSessionResponse } from "../interfaces/pages/CashBoxSessions.interface";
 
 export const onOpenCashBoxSession = async (openingAmount: number, posTerminalId: number, token: string): Promise<OpenCashBoxSessionResponse> => {
   try {
@@ -32,9 +32,9 @@ export const onCloseCashBoxSession = async (id: number, currentAmount: number, t
   }
 }
 
-export const onGetCashBoxSessions = async (token: string): Promise<GetCashBoxSessionsResponse> => {
+export const onGetCashBoxSessions = async (filters: CashBoxSessionFilters, token: string): Promise<GetCashBoxSessionsResponse> => {
   try {
-    const { data } = await API.get("/cashbox-sessions", {
+    const { data } = await API.post("/cashbox-sessions/get", filters, {
       headers: {
         Authorization: `Bearer ${token}`,
       }

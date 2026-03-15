@@ -19,16 +19,16 @@ export default function AppRoutes() {
         {token ? (
           <>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/sales-history" element={<SalesHistory />} />
+            <Route path="/cashbox-sessions" element={<CashboxSessions />} />
             <Route element={<CashBoxGuard />}>
               <Route path="/pos" element={<POS />} />
             </Route>
-            <Route path="/products" element={<Products />} />
             <Route element={<AdminGuard />}>
+              <Route path="/products" element={<Products />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/sales-history" element={<SalesHistory />} />
               <Route path="/terminals" element={<Terminals />} />
             </Route>
-            <Route path="/cashbox-sessions" element={<CashboxSessions />} />
           </>
         ) : (
           <Route path="/" element={<Login />} />

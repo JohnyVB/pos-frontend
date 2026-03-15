@@ -7,11 +7,12 @@ import { OpenSessionModal } from "../components/Dashboard/OpenSessionModal"
 import { PageHeader } from "../components/common/PageHeader"
 import { formatDateToShow } from "../helper/formatDate.helper"
 import type { Terminal } from "../interfaces/global.interface"
-import type { CashBoxSession } from "../interfaces/pages/CashBoxSessions.interface"
+import type { CashBoxSession, CashBoxSessionFilters } from "../interfaces/pages/CashBoxSessions.interface"
 import { onCloseCashBoxSession, onGetCashBoxSessions, onOpenCashBoxSession } from "../services/cashbox-sessions.services"
 import { onGetTerminals } from "../services/terminals.services"
 import useCashStore from "../store/useCashStore"
 import userStore from "../store/userStore"
+import { useForm } from "../hooks/useForm"
 
 export default function CashboxSessions() {
   const { userData, token } = userStore();
@@ -23,6 +24,12 @@ export default function CashboxSessions() {
   const [showTerminalModal, setShowTerminalModal] = useState<boolean>(false)
   const [openingAmount, setOpeningAmount] = useState<string>("");
   const navigate = useNavigate()
+  const { form, onChangeForm, resetForm } = useForm<CashBoxSessionFilters>({
+    user_id: userData ? userData!.id : undefined,
+    pos_terminal: undefined,
+    start_date: undefined,
+    end_date: undefined
+  });
 
   const getTerminals = async () => {
     const data = await onGetTerminals(token!);
@@ -67,7 +74,7 @@ export default function CashboxSessions() {
   }
 
   const getCashBoxSessions = async () => {
-    const res = await onGetCashBoxSessions(token!)
+    const res = await onGetCashBoxSessions(form, token!)
     if (res.response === "success" && res.cashBoxSessions) {
       setCashBoxSessions(res.cashBoxSessions)
       updateCashBox(res.cashBoxSessions)
@@ -77,7 +84,7 @@ export default function CashboxSessions() {
   }
 
   const updateCashBox = (cashBoxSessions: CashBoxSession[]) => {
-    const openCashBox = cashBoxSessions.find((cb: CashBoxSession) => cb.status === "OPEN")
+    const openCashBox = cashBoxSessions.find((cb: CashBoxSession) => cb.session_status === "OPEN")
     if (openCashBox) {
       setCashBoxSession(openCashBox)
     }
@@ -90,7 +97,7 @@ export default function CashboxSessions() {
 
   useEffect(() => {
     getCashBoxSessions()
-    if (!cashBoxSession?.pos_terminal_id && userData?.role === "admin") {
+    if (userData?.role === "admin") {
       getTerminals()
     }
   }, [])
@@ -138,6 +145,8 @@ export default function CashboxSessions() {
                 <th className="py-3">Cierre</th>
                 <th className="text-end py-3">Monto Apertura</th>
                 <th className="text-end py-3">Monto Cierre</th>
+                <th className="text-end py-3">Ventas</th>
+                <th className="text-end py-3">Total</th>
                 <th className="text-center py-3">Estado</th>
                 <th className="text-center px-4 py-3">Acciones</th>
               </tr>
@@ -147,19 +156,21 @@ export default function CashboxSessions() {
                 <tr key={cb.session_id}>
                   <td className="px-4"><small className="text-muted">#{cb.session_id}</small></td>
                   <td className="fw-semibold">{cb.terminal_name}</td>
-                  <td className="fw-semibold">{cb.user_name}</td>
+                  <td className="fw-semibold">{cb.name}</td>
                   <td><small>{cb.opened_at ? formatDateToShow(cb.opened_at) : "-"}</small></td>
                   <td><small>{cb.closed_at ? formatDateToShow(cb.closed_at) : "-"}</small></td>
                   <td className="text-end font-monospace">€{cb.opening_amount}</td>
                   <td className="text-end font-monospace">{cb.closing_amount ? `€${cb.closing_amount}` : "-"}</td>
+                  <td className="text-end font-monospace">{cb.total_sales_count}</td>
+                  <td className="text-end font-monospace">{cb.total_collected ? `€${cb.total_collected}` : "-"}</td>
                   <td className="text-center">
-                    <Badge bg={cb.status === "OPEN" ? "success" : "danger"} className="px-3 py-2 rounded-pill">
-                      {cb.status === "OPEN" ? "ABIERTA" : "CERRADA"}
+                    <Badge bg={cb.session_status === "OPEN" ? "success" : "danger"} className="px-3 py-2 rounded-pill">
+                      {cb.session_status === "OPEN" ? "ABIERTA" : "CERRADA"}
                     </Badge>
                   </td>
                   <td className="text-center px-4">
-                    {cb.status === "OPEN" ? (
-                      <div className="d-flex gap-2 justify-content-center">
+                    <div className="d-flex gap-2 justify-content-center">
+                      {cb.session_status === "OPEN" && (
                         <Button
                           variant="outline-danger"
                           size="sm"
@@ -168,34 +179,16 @@ export default function CashboxSessions() {
                         >
                           Cerrar Caja
                         </Button>
-                        {userData?.role === "admin" && (
-                          <Button
-                            variant="outline-primary"
-                            size="sm"
-                            className="fw-bold"
-                            onClick={() => navigate(`/sales-history?cashBoxId=${cb.session_id}`)}
-                          >
-                            Ver
-                          </Button>
-                        )}
-                      </div>
-                    ) : (
-                      <>
-                        {userData?.role === "admin" ? (
-                          <Button
-                            variant="outline-primary"
-                            size="sm"
-                            className="fw-bold"
-                            onClick={() => navigate(`/sales-history?cashBoxId=${cb.session_id}`)}
-                          >
-                            Ver Movimientos
-                          </Button>
-
-                        ) : (
-                          <span className="text-muted">-</span>
-                        )}
-                      </>
-                    )}
+                      )}
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        className="fw-bold"
+                        onClick={() => navigate(`/sales-history?cashBoxId=${cb.session_id}`)}
+                      >
+                        Ver
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -223,7 +216,6 @@ export default function CashboxSessions() {
         onCancel={() => setShowTerminalModal(false)}
         onSelectTerminal={openCashBoxSession}
         terminals={terminals}
-        setTerminals={setTerminals}
         openingAmount={openingAmount}
         setOpeningAmount={setOpeningAmount}
       />

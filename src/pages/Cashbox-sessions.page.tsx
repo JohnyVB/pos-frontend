@@ -6,13 +6,13 @@ import { CloseSessionModal } from "../components/Dashboard/CloseSessionModal"
 import { OpenSessionModal } from "../components/Dashboard/OpenSessionModal"
 import { PageHeader } from "../components/common/PageHeader"
 import { formatDateToShow } from "../helper/formatDate.helper"
+import { useForm } from "../hooks/useForm"
 import type { Terminal } from "../interfaces/global.interface"
 import type { CashBoxSession, CashBoxSessionFilters } from "../interfaces/pages/CashBoxSessions.interface"
 import { onCloseCashBoxSession, onGetCashBoxSessions, onOpenCashBoxSession } from "../services/cashbox-sessions.services"
 import { onGetTerminals } from "../services/terminals.services"
 import useCashStore from "../store/useCashStore"
 import userStore from "../store/userStore"
-import { useForm } from "../hooks/useForm"
 
 export default function CashboxSessions() {
   const { userData, token } = userStore();
@@ -113,10 +113,6 @@ export default function CashboxSessions() {
     getCashBoxSessions()
     getTerminals()
   }, [])
-
-  useEffect(() => {
-    console.log(form);
-  }, [form])
 
   return (
     <Container fluid className="p-4 bg-light min-vh-100">

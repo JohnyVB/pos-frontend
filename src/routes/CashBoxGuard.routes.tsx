@@ -5,7 +5,7 @@ export const CashBoxGuard = () => {
   const { cashBoxSession } = useCashStore();
 
   // Si no hay caja o el estatus no es OPEN, bloqueamos el acceso
-  if (!cashBoxSession || cashBoxSession.status !== "OPEN") {
+  if (!cashBoxSession || cashBoxSession.session_status !== "OPEN") {
     return <Navigate to="/" replace />;
   }
 

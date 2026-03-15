@@ -25,7 +25,7 @@ export default function CashboxSessions() {
   const [openingAmount, setOpeningAmount] = useState<string>("");
   const navigate = useNavigate()
   const { form, onChangeForm, resetForm } = useForm<CashBoxSessionFilters>({
-    user_id: userData?.role === "admin" ? null : userData?.id!,
+    user_id: (userData && userData.role === "admin") ? null : userData?.id || null,
     pos_terminal_id: null,
     start_date: null,
     end_date: null
@@ -110,9 +110,11 @@ export default function CashboxSessions() {
   }
 
   useEffect(() => {
-    getCashBoxSessions()
-    getTerminals()
-  }, [])
+    if (userData && token) {
+      getCashBoxSessions()
+      getTerminals()
+    }
+  }, [userData, token])
 
   return (
     <Container fluid className="p-4 bg-light min-vh-100">
@@ -261,7 +263,7 @@ export default function CashboxSessions() {
                         variant="outline-primary"
                         size="sm"
                         className="fw-bold"
-                        onClick={() => navigate(`/sales-history?session_id=${cb.session_id}`)}
+                        onClick={() => navigate("/sales-history", { state: { sale_history: cb } })}
                       >
                         Ver
                       </Button>

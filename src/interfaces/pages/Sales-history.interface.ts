@@ -7,7 +7,7 @@ export interface Sale {
   created_at: string;
   change_amount: number;
   sale_status: string;
-  saleItems: SaleItem[];
+  items: SaleItem[];
 }
 
 export interface SaleItem {
@@ -27,3 +27,4 @@ export interface SalesHistoryResponse {
   sales?: Sale[];
 }
 
+``

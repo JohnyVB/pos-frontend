@@ -25,10 +25,10 @@ export default function CashboxSessions() {
   const [openingAmount, setOpeningAmount] = useState<string>("");
   const navigate = useNavigate()
   const { form, onChangeForm, resetForm } = useForm<CashBoxSessionFilters>({
-    user_id: userData?.role === "admin" ? undefined : userData?.id,
-    pos_terminal_id: undefined,
-    start_date: undefined,
-    end_date: undefined
+    user_id: userData?.role === "admin" ? null : userData?.id!,
+    pos_terminal_id: null,
+    start_date: null,
+    end_date: null
   });
 
   const getTerminals = async () => {
@@ -97,10 +97,10 @@ export default function CashboxSessions() {
 
   const handleClearFilters = async () => {
     const initialFilters = {
-      user_id: userData?.role === "admin" ? undefined : userData?.id,
-      pos_terminal_id: undefined,
-      start_date: undefined,
-      end_date: undefined
+      user_id: userData?.role === "admin" ? null : userData?.id!,
+      pos_terminal_id: null,
+      start_date: null,
+      end_date: null
     };
     resetForm();
     const res = await onGetCashBoxSessions(initialFilters, token!)
@@ -160,10 +160,10 @@ export default function CashboxSessions() {
                   <Form.Group>
                     <Form.Label className="small fw-bold text-muted">Caja (Terminal)</Form.Label>
                     <Form.Select
-                      value={form.pos_terminal_id}
-                      onChange={(e) => onChangeForm(e.target.value, "pos_terminal_id")}
+                      value={form.pos_terminal_id || "all"}
+                      onChange={(e) => onChangeForm(e.target.value === "all" ? null : e.target.value, "pos_terminal_id")}
                     >
-                      <option value={undefined}>Todas las cajas</option>
+                      <option value="all">Todas las cajas</option>
                       {terminals.map(t => (
                         <option key={t.id} value={t.id}>{t.name}</option>
                       ))}
@@ -176,7 +176,7 @@ export default function CashboxSessions() {
                     <Form.Control
                       type="date"
                       value={form.start_date || ""}
-                      onChange={(e) => onChangeForm(e.target.value, "start_date")}
+                      onChange={(e) => onChangeForm(e.target.value === "" ? null : e.target.value, "start_date")}
                     />
                   </Form.Group>
                 </Col>
@@ -186,7 +186,7 @@ export default function CashboxSessions() {
                     <Form.Control
                       type="date"
                       value={form.end_date || ""}
-                      onChange={(e) => onChangeForm(e.target.value, "end_date")}
+                      onChange={(e) => onChangeForm(e.target.value === "" ? null : e.target.value, "end_date")}
                     />
                   </Form.Group>
                 </Col>

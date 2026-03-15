@@ -3,12 +3,12 @@ import { useState } from "react";
 export const useForm = <T extends Object>(initState: T) => {
   const [state, setState] = useState(initState);
 
-  const onChangeForm = (value: string | number, field: keyof T) => {
+  const onChangeForm = (value: string | number | null, field: keyof T) => {
     let finalValue: any = value;
 
     // Detectar el tipo esperado del campo basado en el estado inicial
     const initialValue = initState[field as keyof T];
-    if (typeof initialValue === "number") {
+    if (typeof initialValue === "number" && value !== null) {
       finalValue = Number(value);
     }
 

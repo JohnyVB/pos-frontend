@@ -8,7 +8,7 @@ import Products from "../pages/Products.page";
 import CashboxSessions from "../pages/Cashbox-sessions.page";
 import { CashBoxGuard } from "./CashBoxGuard.routes";
 import { AdminGuard } from "./AdminGuard.routes";
-import { SalesHistory } from "../pages/SalesHistory.page";
+import { SalesHistory } from "../pages/Sales-history.page";
 import Terminals from "../pages/Terminals.page";
 
 export default function AppRoutes() {

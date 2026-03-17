@@ -4,7 +4,7 @@ export interface ReturnModalProps {
   show: boolean
   onHide: () => void
   selectedSale: Sale | null
-  handleConfirmReturn: (items: ReturnedItem[]) => void
+  handleConfirmReturn: (items: ReturnedItem[], reason: string) => void
 }
 
 export interface ReturnedItem extends SaleItem {

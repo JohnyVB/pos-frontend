@@ -7,12 +7,14 @@ import { ReturnModal } from "../components/SalesHistory/ReturnModal"
 import { formatDateToShow } from "../helper/formatDate.helper"
 import type { CashBoxSession } from "../interfaces/pages/CashBoxSessions.interface"
 import type { Sale } from "../interfaces/pages/Sales-history.interface"
-import { onGetSalesBySessionId } from "../services/sales-history.services"
+import { onGetSalesBySessionId, onSaleRefund } from "../services/sales-history.services"
 import userStore from "../store/userStore"
 import type { ReturnedItem } from "../interfaces/components/SalesHistory/ReturnModal"
+import useCashStore from "../store/useCashStore"
 
 export const SalesHistory = () => {
   const { token, userData } = userStore();
+  const { currentAmount, setCurrentAmount } = useCashStore()
   const location = useLocation()
   const navigate = useNavigate()
   const sale_history: CashBoxSession = location.state?.sale_history
@@ -37,11 +39,31 @@ export const SalesHistory = () => {
     setIsReturnModalOpen(true)
   }
 
-  const handleConfirmReturn = (returnedItems: ReturnedItem[]) => {
-    console.log("Productos a retornar:", returnedItems)
-    toast.success(`Devolución de ${returnedItems.length} productos iniciada`)
-    setIsReturnModalOpen(false)
+  const handleConfirmReturn = async (returnedItems: ReturnedItem[], reason: string) => {
+    if (!selectedSale || !token || !userData) return
+
+    const body = {
+      sale_id: selectedSale.sale_id,
+      session_id: Number(sale_history.session_id),
+      user_id: userData.id,
+      reason,
+      items: returnedItems
+    }
+
+    const total_refunded = returnedItems.reduce((acc: number, item: any) => acc + item.price_at_sale * item.quantity_to_reintegrate, 0)
+
+    const res = await onSaleRefund(body, token)
+
+    if (res.response === "success") {
+      toast.success("Devolución procesada correctamente")
+      setIsReturnModalOpen(false)
+      setCurrentAmount((Number(currentAmount) - Number(total_refunded)).toFixed(2))
+    } else {
+      toast.error(res.message || "Error al procesar la devolución")
+    }
   }
+
+  console.log(sales)
 
   useEffect(() => {
     if (!sale_history) {
@@ -65,6 +87,8 @@ export const SalesHistory = () => {
                 <th className="text-end py-3">Subtotal</th>
                 <th className="text-end py-3">IVA</th>
                 <th className="text-end py-3">Total</th>
+                <th className="text-end py-3">Total Deuelto</th>
+                <th className="text-end py-3">Total Neto</th>
                 <th className="text-center py-3">Estado</th>
                 <th className="text-center py-3">Acciones</th>
               </tr>
@@ -84,12 +108,14 @@ export const SalesHistory = () => {
                         {sale.payment_method}
                       </Badge>
                     </td>
-                    <td className="text-end font-monospace">€{sale.sale_subtotal}</td>
-                    <td className="text-end font-monospace">€{sale.sale_vat_total}</td>
-                    <td className="text-end fw-bold font-monospace">€{sale.total}</td>
+                    <td className="text-end font-monospace">€{Number(sale.sale_subtotal)}</td>
+                    <td className="text-end font-monospace">€{Number(sale.sale_vat_total)}</td>
+                    <td className="text-end font-monospace">€{Number(sale.original_total)}</td>
+                    <td className="text-end font-monospace">€{Number(sale.total_refunded)}</td>
+                    <td className="text-end fw-bold font-monospace">€{Number(sale.net_total)}</td>
                     <td className="text-center">
-                      <Badge bg={sale.sale_status === "COMPLETED" ? "success" : "danger"} className="px-3 py-2 rounded-pill">
-                        {sale.sale_status}
+                      <Badge bg={sale.sale_status === "COMPLETED" ? "success" : sale.sale_status === "PARTIALLY_REFUNDED" ? "warning" : "danger"} className="px-3 py-2 rounded-pill">
+                        {sale.sale_status.replace("_", " ")}
                       </Badge>
                     </td>
                     <td className="text-center">
@@ -101,7 +127,7 @@ export const SalesHistory = () => {
 
                   {expandedSaleId === sale.sale_id && (
                     <tr>
-                      <td colSpan={8} className="p-0 bg-light">
+                      <td colSpan={10} className="p-0 bg-light">
                         <div className="p-4 animate__animated animate__fadeIn">
                           <div className="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
                             <h6 className="fw-bold mb-0">Productos de la Venta #{sale.sale_id}</h6>
@@ -120,7 +146,9 @@ export const SalesHistory = () => {
                             <thead className="table-secondary">
                               <tr>
                                 <th className="px-3">Producto</th>
-                                <th className="text-center">Cantidad</th>
+                                <th className="text-center">Cantidad original</th>
+                                <th className="text-center">Cantidad devuelta</th>
+                                <th className="text-center">Cantidad neta</th>
                                 <th className="text-end">Precio Unit.</th>
                                 <th className="text-end px-3">Subtotal</th>
                               </tr>
@@ -129,9 +157,11 @@ export const SalesHistory = () => {
                               {sale.items.map(item => (
                                 <tr key={item.item_id}>
                                   <td className="px-3">{item.product_name} {item.barcode}</td>
-                                  <td className="text-center fw-bold">{item.quantity}</td>
+                                  <td className="text-center fw-bold">{item.current_quantity}</td>
+                                  <td className="text-center fw-bold">{item.returned_quantity}</td>
+                                  <td className="text-center fw-bold">{item.current_quantity}</td>
                                   <td className="text-end">€{item.price_at_sale}</td>
-                                  <td className="text-end px-3 fw-bold text-primary">€{item.item_subtotal}</td>
+                                  <td className="text-end px-3 fw-bold text-primary">€{item.current_item_subtotal}</td>
                                 </tr>
                               ))}
                             </tbody>

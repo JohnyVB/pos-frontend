@@ -240,7 +240,7 @@ export default function CashboxSessions() {
                   <td><small>{cb.closed_at ? formatDateToShow(cb.closed_at) : "-"}</small></td>
                   <td className="text-end font-monospace">€{cb.opening_amount}</td>
                   <td className="text-end font-monospace">{cb.closing_amount ? `€${cb.closing_amount}` : "-"}</td>
-                  <td className="text-end font-monospace">{cb.total_sales_count}</td>
+                  <td className="text-end font-monospace">{cb.total_sales_count || 0}</td>
                   <td className="text-end font-monospace">{cb.total_collected ? `€${cb.total_collected}` : "-"}</td>
                   <td className="text-center">
                     <Badge bg={cb.session_status === "OPEN" ? "success" : "danger"} className="px-3 py-2 rounded-pill">

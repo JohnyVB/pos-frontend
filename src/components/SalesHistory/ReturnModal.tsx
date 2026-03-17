@@ -5,12 +5,23 @@ import type { ReturnedItem, ReturnModalProps } from "../../interfaces/components
 
 export const ReturnModal = ({ show, onHide, selectedSale, handleConfirmReturn }: ReturnModalProps) => {
   const [barcode, setBarcode] = useState("")
+  const [reason, setReason] = useState("Producto defectuoso")
   const [returnedItems, setReturnedItems] = useState<ReturnedItem[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const returnReasons = [
+    "Producto defectuoso",
+    "Cliente cambió de opinión",
+    "Error en el cobro",
+    "Producto equivocado",
+    "Vencimiento próximo",
+    "Otro"
+  ]
 
   useEffect(() => {
     if (show) {
       setBarcode("")
+      setReason("Producto defectuoso")
       setReturnedItems([])
       setTimeout(() => inputRef.current?.focus(), 100)
     }
@@ -31,15 +42,15 @@ export const ReturnModal = ({ show, onHide, selectedSale, handleConfirmReturn }:
       setReturnedItems(prev => {
         const existing = prev.find(item => item.barcode === barcode)
         if (existing) {
-          if (existing.quantity >= saleItem.quantity) {
+          if (existing.quantity_to_reintegrate >= saleItem.current_quantity) {
             toast.error("Ya has escaneado la cantidad total vendida de este producto")
             return prev
           }
           return prev.map(item =>
-            item.barcode === barcode ? { ...item, quantity: item.quantity + 1 } : item
+            item.barcode === barcode ? { ...item, quantity_to_reintegrate: item.quantity_to_reintegrate + 1 } : item
           )
         }
-        return [...prev, { ...saleItem, quantity: 1, reintegrate: true }]
+        return [...prev, { ...saleItem, quantity_to_reintegrate: 1, reintegrate: true }]
       })
       setBarcode("")
     }
@@ -65,7 +76,7 @@ export const ReturnModal = ({ show, onHide, selectedSale, handleConfirmReturn }:
           <div className="mb-4 text-center p-3 bg-light rounded border">
             <h6 className="text-muted text-uppercase small fw-bold mb-1">Venta Seleccionada</h6>
             <h4 className="fw-bold mb-0">#{selectedSale.sale_id}</h4>
-            <span className="text-muted small">Total: €{selectedSale.total}</span>
+            <span className="text-muted small">Total: €{selectedSale.original_total}</span>
           </div>
         )}
 
@@ -90,7 +101,7 @@ export const ReturnModal = ({ show, onHide, selectedSale, handleConfirmReturn }:
               </Form.Text>
             </Form.Group>
 
-            <div className="bg-light p-3 rounded">
+            <div className="bg-light p-3 rounded mb-4">
               <small className="text-muted d-block mb-2">Instrucciones:</small>
               <ul className="small text-muted ps-3 mb-0">
                 <li>Solo productos de esta venta.</li>
@@ -98,6 +109,17 @@ export const ReturnModal = ({ show, onHide, selectedSale, handleConfirmReturn }:
                 <li>Usa el switch para reintegrar al stock.</li>
               </ul>
             </div>
+
+            <h6 className="fw-bold mb-3">Motivo de Devolución</h6>
+            <Form.Select
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className="py-2 border-2"
+            >
+              {returnReasons.map((r, index) => (
+                <option key={index} value={r}>{r}</option>
+              ))}
+            </Form.Select>
           </Col>
 
           <Col md={7}>
@@ -133,9 +155,9 @@ export const ReturnModal = ({ show, onHide, selectedSale, handleConfirmReturn }:
                       <div className="d-flex justify-content-between align-items-center">
                         <div>
                           <Badge bg="light" className="text-dark border me-2">
-                            Cant: {item.quantity}
+                            Cant: {item.quantity_to_reintegrate}
                           </Badge>
-                          <small className="text-primary fw-bold">€{(item.price_at_sale * item.quantity).toFixed(2)}</small>
+                          <small className="text-primary fw-bold">€{(item.price_at_sale * item.quantity_to_reintegrate).toFixed(2)}</small>
                         </div>
                         <Form.Check
                           type="switch"
@@ -159,7 +181,7 @@ export const ReturnModal = ({ show, onHide, selectedSale, handleConfirmReturn }:
             size="lg"
             variant="danger"
             className="fw-bold py-3 shadow-sm"
-            onClick={() => handleConfirmReturn(returnedItems)}
+            onClick={() => handleConfirmReturn(returnedItems, reason)}
             disabled={returnedItems.length === 0}
           >
             Confirmar Devolución ({returnedItems.length})

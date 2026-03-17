@@ -1,5 +1,5 @@
 import API from "../config/api.config";
-import type { SaleRefundBody, SalesHistoryResponse } from "../interfaces/pages/Sales-history.interface";
+import type { SaleRefundBody, SaleRefundResponse, SalesHistoryResponse } from "../interfaces/pages/Sales-history.interface";
 
 export const onGetSalesBySessionId = async (session_id: number, token: string): Promise<SalesHistoryResponse> => {
   try {
@@ -15,7 +15,7 @@ export const onGetSalesBySessionId = async (session_id: number, token: string): 
   }
 }
 
-export const onSaleRefund = async (body: SaleRefundBody, token: string): Promise<SalesHistoryResponse> => {
+export const onSaleRefund = async (body: SaleRefundBody, token: string): Promise<SaleRefundResponse> => {
   try {
     const { data } = await API.post(`/sales/${body.sale_id}/refund`, body, {
       headers: {

@@ -32,6 +32,7 @@ export default function Dashboard() {
     { label: "Reporte Cajas", icon: "💶", path: "/cashbox-sessions", bg: "info" },
     { label: "Usuarios", icon: "👥", path: "/register", bg: "warning" },
     { label: "Terminales", icon: "🖥️", path: "/terminals", bg: "secondary" },
+    { label: "Tiendas", icon: "🏢", path: "/stores", bg: "dark" },
   ];
 
   return (

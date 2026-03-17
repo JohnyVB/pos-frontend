@@ -11,8 +11,8 @@ export const onLogin = async (
       password,
     });
     return data;
-  } catch (error) {
+  } catch (error: any) {
     console.log("Login failed:", error);
-    return { response: "error", message: "Login failed" };
+    return { response: "error", message: error.response.data.message };
   }
 };

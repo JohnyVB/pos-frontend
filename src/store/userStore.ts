@@ -14,7 +14,6 @@ const userStore = create<UserStore>()(
     (set) => ({
       token: null,
       userData: null,
-
       setToken: (token: string | null) => set({ token }),
       setUserData: (user: User | null) => set({ userData: user }),
     }),

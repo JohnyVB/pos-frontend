@@ -1,3 +1,5 @@
+import type { ReturnedItem } from "../components/SalesHistory/ReturnModal";
+
 export interface Sale {
   sale_id: number;
   total: number;
@@ -27,4 +29,10 @@ export interface SalesHistoryResponse {
   sales?: Sale[];
 }
 
-``
+export interface SaleRefundBody {
+  sale_id: number
+  session_id: number
+  user_id: number
+  reason: string
+  items: ReturnedItem[]
+}

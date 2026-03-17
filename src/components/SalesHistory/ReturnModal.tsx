@@ -1,61 +1,168 @@
-import { Badge, Button, Form, Modal } from "react-bootstrap"
-import Keyboard from "../POSPage/Keyboard"
-import type { SaleItem } from "../../interfaces/pages/Sales-history.interface"
+import { useEffect, useRef, useState } from "react"
+import { Badge, Button, Col, Form, InputGroup, ListGroup, Modal, Row } from "react-bootstrap"
+import toast from "react-hot-toast"
+import type { ReturnedItem, ReturnModalProps } from "../../interfaces/components/SalesHistory/ReturnModal"
 
-interface ReturnModalProps {
-  selectedItem: SaleItem | null
-  setSelectedItem: (item: SaleItem | null) => void
-  quantity: string
-  setQuantity: (quantity: string) => void
-  valueAjustment: (value: string) => void
-  handleConfirmReturn: () => void
-}
+export const ReturnModal = ({ show, onHide, selectedSale, handleConfirmReturn }: ReturnModalProps) => {
+  const [barcode, setBarcode] = useState("")
+  const [returnedItems, setReturnedItems] = useState<ReturnedItem[]>([])
+  const inputRef = useRef<HTMLInputElement>(null)
 
-export const ReturnModal = ({ selectedItem, setSelectedItem, quantity, setQuantity, valueAjustment, handleConfirmReturn }: ReturnModalProps) => {
+  useEffect(() => {
+    if (show) {
+      setBarcode("")
+      setReturnedItems([])
+      setTimeout(() => inputRef.current?.focus(), 100)
+    }
+  }, [show])
 
-  const closeModal = () => {
-    setQuantity("")
-    setSelectedItem(null)
+  const handleScan = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      if (!barcode.trim()) return
+
+      const saleItem = selectedSale?.items.find(item => item.barcode === barcode)
+
+      if (!saleItem) {
+        toast.error("El producto no pertenece a esta venta o el código es incorrecto")
+        setBarcode("")
+        return
+      }
+
+      setReturnedItems(prev => {
+        const existing = prev.find(item => item.barcode === barcode)
+        if (existing) {
+          if (existing.quantity >= saleItem.quantity) {
+            toast.error("Ya has escaneado la cantidad total vendida de este producto")
+            return prev
+          }
+          return prev.map(item =>
+            item.barcode === barcode ? { ...item, quantity: item.quantity + 1 } : item
+          )
+        }
+        return [...prev, { ...saleItem, quantity: 1, reintegrate: true }]
+      })
+      setBarcode("")
+    }
+  }
+
+  const toggleReintegrate = (barcode: string) => {
+    setReturnedItems(prev => prev.map(item =>
+      item.barcode === barcode ? { ...item, reintegrate: !item.reintegrate } : item
+    ))
+  }
+
+  const removeItem = (barcode: string) => {
+    setReturnedItems(prev => prev.filter(item => item.barcode !== barcode))
   }
 
   return (
-    <Modal show={selectedItem !== null} onHide={closeModal} centered backdrop="static">
+    <Modal show={show} onHide={onHide} size="lg" centered backdrop="static">
       <Modal.Header closeButton className="border-0 pb-0">
-        <Modal.Title className="fw-bold">Ingresar Cantidad</Modal.Title>
+        <Modal.Title className="fw-bold">Proceso de Devolución</Modal.Title>
       </Modal.Header>
       <Modal.Body className="p-4">
-        {selectedItem && (
-          <div className="text-center mb-4">
-            <h6 className="text-muted text-uppercase small fw-bold">Producto a devolver</h6>
-            <h4 className="fw-bold">{selectedItem.product_name}</h4>
-            <Badge bg="light" className="text-dark border">Vendidos: {selectedItem.quantity}</Badge>
+        {selectedSale && (
+          <div className="mb-4 text-center p-3 bg-light rounded border">
+            <h6 className="text-muted text-uppercase small fw-bold mb-1">Venta Seleccionada</h6>
+            <h4 className="fw-bold mb-0">#{selectedSale.sale_id}</h4>
+            <span className="text-muted small">Total: €{selectedSale.total}</span>
           </div>
         )}
 
-        <Form.Group className="mb-4">
-          <Form.Control
-            type="text"
-            readOnly
-            className="text-center fs-1 fw-bold py-3 bg-light border-2"
-            value={quantity || "0"}
-          />
-        </Form.Group>
+        <Row>
+          <Col md={5} className="border-end">
+            <h6 className="fw-bold mb-3">Escanear Producto</h6>
+            <Form.Group className="mb-4">
+              <InputGroup>
+                <Form.Control
+                  ref={inputRef}
+                  type="text"
+                  placeholder="Código de barras..."
+                  value={barcode}
+                  onChange={(e) => setBarcode(e.target.value)}
+                  onKeyDown={handleScan}
+                  className="py-2 border-2"
+                  autoFocus
+                />
+              </InputGroup>
+              <Form.Text className="text-muted">
+                Escanea el producto para añadirlo a la lista de devolución.
+              </Form.Text>
+            </Form.Group>
 
-        <Keyboard
-          number={quantity}
-          addNumber={valueAjustment}
-          clear={() => setQuantity("")}
-        />
+            <div className="bg-light p-3 rounded">
+              <small className="text-muted d-block mb-2">Instrucciones:</small>
+              <ul className="small text-muted ps-3 mb-0">
+                <li>Solo productos de esta venta.</li>
+                <li>Cada escaneo suma 1 unidad.</li>
+                <li>Usa el switch para reintegrar al stock.</li>
+              </ul>
+            </div>
+          </Col>
+
+          <Col md={7}>
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h6 className="fw-bold mb-0">Productos a Devolver</h6>
+              <Badge bg="primary">{returnedItems.length} items</Badge>
+            </div>
+
+            <div style={{ minHeight: '200px', maxHeight: '350px', overflowY: 'auto' }}>
+              {returnedItems.length === 0 ? (
+                <div className="text-center py-5 text-muted bg-light rounded border border-dashed">
+                  <p className="mb-0">No hay productos seleccionados.</p>
+                  <small>Escanea un código para comenzar.</small>
+                </div>
+              ) : (
+                <ListGroup variant="flush" className="border rounded shadow-sm">
+                  {returnedItems.map(item => (
+                    <ListGroup.Item key={item.barcode} className="py-3">
+                      <div className="d-flex justify-content-between align-items-start mb-2">
+                        <div className="flex-grow-1">
+                          <h6 className="fw-bold mb-0">{item.product_name}</h6>
+                          <small className="text-muted">{item.barcode}</small>
+                        </div>
+                        <Button
+                          variant="outline-secondary"
+                          size="sm"
+                          className="border-0"
+                          onClick={() => removeItem(item.barcode)}
+                        >
+                          ✕
+                        </Button>
+                      </div>
+                      <div className="d-flex justify-content-between align-items-center">
+                        <div>
+                          <Badge bg="light" className="text-dark border me-2">
+                            Cant: {item.quantity}
+                          </Badge>
+                          <small className="text-primary fw-bold">€{(item.price_at_sale * item.quantity).toFixed(2)}</small>
+                        </div>
+                        <Form.Check
+                          type="switch"
+                          label="Reintegrar"
+                          id={`reintegrate-${item.barcode}`}
+                          checked={item.reintegrate}
+                          onChange={() => toggleReintegrate(item.barcode)}
+                          className="small fw-bold"
+                        />
+                      </div>
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+              )}
+            </div>
+          </Col>
+        </Row>
 
         <div className="d-grid mt-4">
           <Button
             size="lg"
-            variant="primary"
+            variant="danger"
             className="fw-bold py-3 shadow-sm"
-            onClick={handleConfirmReturn}
-            disabled={!quantity || Number(quantity) <= 0}
+            onClick={() => handleConfirmReturn(returnedItems)}
+            disabled={returnedItems.length === 0}
           >
-            Confirmar Devolución
+            Confirmar Devolución ({returnedItems.length})
           </Button>
         </div>
       </Modal.Body>

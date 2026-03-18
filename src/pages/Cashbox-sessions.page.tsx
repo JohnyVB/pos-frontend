@@ -15,7 +15,7 @@ import useCashStore from "../store/useCashStore"
 import userStore from "../store/userStore"
 
 export default function CashboxSessions() {
-  const { userData, token } = userStore();
+  const { userData } = userStore();
   const [cashBoxSessions, setCashBoxSessions] = useState<CashBoxSession[]>([])
   const [showCloseBoxModal, setShowCloseBoxModal] = useState<boolean>(false)
   const [cashBoxId, setCashBoxId] = useState<number>(0)
@@ -32,14 +32,14 @@ export default function CashboxSessions() {
   });
 
   const getTerminals = async () => {
-    const data = await onGetTerminals(token!);
+    const data = await onGetTerminals(userData?.store_id!);
     if (data.response === "success" && data.terminals) {
       setTerminals(data.terminals);
     }
   }
 
   const openCashBoxSession = async (terminal: Terminal, openingAmount: number) => {
-    const res = await onOpenCashBoxSession(openingAmount, terminal.id, token!);
+    const res = await onOpenCashBoxSession(openingAmount, terminal.id, userData?.store_id!);
     if (res.response === "success" && res.cashBoxSession) {
       setCashBoxSessions(prev => [{ ...res.cashBoxSession!, terminal_name: terminal.name, user_name: userData!.name }, ...prev])
       setCashBoxSession(res.cashBoxSession);
@@ -56,7 +56,7 @@ export default function CashboxSessions() {
   }
 
   const closeCashBoxSession = async (id: number, closingAmount: number) => {
-    const res = await onCloseCashBoxSession(id, closingAmount, token!)
+    const res = await onCloseCashBoxSession(id, closingAmount)
     if (res.response === "success" && res.cashBoxSession) {
       setCashBoxSessions(prev =>
         prev.map(cb => cb.session_id === id
@@ -74,7 +74,7 @@ export default function CashboxSessions() {
   }
 
   const getCashBoxSessions = async () => {
-    const res = await onGetCashBoxSessions(form, token!)
+    const res = await onGetCashBoxSessions(form, userData?.store_id!)
     if (res.response === "success" && res.cashBoxSessions) {
       setCashBoxSessions(res.cashBoxSessions)
       updateCashBox(res.cashBoxSessions)
@@ -103,18 +103,18 @@ export default function CashboxSessions() {
       end_date: null
     };
     resetForm();
-    const res = await onGetCashBoxSessions(initialFilters, token!)
+    const res = await onGetCashBoxSessions(initialFilters, userData?.store_id!)
     if (res.response === "success" && res.cashBoxSessions) {
       setCashBoxSessions(res.cashBoxSessions)
     }
   }
 
   useEffect(() => {
-    if (userData && token) {
+    if (userData) {
       getCashBoxSessions()
       getTerminals()
     }
-  }, [userData, token])
+  }, [userData?.store_id])
 
   return (
     <Container fluid className="p-4 bg-light min-vh-100">
@@ -273,7 +273,7 @@ export default function CashboxSessions() {
               ))}
               {cashBoxSessions.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="text-center text-muted py-5">
+                  <td colSpan={11} className="text-center text-muted py-5">
                     No hay registros de cajas.
                   </td>
                 </tr>

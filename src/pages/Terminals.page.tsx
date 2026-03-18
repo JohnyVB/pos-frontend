@@ -1,24 +1,20 @@
 import { useEffect, useState } from "react";
-import { Container, Row, Col, Card, Form, Button, Table } from "react-bootstrap";
-import { PageHeader } from "../components/common/PageHeader";
-import { onGetTerminals, onCreateTerminal } from "../services/terminals.services";
-import userStore from "../store/userStore";
+import { Button, Card, Col, Container, Form, Row, Table } from "react-bootstrap";
 import toast, { Toaster } from "react-hot-toast";
-
-interface Terminal {
-  id: number;
-  name: string;
-}
+import { PageHeader } from "../components/common/PageHeader";
+import type { Terminal } from "../interfaces/global.interface";
+import { onCreateTerminal, onGetTerminals } from "../services/terminals.services";
+import userStore from "../store/userStore";
 
 export default function Terminals() {
-  const { token } = userStore();
+  const { userData } = userStore();
   const [terminals, setTerminals] = useState<Terminal[]>([]);
   const [newTerminalName, setNewTerminalName] = useState("");
   const [loading, setLoading] = useState(false);
 
   const getTerminals = async () => {
-    const res = await onGetTerminals(token!);
-    if (res.response === "success") {
+    const res = await onGetTerminals(userData?.store_id!);
+    if (res.response === "success" && res.terminals) {
       setTerminals(res.terminals);
     }
   };
@@ -28,7 +24,7 @@ export default function Terminals() {
     if (!newTerminalName.trim()) return;
 
     setLoading(true);
-    const res = await onCreateTerminal(newTerminalName, token!);
+    const res = await onCreateTerminal(newTerminalName, userData?.store_id!);
     if (res.response === "success") {
       toast.success("Terminal creada correctamente");
       setNewTerminalName("");

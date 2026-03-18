@@ -23,8 +23,8 @@ export const SalesHistory = () => {
   const [expandedSaleId, setExpandedSaleId] = useState<number | null>(null)
   const [isReturnModalOpen, setIsReturnModalOpen] = useState(false)
 
-  const getSalesBySessionId = async (session_id: number, token: string) => {
-    const res = await onGetSalesBySessionId(session_id, token)
+  const getSalesBySessionId = async () => {
+    const res = await onGetSalesBySessionId(Number(sale_history.session_id))
     if (res.response === "success" && res.sales) {
       setSales(res.sales)
     }
@@ -52,7 +52,7 @@ export const SalesHistory = () => {
 
     const total_refunded = returnedItems.reduce((acc: number, item: any) => acc + item.price_at_sale * item.quantity_to_reintegrate, 0)
 
-    const res = await onSaleRefund(body, token)
+    const res = await onSaleRefund(body, userData.store_id!)
 
     if (res.response === "success") {
       toast.success("Devolución procesada correctamente")
@@ -63,14 +63,12 @@ export const SalesHistory = () => {
     }
   }
 
-  console.log(sales)
-
   useEffect(() => {
     if (!sale_history) {
       navigate("/cashbox-sessions")
       return
     }
-    getSalesBySessionId(Number(sale_history.session_id), token!)
+    getSalesBySessionId()
   }, [sale_history])
 
   return (
@@ -174,7 +172,7 @@ export const SalesHistory = () => {
               ))}
               {sales.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="text-center text-muted py-5">
+                  <td colSpan={10} className="text-center text-muted py-5">
                     No se encontraron ventas para esta sesión.
                   </td>
                 </tr>

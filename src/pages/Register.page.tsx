@@ -1,11 +1,13 @@
 import { useState } from "react";
+import { Button, Card, Col, Container, Form, Row } from "react-bootstrap";
+import toast, { Toaster } from "react-hot-toast";
+import { PageHeader } from "../components/common/PageHeader";
 import { useForm } from "../hooks/useForm";
 import { onRegister } from "../services/register.services";
-import { PageHeader } from "../components/common/PageHeader";
-import toast, { Toaster } from "react-hot-toast";
-import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
+import userStore from "../store/userStore";
 
 export default function Register() {
+  const { userData } = userStore();
   const [loading, setLoading] = useState<boolean>(false);
   const { name, email, username, password, role, onChangeForm, resetForm } = useForm({
     name: "",
@@ -15,15 +17,15 @@ export default function Register() {
     role: "cashier",
   });
 
-  const handleRegister = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+  const handleRegister = async (e: React.SubmitEvent) => {
+    e.preventDefault();
     if (!name || !username || !password) {
       toast.error("Los campos nombre, usuario y contraseña son obligatorios", { duration: 4000 })
       return;
     }
     setLoading(true);
     try {
-      const result = await onRegister(name, username, email, password, role);
+      const result = await onRegister(name, username, email, password, role, userData?.store_id!);
       if (result.response === "error") {
         toast.error(result.message || "Error al registrar usuario", { duration: 4000 })
         setLoading(false);

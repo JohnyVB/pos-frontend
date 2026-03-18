@@ -7,14 +7,16 @@ export const onRegister = async (
   email: string,
   password: string,
   role: string,
+  store_id: string,
 ): Promise<registerResponse> => {
   try {
-    const { data } = await API.post<registerResponse>("/auth/register", {
+    const { data } = await API.post<registerResponse>("/users/register", {
       name,
       username,
       email,
       password,
       role,
+      store_id,
     });
     return data;
   } catch (error: any) {

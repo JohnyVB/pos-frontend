@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { Button, Card, Col, Container, Form, InputGroup, Row } from 'react-bootstrap';
 import toast, { Toaster } from "react-hot-toast";
-import { Container, Row, Col, Card, Button, Form, InputGroup } from 'react-bootstrap';
 import { PageHeader } from "../components/common/PageHeader";
 import CardPaymentForm from "../components/POSPage/CardPaymentForm";
 import CashPaymentForm from "../components/POSPage/CashPaymentForm";
@@ -8,12 +8,12 @@ import PaymentModal from "../components/POSPage/PaymentModal";
 import WeightForm from "../components/POSPage/WeightForm";
 import useSounds from "../hooks/useSounds";
 import type { ProductByBarcode } from "../interfaces/pages/POS.interfaces";
-import { onGetProductByBarcode, onRegisterSale } from "../services/POS.services";
+import { onCreateSale, onGetProductByBarcode } from "../services/POS.services";
 import useCashStore from "../store/useCashStore";
 import userStore from "../store/userStore";
 
 export default function POS() {
-  const { token } = userStore();
+  const { userData } = userStore();
   const [cart, setCart] = useState<ProductByBarcode[]>([]);
   const [barcode, setBarcode] = useState<string>("");
   const inputBarcodeRef = useRef<HTMLInputElement | null>(null);
@@ -28,7 +28,7 @@ export default function POS() {
 
   const searchProductByBarcode = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      const res = await onGetProductByBarcode(Number(barcode), token!)
+      const res = await onGetProductByBarcode(Number(barcode), userData?.store_id!)
       if (res.response === "success" && res.product) {
         if (res.product.sale_type === "WEIGHT") {
           setProductWeight(res.product)
@@ -122,7 +122,7 @@ export default function POS() {
       cash_box_id: cashBoxSession!.session_id,
       items,
     }
-    const res = await onRegisterSale(body, token!)
+    const res = await onCreateSale(body, userData?.store_id!)
     if (res.response === "success" && res.data) {
       setCart([]);
       setShowCashForm(false)
@@ -143,7 +143,7 @@ export default function POS() {
       cash_box_id: cashBoxSession!.session_id,
       items,
     }
-    const res = await onRegisterSale(body, token!)
+    const res = await onCreateSale(body, userData?.store_id!)
     if (res.response === "success" && res.data) {
       setCart([]);
       setShowCardForm(false)

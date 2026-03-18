@@ -1,13 +1,9 @@
 import API from "../config/api.config";
 import type { SaleRefundBody, SaleRefundResponse, SalesHistoryResponse } from "../interfaces/pages/Sales-history.interface";
 
-export const onGetSalesBySessionId = async (session_id: number, token: string): Promise<SalesHistoryResponse> => {
+export const onGetSalesBySessionId = async (session_id: number): Promise<SalesHistoryResponse> => {
   try {
-    const { data } = await API.get(`/sales/${session_id}`, {
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    });
+    const { data } = await API.get(`/sales/${session_id}`);
     return data;
   } catch (error) {
     console.log("Error en getSalesBySessionId", error);
@@ -15,13 +11,9 @@ export const onGetSalesBySessionId = async (session_id: number, token: string): 
   }
 }
 
-export const onSaleRefund = async (body: SaleRefundBody, token: string): Promise<SaleRefundResponse> => {
+export const onSaleRefund = async (body: SaleRefundBody, store_id: string): Promise<SaleRefundResponse> => {
   try {
-    const { data } = await API.post(`/sales/${body.sale_id}/refund`, body, {
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    });
+    const { data } = await API.post(`/sales/refund/${store_id}`, body);
     return data;
   } catch (error) {
     console.log("Error en returnSale", error);

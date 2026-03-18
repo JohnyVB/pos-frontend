@@ -15,7 +15,7 @@ import { onGetProducts } from "../services/products.services";
 import userStore from "../store/userStore";
 
 export default function Products() {
-  const { token, userData } = userStore();
+  const { userData } = userStore();
   const [activeTab, setActiveTab] = useState<ActiveTab>("products");
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -112,7 +112,6 @@ export default function Products() {
 
           {activeTab === "inventory" && (
             <TabInventory
-              products={products}
               inventory={inventory}
               setInventory={setInventory}
             />

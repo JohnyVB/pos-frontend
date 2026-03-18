@@ -5,15 +5,13 @@ import { useForm } from "../../hooks/useForm";
 import { onGetProductByQuery, onMovement } from "../../services/inventory.services";
 import userStore from "../../store/userStore";
 import type { Inventory, InventoryForm, productSearchQuery, TabInventoryProps } from "../../interfaces/components/POSPage/TabInventory.interface";
-import type { Product } from "../../interfaces/global.interface";
 import toast from "react-hot-toast";
 
 export const TabInventory = ({
-  products,
   inventory,
   setInventory,
 }: TabInventoryProps) => {
-  const { token, userData } = userStore();
+  const { userData } = userStore();
   const [query, setQuery] = useState<string>("");
   const [selectedProduct, setSelectedProduct] = useState<productSearchQuery | null>(null);
   const inputSearchRef = useRef<HTMLInputElement | null>(null);

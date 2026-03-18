@@ -15,7 +15,6 @@ export interface InventoryForm {
   reference: string;
 }
 export interface TabInventoryProps {
-  products: Product[];
   inventory: Inventory[];
   setInventory: React.Dispatch<React.SetStateAction<Inventory[]>>;
 };

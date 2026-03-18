@@ -10,7 +10,7 @@ import userStore from "../../store/userStore";
 import toast from "react-hot-toast";
 
 const TabCreateEditProduct = ({ products, setProducts, categories }: TabProductsProps) => {
-  const { token } = userStore();
+  const { userData } = userStore();
   const [editingId, setEditingId] = useState<number | null>(null);
   const inputNameRef = useRef<HTMLInputElement | null>(null);
   const inputSaleTypeRef = useRef<HTMLSelectElement | null>(null);
@@ -28,7 +28,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories }: TabProducts
   });
 
   const addProductToList = (newProduct: Product) => {
-    setProducts((prev: Product[]) => [...prev, newProduct]);
+    setProducts((prev: Product[]) => [newProduct, ...prev]);
   }
 
   const updateProductInList = (updatedProduct: Product) => {
@@ -44,14 +44,14 @@ const TabCreateEditProduct = ({ products, setProducts, categories }: TabProducts
     }
     try {
       if (!editingId) {
-        const res = await onCreateProduct(form, token!);
+        const res = await onCreateProduct(form, userData?.store_id!);
         if (res.response === "success" && res.product) {
           toast.success("Producto creado exitosamente", { duration: 4000 });
           addProductToList(res.product);
           inputBarcodeRef.current?.focus();
         }
       } else {
-        const res = await onUpdateProduct(editingId, form, token!);
+        const res = await onUpdateProduct(editingId, form);
         if (res.response === "success" && res.product) {
           updateProductInList(res.product);
           toast.success("Producto actualizado exitosamente", { duration: 4000 });
@@ -79,7 +79,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories }: TabProducts
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await onDeleteProduct(id, token!);
+      const res = await onDeleteProduct(id);
       if (res.response === "success") {
         setProducts((prev: Product[]) => prev.filter((p) => p.id !== id));
         toast.success("Producto eliminado exitosamente", { duration: 4000 });

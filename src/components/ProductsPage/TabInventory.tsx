@@ -13,18 +13,14 @@ export const TabInventory = ({
   inventory,
   setInventory,
 }: TabInventoryProps) => {
-  const { token } = userStore();
+  const { token, userData } = userStore();
   const [query, setQuery] = useState<string>("");
   const [selectedProduct, setSelectedProduct] = useState<productSearchQuery | null>(null);
   const inputSearchRef = useRef<HTMLInputElement | null>(null);
   const inputQuantityRef = useRef<HTMLInputElement | null>(null);
   const inputReferenceRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const {
-    form,
-    onChangeForm,
-    resetForm,
-  } = useForm<InventoryForm>({
+  const { form, onChangeForm, resetForm } = useForm<InventoryForm>({
     product_id: "",
     quantity: "0",
     reference: "",
@@ -45,12 +41,14 @@ export const TabInventory = ({
       updated[existingIndex].quantity = Number(updated[existingIndex].quantity) + Number(form.quantity);
     } else {
       updated = [
-        ...inventory,
         {
           id: Date.now(),
           product_id: selectedProduct.id,
+          name: selectedProduct.name,
+          barcode: selectedProduct.barcode,
           quantity: Number(form.quantity),
         },
+        ...inventory,
       ];
     }
     setInventory(updated);
@@ -86,7 +84,7 @@ export const TabInventory = ({
       return;
     }
 
-    const res = await onMovement(Number(form.product_id), Number(form.quantity), "IN", form.reference, token!);
+    const res = await onMovement(Number(form.product_id), Number(form.quantity), "IN", form.reference, userData?.store_id!);
     if (res.response === "success") {
       updateProductInventory(selectedProduct!, "IN");
       toast.success(res.message, { duration: 4000 });
@@ -109,7 +107,7 @@ export const TabInventory = ({
       return;
     }
 
-    const res = await onMovement(Number(form.product_id), Number(form.quantity), "OUT", form.reference, token!);
+    const res = await onMovement(Number(form.product_id), Number(form.quantity), "OUT", form.reference, userData?.store_id!);
     if (res.response === "success") {
       updateProductInventory(selectedProduct!, "OUT");
       toast.success("Movimiento de inventario registrado exitosamente", { duration: 4000 });
@@ -123,7 +121,7 @@ export const TabInventory = ({
 
   const handleKeyDownSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && query.trim() !== "") {
-      const res = await onGetProductByQuery(query.toLowerCase().trim(), token!);
+      const res = await onGetProductByQuery(query.toLowerCase().trim(), userData?.store_id!);
       if (res.response === "success" && res.product) {
         setSelectedProduct(res.product);
         inputQuantityRef.current?.focus();
@@ -255,16 +253,16 @@ export const TabInventory = ({
               {selectedProduct ? (
                 <>
                   <h4 className="mb-4">Producto Seleccionado</h4>
-                  <div className="bg-white text-dark p-3 rounded mb-4 shadow-sm">
-                    <p className="mb-2"><span className="fw-bold text-secondary">Nombre:</span> <br />{selectedProduct.name}</p>
+                  <div className="bg-white text-dark p-3 rounded mb-2 shadow-sm">
                     <p className="mb-2"><span className="fw-bold text-secondary">Código:</span> <br /><span className="font-monospace">{selectedProduct.barcode}</span></p>
+                    <p className="mb-2"><span className="fw-bold text-secondary">Nombre:</span> <br />{selectedProduct.name}</p>
                     <p className="mb-0"><span className="fw-bold text-secondary">Stock actual:</span> <br />
                       <Badge bg="primary" className="fs-5">{Number(selectedProduct.inventory_quantity)}</Badge>
                     </p>
                   </div>
                   <Button
                     variant="light"
-                    className="text-danger fw-bold mt-auto align-self-start"
+                    className="text-danger fw-bold mt-2 align-self-start"
                     onClick={removeSelectedProduct}
                   >
                     Olvidar Producto
@@ -288,20 +286,19 @@ export const TabInventory = ({
           <Table responsive hover className="mb-0 align-middle">
             <thead className="table-light">
               <tr>
-                <th className="px-4 py-3">Producto</th>
+                <th className="px-4 py-3">Barcode</th>
+                <th className="px-4 py-3">Nombre</th>
                 <th className="text-end px-4 py-3" style={{ width: "200px" }}>Stock Disponible</th>
               </tr>
             </thead>
             <tbody>
               {inventory.map((inv: Inventory) => {
-                const product = products.find((p: Product) => p.id === inv.product_id);
                 return (
                   <tr key={inv.product_id}>
-                    <td className="px-4 fw-semibold text-secondary">{product?.name || "Producto no encontrado"}</td>
+                    <td className="px-4 fw-semibold text-secondary">{inv.barcode}</td>
+                    <td className="px-4 fw-semibold text-secondary">{inv.name}</td>
                     <td className="text-end px-4">
-                      <span className={`font-monospace fw-bold fs-5 ${Number(inv.quantity) <= 0 ? 'text-danger' : 'text-success'}`}>
-                        {Number(inv.quantity)}
-                      </span>
+                      <Badge bg="primary" className="fs-5">{Number(inv.quantity)}</Badge>
                     </td>
                   </tr>
                 );

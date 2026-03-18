@@ -13,6 +13,6 @@ export const onLogin = async (
     return data;
   } catch (error: any) {
     console.log("Login failed:", error);
-    return { response: "error", message: error.response.data.message };
+    return { response: "error", message: error.message };
   }
 };

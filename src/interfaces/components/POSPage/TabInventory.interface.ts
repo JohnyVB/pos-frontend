@@ -4,6 +4,8 @@ import type { Product } from "../../global.interface";
 export interface Inventory {
   id: number;
   product_id: number;
+  name: string;
+  barcode: string;
   quantity: number;
 }
 

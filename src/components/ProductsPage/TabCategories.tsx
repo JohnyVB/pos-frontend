@@ -15,7 +15,7 @@ const TabCategories = ({
   categories,
   setCategories,
 }: TabCategoriesProps) => {
-  const { token } = userStore();
+  const { userData } = userStore();
   const { form, onChangeForm, resetForm } = useForm({
     name: "",
     description: "",
@@ -24,17 +24,17 @@ const TabCategories = ({
   // Handlers para Categorías
   const handleAddCategory = async () => {
     if (!form.name.trim() || !form.description.trim()) {
-      alert("El nombre y la descripción de la categoría son requeridos");
+      toast.error("El nombre y la descripción de la categoría son requeridos", { duration: 4000 });
       return;
     }
-    const res = await onCreateCategory(form, token!);
+    const res = await onCreateCategory(form, userData?.store_id!);
 
     if (res.response === "success" && res.category) {
       toast.success("Categoría creada exitosamente", { duration: 4000 });
       const newCategory = {
         ...res.category,
       };
-      const updated: Category[] = [...categories, newCategory];
+      const updated: Category[] = [newCategory, ...categories];
       setCategories(updated);
       resetForm();
     } else {
@@ -46,7 +46,7 @@ const TabCategories = ({
 
   // Función para eliminar (desactivar) una categoría
   const handleDeleteCategory = async (id: number) => {
-    const res = await onDeactivateCategory(id, token!);
+    const res = await onDeactivateCategory(id);
     if (res.response === "success") {
       const updatedCategories = categories.filter((cat) => cat.id !== id);
       setCategories(updatedCategories);

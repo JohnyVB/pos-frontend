@@ -6,14 +6,10 @@ export const onMovement = async (
   quantity: number,
   type: "IN" | "OUT",
   reference: string,
-  token: string
+  store_id: string
 ): Promise<InventoryMovementResponse> => {
   try {
-    const { data } = await API.post("/inventory/movement", { product_id, quantity, type, reference }, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const { data } = await API.post(`/inventory/movement/${store_id}`, { product_id, quantity, type, reference });
     return data;
   } catch (error) {
     console.error("Error adding inventory:", error);
@@ -21,13 +17,9 @@ export const onMovement = async (
   }
 };
 
-export const onGetProductByQuery = async (query: string, token: string): Promise<ProductSearchResponse> => {
+export const onGetProductByQuery = async (query: string, store_id: string): Promise<ProductSearchResponse> => {
   try {
-    const { data } = await API.get(`/products/search/${encodeURIComponent(query)}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const { data } = await API.get(`/products/search/${encodeURIComponent(query)}/${store_id}`);
     return data;
   } catch (error) {
     console.error("Error fetching product by query:", error);
@@ -35,13 +27,9 @@ export const onGetProductByQuery = async (query: string, token: string): Promise
   }
 };
 
-export const onLoadInventory = async (token: string): Promise<LoadInventoryResponse> => {
+export const onLoadInventory = async (store_id: string): Promise<LoadInventoryResponse> => {
   try {
-    const { data } = await API.get("/inventory", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const { data } = await API.get(`/inventory/${store_id}`);
     return data;
   } catch (error) {
     console.error("Error loading inventory:", error);

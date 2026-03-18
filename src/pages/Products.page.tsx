@@ -15,7 +15,7 @@ import { onGetProducts } from "../services/products.services";
 import userStore from "../store/userStore";
 
 export default function Products() {
-  const { token } = userStore();
+  const { token, userData } = userStore();
   const [activeTab, setActiveTab] = useState<ActiveTab>("products");
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -29,7 +29,7 @@ export default function Products() {
 
   const loadProducts = async () => {
     try {
-      const res = await onGetProducts(token!);
+      const res = await onGetProducts(userData?.store_id!);
       if (res.response === "success" && res.products) {
         setProducts(res.products);
       } else {
@@ -44,17 +44,18 @@ export default function Products() {
   };
 
   const loadCategories = async () => {
-    const res = await onGetCategories(token!);
+    const res = await onGetCategories(userData?.store_id!);
     if (res.response === "success" && res.categories) {
       setCategories(res.categories);
     } else {
-      console.error("Error fetching categories:", res.message);
+      setCategories([]);
+      toast.error("Error al cargar categorías", { duration: 4000 });
     }
   };
 
   const loadInventory = async () => {
     try {
-      const res = await onLoadInventory(token!);
+      const res = await onLoadInventory(userData?.store_id!);
       if (res.response === "success" && res.inventory) {
         setInventory(res.inventory);
       } else {

@@ -6,68 +6,52 @@ import type {
   updateProductResponse
 } from "../interfaces/components/POSPage/TabCreateEdit.interface";
 
-export const onGetProducts = async (token: string): Promise<getProductsResponse> => {
+export const onGetProducts = async (store_id: string): Promise<getProductsResponse> => {
   try {
-    const { data } = await API.get("/products", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const { data } = await API.get(`/products/${store_id}`);
     return data;
   } catch (error: any) {
-    console.error("Error fetching products:", error);
-    return { response: "error", message: "Error al cargar productos" };
+    console.log("Error fetching products:", error);
+    return { response: "error", message: "Error en onGetProducts" };
   }
 };
 
-export const onCreateProduct = async (product: createEditForm, token: string): Promise<createProductResponse> => {
+export const onCreateProduct = async (product: createEditForm, store_id: string): Promise<createProductResponse> => {
   try {
-    const { data } = await API.post("/products", {
+    const { data } = await API.post(`/products/${store_id}`, {
       ...product,
       price: parseFloat(product.price),
       vat: parseFloat(product.vat),
       category_id: parseInt(product.category_id)
-    }, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     });
     return data;
-  } catch (error) {
-    console.error("Error creating product:", error);
+  } catch (error: any) {
+    console.log("Error creating product:", error);
     return { response: "error", message: "Error al crear producto" };
   }
 };
 
-export const onUpdateProduct = async (id: number, product: createEditForm, token: string): Promise<updateProductResponse> => {
+export const onUpdateProduct = async (id: number, product: createEditForm): Promise<updateProductResponse> => {
   try {
     const { data } = await API.put(`/products/${id}`, {
       ...product,
       price: parseFloat(product.price),
       vat: parseFloat(product.vat),
       category_id: parseInt(product.category_id)
-    }, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     });
     return data;
   } catch (error) {
-    console.error("Error updating product:", error);
+    console.log("Error updating product:", error);
     return { response: "error", message: "Error al actualizar producto" };
   }
 };
 
-export const onDeleteProduct = async (id: number, token: string) => {
+export const onDeleteProduct = async (id: number) => {
   try {
-    const { data } = await API.delete(`/products/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const { data } = await API.delete(`/products/${id}`);
     return data;
-  } catch (error) {
-    console.error("Error deleting product:", error);
+  } catch (error: any) {
+    console.log("Error deleting product:", error);
     return { response: "error", message: "Error al eliminar producto" };
   }
 };

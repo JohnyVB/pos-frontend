@@ -256,7 +256,7 @@ export default function CashboxSessions() {
                           className="fw-bold"
                           onClick={() => handleCloseBox(cb.session_id)}
                         >
-                          Cerrar Caja
+                          Cerrar
                         </Button>
                       )}
                       <Button

@@ -50,7 +50,11 @@ export const SalesHistory = () => {
       items: returnedItems
     }
 
-    const total_refunded = returnedItems.reduce((acc: number, item: any) => acc + item.price_at_sale * item.quantity_to_reintegrate, 0)
+    const total_refunded = returnedItems.reduce((acc: number, item: any) => {
+      const itemTotal = item.price_at_sale * item.quantity_to_reintegrate;
+      const itemVat = (itemTotal * (item.vat_rate || 0)) / 100;
+      return acc + itemTotal + itemVat;
+    }, 0)
 
     const res = await onSaleRefund(body, userData.store_id!)
 

@@ -154,7 +154,7 @@ export const SalesHistory = () => {
                             <tbody>
                               {sale.items.map(item => (
                                 <tr key={item.item_id}>
-                                  <td className="px-3">{item.product_name} {item.barcode}</td>
+                                  <td className="px-3">{item.product_name}</td>
                                   <td className="text-center fw-bold">{item.current_quantity}</td>
                                   <td className="text-center fw-bold">{item.returned_quantity}</td>
                                   <td className="text-center fw-bold">{item.current_quantity}</td>

@@ -18,6 +18,7 @@ export interface User {
   username: string;
   email: string;
   role: string;
+  active: boolean;
   store_id: string;
   created_at: string;
 }

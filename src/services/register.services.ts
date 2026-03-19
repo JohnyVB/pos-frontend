@@ -34,3 +34,15 @@ export const onGetUsers = async (store_id: string): Promise<getUsersResponse> =>
     return { response: "error", message: "Error al obtener usuarios" };
   }
 }
+
+export const onToggleUserStatus = async (user_id: number, active: boolean): Promise<registerResponse> => {
+  try {
+    const { data } = await API.patch<registerResponse>(`/users/toggle-status/${user_id}`, {
+      active,
+    });
+    return data;
+  } catch (error: any) {
+    console.log("Toggle user status failed:", error);
+    return { response: "error", message: "Error al cambiar estado del usuario" };
+  }
+}

@@ -5,3 +5,9 @@ export interface registerResponse {
   user?: User;
   message?: string;
 }
+
+export interface getUsersResponse {
+  response: string;
+  users?: User[];
+  message?: string;
+}

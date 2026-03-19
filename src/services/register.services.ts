@@ -1,5 +1,5 @@
 import API from "../config/api.config";
-import type { registerResponse } from "../interfaces/pages/Register.interface";
+import type { getUsersResponse, registerResponse } from "../interfaces/pages/Register.interface";
 
 export const onRegister = async (
   name: string,
@@ -24,3 +24,13 @@ export const onRegister = async (
     return { response: "error", message: error.response.data.message };
   }
 };
+
+export const onGetUsers = async (store_id: string): Promise<getUsersResponse> => {
+  try {
+    const { data } = await API.get<getUsersResponse>(`/users/${store_id}`);
+    return data;
+  } catch (error: any) {
+    console.log("Get users failed:", error);
+    return { response: "error", message: "Error al obtener usuarios" };
+  }
+}

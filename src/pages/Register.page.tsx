@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Card, Col, Container, Form, Row } from "react-bootstrap";
 import toast, { Toaster } from "react-hot-toast";
 import { PageHeader } from "../components/common/PageHeader";
 import { useForm } from "../hooks/useForm";
-import { onRegister } from "../services/register.services";
+import { onGetUsers, onRegister } from "../services/register.services";
 import userStore from "../store/userStore";
+import type { User } from "../interfaces/global.interface";
 
 export default function Register() {
   const { userData } = userStore();
   const [loading, setLoading] = useState<boolean>(false);
+  const [users, setUsers] = useState<User[]>([]);
   const { name, email, username, password, role, onChangeForm, resetForm } = useForm({
     name: "",
     username: "",
@@ -40,6 +42,23 @@ export default function Register() {
       setLoading(false);
     }
   };
+
+  const handleGetUsers = async () => {
+    try {
+      const result = await onGetUsers(userData?.store_id!);
+      if (result.response === "success" && result.users) {
+        setUsers(result.users);
+        console.log(result.users);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al obtener usuarios", { duration: 4000 });
+    }
+  }
+
+  useEffect(() => {
+    handleGetUsers();
+  }, []);
 
   return (
     <Container fluid className="vh-100 bg-light p-4 d-flex flex-column">

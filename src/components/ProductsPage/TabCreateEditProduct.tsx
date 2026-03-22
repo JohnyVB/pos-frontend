@@ -17,6 +17,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories }: TabProducts
   const inputBarcodeRef = useRef<HTMLInputElement | null>(null);
   const inputPriceRef = useRef<HTMLInputElement | null>(null);
   const inputVatRef = useRef<HTMLInputElement | null>(null);
+  const inputMinStockRef = useRef<HTMLInputElement | null>(null);
   const inputCategoryRef = useRef<HTMLSelectElement | null>(null);
   const { form, onChangeForm, setFormValues, resetForm } = useForm<createEditForm>({
     name: "",
@@ -25,6 +26,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories }: TabProducts
     vat: "21",
     sale_type: "UNIT",
     category_id: "1",
+    min_stock: "5.00",
   });
 
   const addProductToList = (newProduct: Product) => {
@@ -102,8 +104,8 @@ const TabCreateEditProduct = ({ products, setProducts, categories }: TabProducts
     }
   }
 
-  const valueAjustment = (value: string, field: keyof createEditForm) => {
-    if (field === "price") {
+  const valueAdjustment = (value: string, field: keyof createEditForm) => {
+    if (field === "price" || field === "min_stock") {
       value = value.replace(',', '.');
       const regex = /^\d*(\.\d{0,2})?$/;
       if (value === "" || value === "." || regex.test(value)) {
@@ -136,7 +138,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories }: TabProducts
                   ref={inputBarcodeRef}
                   placeholder="Ej: 123456789"
                   value={form.barcode}
-                  onChange={(e) => valueAjustment(e.target.value, "barcode")}
+                  onChange={(e) => valueAdjustment(e.target.value, "barcode")}
                   onKeyDown={(e) => handleKeyDown(e, inputNameRef)}
                   required
                 />
@@ -150,7 +152,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories }: TabProducts
                   ref={inputNameRef}
                   placeholder="Nombre del producto"
                   value={form.name}
-                  onChange={(e) => valueAjustment(e.target.value, "name")}
+                  onChange={(e) => valueAdjustment(e.target.value, "name")}
                   onKeyDown={(e) => handleKeyDown(e, inputSaleTypeRef)}
                   required
                 />
@@ -163,7 +165,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories }: TabProducts
                 <Form.Select
                   ref={inputSaleTypeRef}
                   value={form.sale_type}
-                  onChange={(e) => valueAjustment(e.target.value, "sale_type")}
+                  onChange={(e) => valueAdjustment(e.target.value, "sale_type")}
                   onKeyDown={(e) => handleKeyDown(e, inputPriceRef)}
                 >
                   <option value="UNIT">Unidad</option>
@@ -180,7 +182,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories }: TabProducts
                   type="text"
                   placeholder="0.00"
                   value={form.price}
-                  onChange={(e) => valueAjustment(e.target.value, "price")}
+                  onChange={(e) => valueAdjustment(e.target.value, "price")}
                   onKeyDown={(e) => handleKeyDown(e, inputVatRef)}
                   required
                 />
@@ -195,20 +197,35 @@ const TabCreateEditProduct = ({ products, setProducts, categories }: TabProducts
                   type="text"
                   placeholder="21"
                   value={form.vat}
-                  onChange={(e) => valueAjustment(e.target.value, "vat")}
+                  onChange={(e) => valueAdjustment(e.target.value, "vat")}
+                  onKeyDown={(e) => handleKeyDown(e, inputMinStockRef)}
+                  required
+                />
+              </Form.Group>
+            </Col>
+
+            <Col md={4} lg={3}>
+              <Form.Group>
+                <Form.Label className="fw-semibold">Stock Mínimo</Form.Label>
+                <Form.Control
+                  ref={inputMinStockRef}
+                  type="text"
+                  placeholder="0"
+                  value={form.min_stock}
+                  onChange={(e) => valueAdjustment(e.target.value, "min_stock")}
                   onKeyDown={(e) => handleKeyDown(e, inputCategoryRef)}
                   required
                 />
               </Form.Group>
             </Col>
 
-            <Col md={4} lg={6}>
+            <Col md={4} lg={3}>
               <Form.Group>
                 <Form.Label className="fw-semibold">Categoría</Form.Label>
                 <Form.Select
                   ref={inputCategoryRef}
                   value={form.category_id}
-                  onChange={(e) => valueAjustment(e.target.value, "category_id")}
+                  onChange={(e) => valueAdjustment(e.target.value, "category_id")}
                   onKeyDown={(e) => handleKeyDown(e)}
                 >
                   <option value={0}>Sin categoría</option>
@@ -252,6 +269,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories }: TabProducts
                 <th className="py-3">Barcode</th>
                 <th className="text-end py-3">Precio</th>
                 <th className="text-center py-3">IVA</th>
+                <th className="text-center py-3">Stock Mínimo</th>
                 <th className="py-3">Categoría</th>
                 <th className="text-center py-3">Tipo de Venta</th>
                 <th className="py-3">Creación</th>
@@ -266,6 +284,9 @@ const TabCreateEditProduct = ({ products, setProducts, categories }: TabProducts
                   <td className="font-monospace text-end fw-bold text-success">€{p.price}</td>
                   <td className="text-center">
                     <Badge bg="secondary" className="px-2 py-1">{p.vat}%</Badge>
+                  </td>
+                  <td className="text-center">
+                    <Badge bg="secondary" className="px-2 py-1">{p.min_stock}</Badge>
                   </td>
                   <td>
                     <Badge bg="light" text="dark" className="border shadow-sm px-2 py-1 text-wrap" style={{ maxWidth: '120px' }}>

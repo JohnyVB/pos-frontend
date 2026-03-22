@@ -8,6 +8,7 @@ export interface createEditForm {
   vat: string;
   sale_type: "UNIT" | "WEIGHT";
   category_id: string;
+  min_stock: string;
 }
 
 export interface TabProductsProps {

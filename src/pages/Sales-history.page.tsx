@@ -27,7 +27,6 @@ export const SalesHistory = () => {
     const res = await onGetSalesBySessionId(Number(sale_history.session_id))
     if (res.response === "success" && res.sales) {
       setSales(res.sales)
-      console.log(res.sales)
     }
   }
 
@@ -84,13 +83,13 @@ export const SalesHistory = () => {
           <Table responsive hover className="mb-0 align-middle">
             <thead className="table-light">
               <tr>
-                <th className="px-4 py-3">Tipo / ID</th>
+                <th className="px-4 py-3">Tipo</th>
                 <th className="py-3">Fecha</th>
                 <th className="py-3">Método Pago</th>
                 <th className="text-end py-3">Subtotal</th>
                 <th className="text-end py-3">IVA</th>
                 <th className="text-end py-3">Total</th>
-                <th className="text-end py-3">Total Deuelto</th>
+                <th className="text-end py-3">Total Devuelto</th>
                 <th className="text-end py-3">Total Neto</th>
                 <th className="text-center py-3">Estado</th>
                 <th className="text-center py-3">Acciones</th>
@@ -103,12 +102,11 @@ export const SalesHistory = () => {
                     onClick={() => sale.record_type === 'SALE' && toggleSaleExpand(sale.record_id)}
                     style={{ cursor: sale.record_type === 'SALE' ? 'pointer' : 'default' }}
                     className={expandedSaleId === sale.record_id ? 'table-primary bg-opacity-10' : ''}
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title={sale.record_type === 'SALE' ? `Venta #${sale.record_id}` : sale.reason}
                   >
-                    <td className="px-4 fw-bold text-primary">
-                      {sale.record_type === 'SALE' ? `Venta #${sale.record_id}` : 
-                       sale.record_type === 'CASH_IN' ? `Ingreso #${sale.record_id}` : 
-                       `Egreso #${sale.record_id}`}
-                    </td>
+                    <td className="px-4 fw-bold text-primary">{sale.record_type}</td>
                     <td>{formatDateToShow(sale.created_at)}</td>
                     <td>
                       <Badge bg="info" className="text-dark bg-opacity-10 py-2 px-3 rounded-pill uppercase">

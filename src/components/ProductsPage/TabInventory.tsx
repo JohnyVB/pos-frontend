@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 export const TabInventory = ({
   inventory,
   setInventory,
+  getProductsWithLowStock,
 }: TabInventoryProps) => {
   const { userData } = userStore();
   const [query, setQuery] = useState<string>("");
@@ -85,6 +86,7 @@ export const TabInventory = ({
     const res = await onMovement(Number(form.product_id), Number(form.quantity), "IN", form.reference, userData?.store_id!);
     if (res.response === "success") {
       updateProductInventory(selectedProduct!, "IN");
+      getProductsWithLowStock();
       toast.success(res.message, { duration: 4000 });
       resetForm();
       setSelectedProduct(null);
@@ -108,6 +110,7 @@ export const TabInventory = ({
     const res = await onMovement(Number(form.product_id), Number(form.quantity), "OUT", form.reference, userData?.store_id!);
     if (res.response === "success") {
       updateProductInventory(selectedProduct!, "OUT");
+      getProductsWithLowStock();
       toast.success("Movimiento de inventario registrado exitosamente", { duration: 4000 });
       resetForm();
       setSelectedProduct(null);

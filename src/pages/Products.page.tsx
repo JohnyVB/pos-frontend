@@ -5,13 +5,15 @@ import { PageHeader } from "../components/common/PageHeader";
 import TabCategories from "../components/ProductsPage/TabCategories";
 import TabCreateEditProduct from "../components/ProductsPage/TabCreateEditProduct";
 import { TabInventory } from "../components/ProductsPage/TabInventory";
+import TabLowStock from "../components/ProductsPage/TabLowStock";
+import type { LowStockProduct } from "../components/ProductsPage/TabLowStock";
 import type { Category } from "../interfaces/components/POSPage/TabCategories.interface";
 import type { Inventory } from "../interfaces/components/POSPage/TabInventory.interface";
 import type { Product } from "../interfaces/global.interface";
 import type { ActiveTab } from "../interfaces/global.types";
 import { onGetCategories } from "../services/categories.services";
 import { onLoadInventory } from "../services/inventory.services";
-import { onGetProducts } from "../services/products.services";
+import { onGetProducts, onGetProductsWithLowStock } from "../services/products.services";
 import userStore from "../store/userStore";
 
 export default function Products() {
@@ -20,12 +22,7 @@ export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [inventory, setInventory] = useState<Inventory[]>([]);
-
-  useEffect(() => {
-    loadProducts();
-    loadCategories();
-    loadInventory();
-  }, []);
+  const [lowStockProducts, setLowStockProducts] = useState<LowStockProduct[]>([]);
 
   const loadProducts = async () => {
     try {
@@ -69,6 +66,25 @@ export default function Products() {
     }
   };
 
+  const getProductsWithLowStock = async () => {
+    try {
+      const data = await onGetProductsWithLowStock(userData?.store_id!);
+      if (data.response === "success" && data.products) {
+        setLowStockProducts(data.products);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al cargar productos con bajo stock", { duration: 4000 });
+    }
+  }
+
+  useEffect(() => {
+    loadProducts();
+    loadCategories();
+    loadInventory();
+    getProductsWithLowStock();
+  }, []);
+
   return (
     <Container fluid className="p-4 bg-light min-vh-100">
       <PageHeader title="Gestión de productos" />
@@ -91,6 +107,13 @@ export default function Products() {
                 Inventario
               </Nav.Link>
             </Nav.Item>
+            {(userData?.role === "admin" || userData?.role === "superadmin") && (
+              <Nav.Item>
+                <Nav.Link eventKey="low_stock" className="fw-bold fs-5 px-4 text-dark">
+                  Bajo Stock
+                </Nav.Link>
+              </Nav.Item>
+            )}
           </Nav>
         </Card.Header>
 
@@ -114,7 +137,12 @@ export default function Products() {
             <TabInventory
               inventory={inventory}
               setInventory={setInventory}
+              getProductsWithLowStock={getProductsWithLowStock}
             />
+          )}
+
+          {activeTab === "low_stock" && (
+            <TabLowStock products={lowStockProducts} />
           )}
         </Card.Body>
       </Card>

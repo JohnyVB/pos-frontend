@@ -10,6 +10,7 @@ export interface Product {
   created_at: string;
   sale_type: "UNIT" | "WEIGHT";
   store_id: string;
+  min_stock: number;
 }
 
 export interface User {

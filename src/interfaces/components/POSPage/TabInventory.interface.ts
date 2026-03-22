@@ -17,6 +17,7 @@ export interface InventoryForm {
 export interface TabInventoryProps {
   inventory: Inventory[];
   setInventory: React.Dispatch<React.SetStateAction<Inventory[]>>;
+  getProductsWithLowStock: () => Promise<void>;
 };
 
 export interface InventoryMovementResponse {

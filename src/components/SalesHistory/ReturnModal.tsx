@@ -31,7 +31,7 @@ export const ReturnModal = ({ show, onHide, selectedSale, handleConfirmReturn }:
     if (e.key === "Enter") {
       if (!barcode.trim()) return
 
-      const saleItem = selectedSale?.items.find(item => item.barcode === barcode)
+      const saleItem = selectedSale?.details?.find(item => item.barcode === barcode)
 
       if (!saleItem) {
         toast.error("El producto no pertenece a esta venta o el código es incorrecto")
@@ -42,7 +42,7 @@ export const ReturnModal = ({ show, onHide, selectedSale, handleConfirmReturn }:
       setReturnedItems(prev => {
         const existing = prev.find(item => item.barcode === barcode)
         if (existing) {
-          if (existing.quantity_to_reintegrate >= saleItem.current_quantity) {
+          if (existing.quantity_to_reintegrate >= saleItem.quantity) {
             toast.error("Ya has escaneado la cantidad total vendida de este producto")
             return prev
           }
@@ -75,8 +75,8 @@ export const ReturnModal = ({ show, onHide, selectedSale, handleConfirmReturn }:
         {selectedSale && (
           <div className="mb-4 text-center p-3 bg-light rounded border">
             <h6 className="text-muted text-uppercase small fw-bold mb-1">Venta Seleccionada</h6>
-            <h4 className="fw-bold mb-0">#{selectedSale.sale_id}</h4>
-            <span className="text-muted small">Total: €{selectedSale.original_total}</span>
+            <h4 className="fw-bold mb-0">#{selectedSale.record_id}</h4>
+            <span className="text-muted small">Total: €{Number(selectedSale.amount)}</span>
           </div>
         )}
 
@@ -157,7 +157,7 @@ export const ReturnModal = ({ show, onHide, selectedSale, handleConfirmReturn }:
                           <Badge bg="light" className="text-dark border me-2">
                             Cant: {item.quantity_to_reintegrate}
                           </Badge>
-                          <small className="text-primary fw-bold">€{(item.price_at_sale * item.quantity_to_reintegrate).toFixed(2)}</small>
+                          <small className="text-primary fw-bold">€{(item.price * item.quantity_to_reintegrate).toFixed(2)}</small>
                         </div>
                         <Form.Check
                           type="switch"

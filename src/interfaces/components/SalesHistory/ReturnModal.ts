@@ -8,5 +8,6 @@ export interface ReturnModalProps {
 }
 
 export interface ReturnedItem extends SaleItem {
-  reintegrate: boolean
+  reintegrate: boolean;
+  quantity_to_reintegrate: number;
 }

@@ -13,7 +13,7 @@ export default function CashPaymentForm({ isOpen, total, onConfirm, onCancel }: 
   const [amount, setAmount] = useState<string>("")
   const inputAmountRef = useRef<HTMLInputElement | null>(null)
 
-  const valueAjustment = (value: string) => {
+  const valueAdjustment = (value: string) => {
     const numValue = value.replace(",", ".")
     const regex = /^\d*(\.\d{0,3})?$/
     if (value === "" || regex.test(numValue)) {
@@ -57,7 +57,7 @@ export default function CashPaymentForm({ isOpen, total, onConfirm, onCancel }: 
             size="lg"
             className="text-end fw-bold fs-4 font-monospace"
             value={amount}
-            onChange={(e) => valueAjustment(e.target.value)}
+            onChange={(e) => valueAdjustment(e.target.value)}
           />
         </Form.Group>
 
@@ -68,7 +68,7 @@ export default function CashPaymentForm({ isOpen, total, onConfirm, onCancel }: 
           </div>
         </Form.Group>
 
-        <Keyboard number={amount} addNumber={valueAjustment} clear={clear} />
+        <Keyboard number={amount} addNumber={valueAdjustment} clear={clear} />
 
         <div className="d-flex gap-2 mt-4">
           <Button

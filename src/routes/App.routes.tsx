@@ -6,6 +6,7 @@ import Register from "../pages/Register.page";
 import POS from "../pages/POS.page";
 import Products from "../pages/Products.page";
 import CashboxSessions from "../pages/Cashbox-sessions.page";
+import CashMovements from "../pages/CashMovements.page";
 import { CashBoxGuard } from "./CashBoxGuard.routes";
 import { AdminGuard } from "./AdminGuard.routes";
 import { SalesHistory } from "../pages/Sales-history.page";
@@ -22,6 +23,7 @@ export default function AppRoutes() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/sales-history" element={<SalesHistory />} />
             <Route path="/cashbox-sessions" element={<CashboxSessions />} />
+            <Route path="/cash-movements" element={<CashMovements />} />
             <Route element={<CashBoxGuard />}>
               <Route path="/pos" element={<POS />} />
             </Route>

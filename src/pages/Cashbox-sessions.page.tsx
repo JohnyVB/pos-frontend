@@ -225,7 +225,10 @@ export default function CashboxSessions() {
                 <th className="text-end py-3">Monto Apertura</th>
                 <th className="text-end py-3">Monto Cierre</th>
                 <th className="text-end py-3">Nº Ventas</th>
+                <th className="text-end py-3">Entradas</th>
+                <th className="text-end py-3">Salidas</th>
                 <th className="text-end py-3">Ventas Total</th>
+                <th className="text-end py-3">Saldo Esperado</th>
                 <th className="text-center py-3">Estado</th>
                 <th className="text-center px-4 py-3">Acciones</th>
               </tr>
@@ -241,7 +244,10 @@ export default function CashboxSessions() {
                   <td className="text-end font-monospace">€{cb.opening_amount}</td>
                   <td className="text-end font-monospace">{cb.closing_amount ? `€${cb.closing_amount}` : "-"}</td>
                   <td className="text-end font-monospace">{cb.total_sales_count || 0}</td>
-                  <td className="text-end font-monospace">{cb.total_collected ? `€${cb.total_collected}` : "-"}</td>
+                  <td className="text-end font-monospace">{cb.total_cash_in || 0}</td>
+                  <td className="text-end font-monospace">{cb.total_cash_out || 0}</td>
+                  <td className="text-end font-monospace">{cb.total_sales_amount || 0}</td>
+                  <td className="text-end font-monospace">{cb.expected_cash_balance || 0}</td>
                   <td className="text-center">
                     <Badge bg={cb.session_status === "OPEN" ? "success" : "danger"} className="px-3 py-2 rounded-pill">
                       {cb.session_status === "OPEN" ? "ABIERTA" : "CERRADA"}

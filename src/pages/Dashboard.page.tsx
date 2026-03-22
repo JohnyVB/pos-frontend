@@ -28,6 +28,7 @@ export default function Dashboard() {
 
   const menuItems = [
     { label: "Nueva Venta", icon: "🛒", path: "/pos", bg: "primary" },
+    { label: "Movimientos Caja", icon: "💸", path: "/cash-movements", bg: "danger" },
     { label: "Productos", icon: "📦", path: "/products", bg: "success" },
     { label: "Reporte Cajas", icon: "💶", path: "/cashbox-sessions", bg: "info" },
     { label: "Usuarios", icon: "👥", path: "/register", bg: "warning" },

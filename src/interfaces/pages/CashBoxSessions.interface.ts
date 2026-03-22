@@ -16,6 +16,15 @@ export interface CashBoxSession {
   // datos de ventas
   total_sales_count: number
   total_collected: number
+
+  // Total recaudado en ventas(Solo completadas)
+  total_sales_amount: number
+  // Suma de Entradas de efectivo (Cash In)
+  total_cash_in: number
+  // Suma de Salidas de efectivo (Cash Out)
+  total_cash_out: number
+  // Saldo Final Esperado (Apertura + Ventas - Salidas + Entradas)
+  expected_cash_balance: number
 }
 
 export interface OpenCashBoxSessionResponse {

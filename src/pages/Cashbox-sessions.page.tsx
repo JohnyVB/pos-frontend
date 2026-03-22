@@ -79,7 +79,7 @@ export default function CashboxSessions() {
       setCashBoxSessions(res.cashBoxSessions)
       updateCashBox(res.cashBoxSessions)
     } else {
-      toast.error(res.message || "Error al obtener las sessiones")
+      toast.error(res.message || "Error al obtener las sesiones")
     }
   }
 
@@ -224,8 +224,8 @@ export default function CashboxSessions() {
                 <th className="py-3">Cierre</th>
                 <th className="text-end py-3">Monto Apertura</th>
                 <th className="text-end py-3">Monto Cierre</th>
-                <th className="text-end py-3">Ventas</th>
-                <th className="text-end py-3">Total</th>
+                <th className="text-end py-3">Nº Ventas</th>
+                <th className="text-end py-3">Ventas Total</th>
                 <th className="text-center py-3">Estado</th>
                 <th className="text-center px-4 py-3">Acciones</th>
               </tr>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { Container, Card, Nav } from "react-bootstrap";
+import { Container, Card, Nav, Badge } from "react-bootstrap";
 import { PageHeader } from "../components/common/PageHeader";
 import TabCategories from "../components/ProductsPage/TabCategories";
 import TabCreateEditProduct from "../components/ProductsPage/TabCreateEditProduct";
@@ -110,7 +110,7 @@ export default function Products() {
             {(userData?.role === "admin" || userData?.role === "superadmin") && (
               <Nav.Item>
                 <Nav.Link eventKey="low_stock" className="fw-bold fs-5 px-4 text-dark">
-                  Bajo Stock
+                  Bajo Stock {lowStockProducts.length > 0 && <Badge bg="danger">{lowStockProducts.length}</Badge>}
                 </Nav.Link>
               </Nav.Item>
             )}

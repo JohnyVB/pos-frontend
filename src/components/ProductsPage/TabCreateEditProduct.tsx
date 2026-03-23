@@ -76,6 +76,8 @@ const TabCreateEditProduct = ({ products, setProducts, categories }: TabProducts
       price: String(product.price),
       vat: String(product.vat),
       category_id: String(product.category_id),
+      min_stock: String(product.min_stock),
+      sale_type: product.sale_type,
     });
   };
 

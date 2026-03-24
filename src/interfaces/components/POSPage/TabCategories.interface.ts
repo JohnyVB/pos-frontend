@@ -9,6 +9,8 @@ export interface Category {
   name: string;
   description: string;
   created_at: string;
+  store_id: string;
+  store_name: string;
   active: boolean;
 }
 

@@ -5,12 +5,15 @@ export interface Product {
   barcode: string;
   price: number;
   vat: number;
-  category_id: number;
-  active: boolean;
-  created_at: string;
   sale_type: "UNIT" | "WEIGHT";
-  store_id: string;
+  category_id: number;
   min_stock: number;
+  active: boolean;
+  store_id: string;
+  created_at: string;
+  category_name: string;
+  store_name: string;
+  stock: number;
 }
 
 export interface User {
@@ -20,8 +23,9 @@ export interface User {
   email: string;
   role: string;
   active: boolean;
-  store_id: string;
+  store_id?: string;
   created_at: string;
+  store_name?: string;
 }
 
 export interface Terminal {
@@ -29,6 +33,7 @@ export interface Terminal {
   name: string;
   active: boolean;
   store_id: string;
+  store_name?: string;
 }
 
 export interface Store {

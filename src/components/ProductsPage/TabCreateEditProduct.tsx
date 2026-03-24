@@ -275,6 +275,8 @@ const TabCreateEditProduct = ({ products, setProducts, categories }: TabProducts
                 <th className="py-3">Categoría</th>
                 <th className="text-center py-3">Tipo de Venta</th>
                 <th className="py-3">Creación</th>
+                <th className="text-center py-3">Stock</th>
+                {userData?.role === "superadmin" && <th className="text-center py-3">Tienda</th>}
                 <th className="text-center px-4 py-3">Acciones</th>
               </tr>
             </thead>
@@ -292,7 +294,7 @@ const TabCreateEditProduct = ({ products, setProducts, categories }: TabProducts
                   </td>
                   <td>
                     <Badge bg="light" text="dark" className="border shadow-sm px-2 py-1 text-wrap" style={{ maxWidth: '120px' }}>
-                      {categories.find((c: Category) => c.id === p.category_id)?.name || "N/A"}
+                      {p.category_name}
                     </Badge>
                   </td>
                   <td className="text-center">
@@ -303,6 +305,14 @@ const TabCreateEditProduct = ({ products, setProducts, categories }: TabProducts
                     )}
                   </td>
                   <td className="text-muted"><small>{formatDateToShow(p.created_at) || "N/A"}</small></td>
+                  <td className="text-center">
+                    <Badge bg="success" className="px-2 py-1">{p.stock}</Badge>
+                  </td>
+                  {userData?.role === "superadmin" && (
+                    <td className="text-center">
+                      <Badge bg="success" className="px-2 py-1">{p.store_name}</Badge>
+                    </td>
+                  )}
                   <td className="text-center px-4">
                     <div className="d-flex gap-2 justify-content-center">
                       <Button

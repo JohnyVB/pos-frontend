@@ -31,7 +31,7 @@ export default function Stores() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     setLoading(true);
     const res = await onCreateStore(form, token!);

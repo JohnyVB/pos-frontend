@@ -1,4 +1,5 @@
 import { Table, Card, Badge } from "react-bootstrap";
+import userStore from "../../store/userStore";
 
 export interface LowStockProduct {
   id: number;
@@ -6,8 +7,8 @@ export interface LowStockProduct {
   barcode: string;
   min_stock: number;
   current_stock: number;
-  quantity_to_buy: number;
   category_name: string;
+  store_name: string;
 }
 
 interface TabLowStockProps {
@@ -15,6 +16,7 @@ interface TabLowStockProps {
 }
 
 const TabLowStock = ({ products }: TabLowStockProps) => {
+  const { userData } = userStore()
   return (
     <div>
       <h3 className="mb-4">Productos con Bajo Stock</h3>
@@ -28,7 +30,9 @@ const TabLowStock = ({ products }: TabLowStockProps) => {
                 <th className="py-3">Categoría</th>
                 <th className="text-center py-3">Stock Mínimo</th>
                 <th className="text-center py-3">Stock Actual</th>
-                <th className="text-center px-4 py-3">Cantidad a Comprar</th>
+                {userData?.role === "superadmin" && (
+                  <th className="text-center px-4 py-3">Tienda</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -47,14 +51,16 @@ const TabLowStock = ({ products }: TabLowStockProps) => {
                   <td className="text-center">
                     <Badge bg="danger" className="px-2 py-1">{p.current_stock}</Badge>
                   </td>
-                  <td className="text-center px-4">
-                    <Badge bg="warning" text="dark" className="px-2 py-1">{p.quantity_to_buy}</Badge>
-                  </td>
+                  {userData?.role === "superadmin" && (
+                    <td className="text-center px-4">
+                      <Badge bg="info" className="px-2 py-1">{p.store_name}</Badge>
+                    </td>
+                  )}
                 </tr>
               ))}
               {products.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="text-center text-muted py-5">
+                  <td colSpan={userData?.role === "superadmin" ? 6 : 5} className="text-center text-muted py-5">
                     No hay productos con bajo stock.
                   </td>
                 </tr>

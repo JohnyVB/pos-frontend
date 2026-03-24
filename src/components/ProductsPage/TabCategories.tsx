@@ -109,6 +109,7 @@ const TabCategories = ({
               <tr>
                 <th className="px-4 py-3">Nombre</th>
                 <th className="py-3">Descripción</th>
+                {userData?.role === "superadmin" && <th className="text-center py-3">Tienda</th>}
                 <th className="text-center px-4 py-3" style={{ width: "120px" }}>Acciones</th>
               </tr>
             </thead>
@@ -117,6 +118,7 @@ const TabCategories = ({
                 <tr key={cat.id}>
                   <td className="px-4 fw-semibold text-dark">{cat.name}</td>
                   <td className="text-secondary">{cat.description}</td>
+                  {userData?.role === "superadmin" && <td className="text-center px-4">{cat.store_name}</td>}
                   <td className="text-center px-4">
                     <Button
                       size="sm"

@@ -12,6 +12,7 @@ import { AdminGuard } from "./AdminGuard.routes";
 import { SalesHistory } from "../pages/Sales-history.page";
 import Terminals from "../pages/Terminals.page";
 import Stores from "../pages/Stores.page";
+import { SuperadminGuard } from "./SuperadminGuard.routes";
 
 export default function AppRoutes() {
   const { token } = userStore();
@@ -31,6 +32,8 @@ export default function AppRoutes() {
               <Route path="/products" element={<Products />} />
               <Route path="/register" element={<Register />} />
               <Route path="/terminals" element={<Terminals />} />
+            </Route>
+            <Route element={<SuperadminGuard />}>
               <Route path="/stores" element={<Stores />} />
             </Route>
           </>

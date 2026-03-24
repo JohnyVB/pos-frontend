@@ -7,6 +7,8 @@ export interface Inventory {
   name: string;
   barcode: string;
   quantity: number;
+  store_id: string;
+  store_name: string;
 }
 
 export interface InventoryForm {
@@ -25,13 +27,9 @@ export interface InventoryMovementResponse {
   message: string;
 }
 
-export interface productSearchQuery extends Product {
-  inventory_quantity: number;
-}
-
 export interface ProductSearchResponse {
   response: string;
-  product?: productSearchQuery;
+  product?: Product;
   message?: string;
 }
 

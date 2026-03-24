@@ -23,7 +23,7 @@ export default function Register() {
     setUsers(prev => [updatedUser, ...prev]);
   }
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.SubmitEvent) => {
     e.preventDefault();
     if (!name || !username || !password) {
       toast.error("Los campos nombre, usuario y contraseña son obligatorios", { duration: 4000 })
@@ -199,6 +199,9 @@ export default function Register() {
                     <th className="py-3 px-4">Nombre / Usuario</th>
                     <th className="py-3">Email</th>
                     <th className="py-3">Rol</th>
+                    {userData?.role === "superadmin" && (
+                      <th className="py-3 text-center">Tienda</th>
+                    )}
                     <th className="py-3 text-center">Estado</th>
                   </tr>
                 </thead>
@@ -215,6 +218,13 @@ export default function Register() {
                           {u.role === 'admin' ? 'Administrador' : 'Cajero'}
                         </span>
                       </td>
+                      {userData?.role === "superadmin" && (
+                        <td className="py-3 text-center">
+                          <span className={`badge rounded-pill bg-opacity-10 text-${u.role === 'admin' ? 'primary' : 'secondary'} bg-${u.role === 'admin' ? 'primary' : 'secondary'}`}>
+                            {u.store_name}
+                          </span>
+                        </td>
+                      )}
                       <td className="py-3 text-center">
                         <div className="d-flex justify-content-center">
                           <Form.Check

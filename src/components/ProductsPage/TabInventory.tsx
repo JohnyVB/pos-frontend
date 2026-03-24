@@ -4,7 +4,7 @@ import { useForm } from "../../hooks/useForm";
 
 import { onGetProductByQuery, onMovement } from "../../services/inventory.services";
 import userStore from "../../store/userStore";
-import type { Inventory, InventoryForm, productSearchQuery, TabInventoryProps } from "../../interfaces/components/POSPage/TabInventory.interface";
+import type { Inventory, InventoryForm, TabInventoryProps } from "../../interfaces/components/POSPage/TabInventory.interface";
 import toast from "react-hot-toast";
 
 export const TabInventory = ({
@@ -14,7 +14,7 @@ export const TabInventory = ({
 }: TabInventoryProps) => {
   const { userData } = userStore();
   const [query, setQuery] = useState<string>("");
-  const [selectedProduct, setSelectedProduct] = useState<productSearchQuery | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Inventory | null>(null);
   const inputSearchRef = useRef<HTMLInputElement | null>(null);
   const inputQuantityRef = useRef<HTMLInputElement | null>(null);
   const inputReferenceRef = useRef<HTMLTextAreaElement | null>(null);
@@ -25,13 +25,13 @@ export const TabInventory = ({
     reference: "",
   });
 
-  const existingInventory = (selectedProduct: productSearchQuery): number => {
+  const existingInventory = (selectedProduct: Inventory): number => {
     return inventory.findIndex(
       (inv: Inventory) => inv.product_id === selectedProduct.id,
     );
   };
 
-  const movementIN = async (selectedProduct: productSearchQuery) => {
+  const movementIN = async (selectedProduct: Inventory) => {
     const existingIndex = existingInventory(selectedProduct);
 
     let updated;
@@ -41,10 +41,9 @@ export const TabInventory = ({
     } else {
       updated = [
         {
+          ...selectedProduct,
           id: Date.now(),
           product_id: selectedProduct.id,
-          name: selectedProduct.name,
-          barcode: selectedProduct.barcode,
           quantity: Number(form.quantity),
         },
         ...inventory,
@@ -53,11 +52,11 @@ export const TabInventory = ({
     setInventory(updated);
   }
 
-  const movementOUT = async (selectedProduct: productSearchQuery) => {
+  const movementOUT = async (selectedProduct: Inventory) => {
     const existingIndex = existingInventory(selectedProduct);
 
     if (existingIndex >= 0) {
-      if (Number(selectedProduct.inventory_quantity) === Number(form.quantity)) {
+      if (Number(selectedProduct.quantity) === Number(form.quantity)) {
         const updated = inventory.filter((inv: Inventory) => inv.product_id !== selectedProduct.id);
         setInventory(updated);
         return;
@@ -68,7 +67,7 @@ export const TabInventory = ({
     }
   }
 
-  const updateProductInventory = async (selectedProduct: productSearchQuery, type: "IN" | "OUT") => {
+  const updateProductInventory = async (selectedProduct: Inventory, type: "IN" | "OUT") => {
     if (type === "IN") {
       movementIN(selectedProduct);
     } else {
@@ -102,7 +101,7 @@ export const TabInventory = ({
       return;
     }
 
-    if (Number(form.quantity) > Number(selectedProduct?.inventory_quantity)) {
+    if (Number(form.quantity) > Number(selectedProduct?.quantity)) {
       toast.error("No puedes quitar más de lo que hay en inventario", { duration: 4000 });
       return;
     }
@@ -124,7 +123,15 @@ export const TabInventory = ({
     if (e.key === 'Enter' && query.trim() !== "") {
       const res = await onGetProductByQuery(query.toLowerCase().trim(), userData?.store_id!);
       if (res.response === "success" && res.product) {
-        setSelectedProduct(res.product);
+        setSelectedProduct({
+          id: res.product.id,
+          product_id: res.product.id,
+          name: res.product.name,
+          barcode: res.product.barcode,
+          quantity: res.product.quantity,
+          store_id: res.product.store_id,
+          store_name: res.product.store_name,
+        });
         inputQuantityRef.current?.focus();
         onChangeForm(res.product.id.toString(), "product_id");
         toast.success(`Producto encontrado: ${res.product.name}`, { duration: 4000 });
@@ -258,7 +265,7 @@ export const TabInventory = ({
                     <p className="mb-2"><span className="fw-bold text-secondary">Código:</span> <br /><span className="font-monospace">{selectedProduct.barcode}</span></p>
                     <p className="mb-2"><span className="fw-bold text-secondary">Nombre:</span> <br />{selectedProduct.name}</p>
                     <p className="mb-0"><span className="fw-bold text-secondary">Stock actual:</span> <br />
-                      <Badge bg="primary" className="fs-5">{Number(selectedProduct.inventory_quantity)}</Badge>
+                      <Badge bg="primary" className="fs-5">{Number(selectedProduct.quantity)}</Badge>
                     </p>
                   </div>
                   <Button
@@ -290,6 +297,9 @@ export const TabInventory = ({
                 <th className="px-4 py-3">Barcode</th>
                 <th className="px-4 py-3">Nombre</th>
                 <th className="text-end px-4 py-3" style={{ width: "200px" }}>Stock Disponible</th>
+                {userData?.role === "superadmin" && (
+                  <th className="text-end px-4 py-3" style={{ width: "200px" }}>Tienda</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -301,6 +311,11 @@ export const TabInventory = ({
                     <td className="text-end px-4">
                       <Badge bg="primary" className="fs-5">{Number(inv.quantity)}</Badge>
                     </td>
+                    {userData?.role === "superadmin" && (
+                      <td className="text-end px-4">
+                        <Badge bg="primary" className="fs-5">{inv.store_name}</Badge>
+                      </td>
+                    )}
                   </tr>
                 );
               })}

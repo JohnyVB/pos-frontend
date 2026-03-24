@@ -25,7 +25,7 @@ export default function CashboxSessions() {
   const [openingAmount, setOpeningAmount] = useState<string>("");
   const navigate = useNavigate()
   const { form, onChangeForm, resetForm } = useForm<CashBoxSessionFilters>({
-    user_id: (userData && userData.role === "admin") ? null : userData?.id || null,
+    user_id: (userData && userData.role === "admin" || userData?.role === "superadmin") ? null : userData?.id || null,
     pos_terminal_id: null,
     start_date: null,
     end_date: null
@@ -110,11 +110,9 @@ export default function CashboxSessions() {
   }
 
   useEffect(() => {
-    if (userData) {
-      getCashBoxSessions()
-      getTerminals()
-    }
-  }, [userData?.store_id])
+    getCashBoxSessions()
+    getTerminals()
+  }, [])
 
   return (
     <Container fluid className="p-4 bg-light min-vh-100">
@@ -217,28 +215,28 @@ export default function CashboxSessions() {
           <Table responsive hover className="mb-0 align-middle">
             <thead className="table-light">
               <tr>
-                <th className="px-4 py-3">ID</th>
                 <th className="py-3">Terminal</th>
                 <th className="py-3">Usuario</th>
                 <th className="py-3">Apertura</th>
                 <th className="py-3">Cierre</th>
-                <th className="text-end py-3">Monto Apertura</th>
-                <th className="text-end py-3">Monto Cierre</th>
+                <th className="text-end py-3">$ Apertura</th>
+                <th className="text-end py-3">$ Cierre</th>
                 <th className="text-end py-3">Nº Ventas</th>
                 <th className="text-end py-3">Entradas</th>
                 <th className="text-end py-3">Salidas</th>
-                <th className="text-end py-3">Ventas Total</th>
-                <th className="text-end py-3">Saldo Esperado</th>
+                <th className="text-end py-3">T. Ventas</th>
+                <th className="text-end py-3">Recaudado</th>
+                <th className="text-end py-3">S. Esperado</th>
                 <th className="text-center py-3">Estado</th>
+                {userData?.role === "superadmin" && <th className="text-center py-3">Tienda</th>}
                 <th className="text-center px-4 py-3">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {cashBoxSessions.map(cb => (
                 <tr key={cb.session_id}>
-                  <td className="px-4"><small className="text-muted">#{cb.session_id}</small></td>
                   <td className="fw-semibold">{cb.terminal_name}</td>
-                  <td className="fw-semibold">{cb.name}</td>
+                  <td className="fw-semibold">{cb.user_full_name}</td>
                   <td><small>{cb.opened_at ? formatDateToShow(cb.opened_at) : "-"}</small></td>
                   <td><small>{cb.closed_at ? formatDateToShow(cb.closed_at) : "-"}</small></td>
                   <td className="text-end font-monospace">€{cb.opening_amount}</td>
@@ -247,12 +245,14 @@ export default function CashboxSessions() {
                   <td className="text-end font-monospace">{cb.total_cash_in || 0}</td>
                   <td className="text-end font-monospace">{cb.total_cash_out || 0}</td>
                   <td className="text-end font-monospace">{cb.total_sales_amount || 0}</td>
+                  <td className="text-end font-monospace">{cb.total_collected || 0}</td>
                   <td className="text-end font-monospace">{cb.expected_cash_balance || 0}</td>
                   <td className="text-center">
                     <Badge bg={cb.session_status === "OPEN" ? "success" : "danger"} className="px-3 py-2 rounded-pill">
                       {cb.session_status === "OPEN" ? "ABIERTA" : "CERRADA"}
                     </Badge>
                   </td>
+                  {userData?.role === "superadmin" && <td className="text-center px-4">{cb.store_name}</td>}
                   <td className="text-center px-4">
                     <div className="d-flex gap-2 justify-content-center">
                       {cb.session_status === "OPEN" && (
@@ -279,7 +279,7 @@ export default function CashboxSessions() {
               ))}
               {cashBoxSessions.length === 0 && (
                 <tr>
-                  <td colSpan={11} className="text-center text-muted py-5">
+                  <td colSpan={userData?.role === "superadmin" ? 15 : 14} className="text-center text-muted py-5">
                     No hay registros de cajas.
                   </td>
                 </tr>

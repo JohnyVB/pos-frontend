@@ -19,10 +19,9 @@ export default function Terminals() {
     }
   };
 
-  const handleCreateTerminal = async (e: React.FormEvent) => {
+  const handleCreateTerminal = async (e: React.SubmitEvent) => {
     e.preventDefault();
     if (!newTerminalName.trim()) return;
-
     setLoading(true);
     const res = await onCreateTerminal(newTerminalName, userData?.store_id!);
     if (res.response === "success") {
@@ -81,6 +80,9 @@ export default function Terminals() {
               <tr>
                 <th className="px-4 py-3">ID</th>
                 <th className="py-3">Nombre de la Terminal</th>
+                {userData?.role === "superadmin" && (
+                  <th className="py-3 text-center">Tienda</th>
+                )}
                 <th className="text-center px-4 py-3">Acciones</th>
               </tr>
             </thead>
@@ -89,6 +91,11 @@ export default function Terminals() {
                 <tr key={t.id}>
                   <td className="px-4 text-muted"><small>#{t.id}</small></td>
                   <td className="fw-semibold">{t.name}</td>
+                  {userData?.role === "superadmin" && (
+                    <td className="text-center px-4">
+                      <span className="text-muted small">{t.store_name}</span>
+                    </td>
+                  )}
                   <td className="text-center px-4">
                     <span className="text-muted small">Configurada</span>
                   </td>
@@ -96,7 +103,7 @@ export default function Terminals() {
               ))}
               {terminals.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="text-center text-muted py-5">
+                  <td colSpan={userData?.role === "superadmin" ? 4 : 3} className="text-center text-muted py-5">
                     No hay terminales registradas.
                   </td>
                 </tr>

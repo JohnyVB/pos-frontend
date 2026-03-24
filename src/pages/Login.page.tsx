@@ -14,7 +14,7 @@ export default function Login() {
     password: "351723",
   });
 
-  const handleLogin = async (e?: React.FormEvent) => {
+  const handleLogin = async (e?: React.SubmitEvent) => {
     if (e) e.preventDefault();
     setLoading(true);
     const data = await onLogin(user, password);

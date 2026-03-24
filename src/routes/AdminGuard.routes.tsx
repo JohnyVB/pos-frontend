@@ -9,4 +9,4 @@ export const AdminGuard = () => {
   }
   return <Navigate to="/" replace />;
 
-}; ``
+};

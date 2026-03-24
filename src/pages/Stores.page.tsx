@@ -9,7 +9,7 @@ import { onCreateStore, onGetStores } from "../services/stores.services";
 import userStore from "../store/userStore";
 
 export default function Stores() {
-  const { token } = userStore();
+  const { userData } = userStore();
   const [stores, setStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -25,17 +25,25 @@ export default function Stores() {
   });
 
   const getStores = async () => {
-    const res = await onGetStores(token!);
-    if (res.response === "success") {
-      setStores(res.stores || []);
+    try {
+      const res = await onGetStores();
+      if (res.response === "success" && res.stores) {
+        setStores(res.stores);
+      } else {
+        toast.error(res.message || "Error al obtener tiendas");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al obtener tiendas");
     }
   };
 
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     setLoading(true);
-    const res = await onCreateStore(form, token!);
-    if (res.response === "success") {
+    const res = await onCreateStore(form);
+    if (res.response === "success" && res.store) {
+      setStores([res.store, ...stores]);
       toast.success("Tienda creada correctamente");
       handleCloseModal();
     } else {

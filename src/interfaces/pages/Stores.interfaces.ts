@@ -15,3 +15,9 @@ export interface storeForm {
   legal_name: string;
   zip_code: string;
 }
+
+export interface createStoreResponse {
+  response: "success" | "error";
+  message?: string;
+  store?: Store;
+}

@@ -5,12 +5,15 @@ import { PageHeader } from "../components/common/PageHeader";
 import { useForm } from "../hooks/useForm";
 import { onGetUsers, onRegister, onToggleUserStatus } from "../services/register.services";
 import userStore from "../store/userStore";
-import type { User } from "../interfaces/global.interface";
+import type { Store, User } from "../interfaces/global.interface";
+import { onGetStores } from "../services/stores.services";
 
 export default function Register() {
   const { userData } = userStore();
   const [loading, setLoading] = useState<boolean>(false);
   const [users, setUsers] = useState<User[]>([]);
+  const [stores, setStores] = useState<Store[]>([]);
+  const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
   const { name, email, username, password, role, onChangeForm, resetForm } = useForm({
     name: "",
     username: "",
@@ -31,7 +34,7 @@ export default function Register() {
     }
     setLoading(true);
     try {
-      const result = await onRegister(name, username, email, password, role, userData?.store_id!);
+      const result = await onRegister(name, username, email, password, role, selectedStoreId || userData?.store_id!);
       if (result.response === "success" && result.user) {
         resetForm();
         toast.success("Usuario registrado correctamente", { duration: 4000 })
@@ -75,11 +78,28 @@ export default function Register() {
     }
   }
 
-  useEffect(() => {
-    if (userData?.store_id) {
-      handleGetUsers();
+  const getStores = async () => {
+    try {
+      const res = await onGetStores();
+      if (res.response === "success" && res.stores) {
+        setStores(res.stores);
+      } else {
+        toast.error(res.message || "Error al obtener tiendas");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al obtener tiendas");
     }
-  }, [userData?.store_id]);
+  };
+
+  useEffect(() => {
+    if (userData) {
+      handleGetUsers();
+      if (userData.role === "superadmin") {
+        getStores();
+      }
+    }
+  }, [userData?.role]);
 
   return (
     <Container fluid className="min-vh-100 bg-light p-4 d-flex flex-column gap-4">
@@ -116,7 +136,7 @@ export default function Register() {
                       <Form.Label className="small fw-bold text-uppercase text-secondary">Usuario</Form.Label>
                       <Form.Control
                         type="text"
-                        placeholder="Ej: jperez"
+                        placeholder="Ej: javier_perez"
                         name="username"
                         value={username}
                         onChange={(e) => onChangeForm(e.target.value, "username")}
@@ -170,6 +190,26 @@ export default function Register() {
                       </Form.Select>
                     </Form.Group>
                   </Col>
+
+                  {userData?.role === "superadmin" && (
+                    <Col md={6}>
+                      <Form.Group>
+                        <Form.Label className="small fw-bold text-uppercase text-secondary">Tienda</Form.Label>
+                        <Form.Select
+                          name="store_id"
+                          value={selectedStoreId || userData?.store_id!}
+                          onChange={(e) => setSelectedStoreId(e.target.value)}
+                          required
+                          className="form-select-sm"
+                        >
+                          <option value="">Seleccionar tienda</option>
+                          {stores.map(store => (
+                            <option key={store.id} value={store.id}>{store.name}</option>
+                          ))}
+                        </Form.Select>
+                      </Form.Group>
+                    </Col>
+                  )}
 
                   <Col md={3} className="d-flex align-items-end">
                     <Button

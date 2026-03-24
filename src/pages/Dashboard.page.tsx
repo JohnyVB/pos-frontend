@@ -6,7 +6,7 @@ import { onVerifyToken } from "../services/dashboard.services";
 import userStore from "../store/userStore";
 
 export default function Dashboard() {
-  const { setUserData, token, setToken } = userStore();
+  const { setUserData, token, setToken, userData } = userStore();
   const navigation = useNavigate();
 
   const handleLogout = () => {
@@ -27,20 +27,20 @@ export default function Dashboard() {
   }, [])
 
   const menuItems = [
-    { label: "Nueva Venta", icon: "🛒", path: "/pos", bg: "primary" },
-    { label: "Movimientos Caja", icon: "💸", path: "/cash-movements", bg: "danger" },
-    { label: "Productos", icon: "📦", path: "/products", bg: "success" },
-    { label: "Reporte Cajas", icon: "💶", path: "/cashbox-sessions", bg: "info" },
-    { label: "Usuarios", icon: "👥", path: "/register", bg: "warning" },
-    { label: "Terminales", icon: "🖥️", path: "/terminals", bg: "secondary" },
-    { label: "Tiendas", icon: "🏢", path: "/stores", bg: "dark" },
+    { label: "Nueva Venta", icon: "🛒", path: "/pos", bg: "primary", visible: true },
+    { label: "Movimientos Caja", icon: "💸", path: "/cash-movements", bg: "danger", visible: true },
+    { label: "Reporte Cajas", icon: "💶", path: "/cashbox-sessions", bg: "info", visible: true },
+    { label: "Productos", icon: "📦", path: "/products", bg: "success", visible: userData?.role === "superadmin" || userData?.role === "admin" },
+    { label: "Usuarios", icon: "👥", path: "/register", bg: "warning", visible: userData?.role === "superadmin" || userData?.role === "admin" },
+    { label: "Terminales", icon: "🖥️", path: "/terminals", bg: "secondary", visible: userData?.role === "superadmin" || userData?.role === "admin" },
+    { label: "Tiendas", icon: "🏢", path: "/stores", bg: "dark", visible: userData?.role === "superadmin" },
   ];
 
   return (
     <Container fluid className="p-4 bg-light min-vh-100">
       <PageHeader title="POS Dashboard" nav={false} />
       <Row className="g-4 mt-2 justify-content-center">
-        {menuItems.map((item, index) => (
+        {menuItems.filter((item) => item.visible).map((item, index) => (
           <Col xs={12} sm={6} md={4} lg={3} key={index}>
             <Card
               className="h-100 shadow-sm border-0 text-center text-decoration-none"

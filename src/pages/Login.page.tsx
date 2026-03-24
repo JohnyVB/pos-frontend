@@ -10,7 +10,7 @@ export default function Login() {
   const { setToken, setUserData } = userStore();
   const [loading, setLoading] = useState(false);
   const { user, password, onChangeForm, resetForm } = useForm({
-    user: "johny_admin",
+    user: "johny_superadmin",
     password: "351723",
   });
 

@@ -7,12 +7,13 @@ import { OpenSessionModal } from "../components/Dashboard/OpenSessionModal"
 import { PageHeader } from "../components/common/PageHeader"
 import { formatDateToShow } from "../helper/formatDate.helper"
 import { useForm } from "../hooks/useForm"
-import type { Terminal } from "../interfaces/global.interface"
+import type { Store, Terminal } from "../interfaces/global.interface"
 import type { CashBoxSession, CashBoxSessionFilters } from "../interfaces/pages/CashBoxSessions.interface"
 import { onCloseCashBoxSession, onGetCashBoxSessions, onOpenCashBoxSession } from "../services/cashbox-sessions.services"
 import { onGetTerminals } from "../services/terminals.services"
 import useCashStore from "../store/useCashStore"
 import userStore from "../store/userStore"
+import { onGetStores } from "../services/stores.services"
 
 export default function CashboxSessions() {
   const { userData } = userStore();
@@ -23,6 +24,8 @@ export default function CashboxSessions() {
   const [terminals, setTerminals] = useState<Terminal[]>([]);
   const [showTerminalModal, setShowTerminalModal] = useState<boolean>(false)
   const [openingAmount, setOpeningAmount] = useState<string>("");
+  const [stores, setStores] = useState<Store[]>([]);
+  const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null)
   const navigate = useNavigate()
   const { form, onChangeForm, resetForm } = useForm<CashBoxSessionFilters>({
     user_id: (userData && userData.role === "admin" || userData?.role === "superadmin") ? null : userData?.id || null,
@@ -102,6 +105,7 @@ export default function CashboxSessions() {
       start_date: null,
       end_date: null
     };
+    setSelectedStoreId(null)
     resetForm();
     const res = await onGetCashBoxSessions(initialFilters, userData?.store_id!)
     if (res.response === "success" && res.cashBoxSessions) {
@@ -109,10 +113,27 @@ export default function CashboxSessions() {
     }
   }
 
+  const getStores = async () => {
+    try {
+      const res = await onGetStores();
+      if (res.response === "success" && res.stores) {
+        setStores(res.stores);
+      } else {
+        toast.error(res.message || "Error al obtener tiendas");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al obtener tiendas");
+    }
+  };
+
   useEffect(() => {
     getCashBoxSessions()
     getTerminals()
-  }, [])
+    if (userData?.role === "superadmin") {
+      getStores()
+    }
+  }, [userData])
 
   return (
     <Container fluid className="p-4 bg-light min-vh-100">
@@ -146,12 +167,12 @@ export default function CashboxSessions() {
         </Card.Body>
       </Card>
 
-      {userData?.role === "admin" && (
-        <Card className="shadow-sm border-0 mb-4 bg-white">
-          <Card.Body className="p-4">
-            <h5 className="mb-3 fw-bold text-dark">Filtros de Búsqueda</h5>
-            <Form>
-              <Row className="align-items-end g-3">
+      <Card className="shadow-sm border-0 mb-4 bg-white">
+        <Card.Body className="p-4">
+          <h5 className="mb-3 fw-bold text-dark">Filtros de Búsqueda</h5>
+          <Form>
+            <Row className="align-items-end g-3">
+              {userData?.role !== "cashier" && (
                 <Col xs={12} md={3}>
                   <Form.Group>
                     <Form.Label className="small fw-bold text-muted">Caja (Terminal)</Form.Label>
@@ -166,49 +187,65 @@ export default function CashboxSessions() {
                     </Form.Select>
                   </Form.Group>
                 </Col>
-                <Col xs={12} md={3}>
+              )}
+              <Col xs={12} md={userData?.role === "superadmin" ? 2 : userData?.role === "cashier" ? 4 : 3}>
+                <Form.Group>
+                  <Form.Label className="small fw-bold text-muted">Fecha de Inicio</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={form.start_date || ""}
+                    onChange={(e) => onChangeForm(e.target.value === "" ? null : e.target.value, "start_date")}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={12} md={userData?.role === "superadmin" ? 2 : userData?.role === "cashier" ? 4 : 3}>
+                <Form.Group>
+                  <Form.Label className="small fw-bold text-muted">Fecha Final</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={form.end_date || ""}
+                    onChange={(e) => onChangeForm(e.target.value === "" ? null : e.target.value, "end_date")}
+                  />
+                </Form.Group>
+              </Col>
+              {userData?.role === "superadmin" && (
+                <Col xs={12} md={2}>
                   <Form.Group>
-                    <Form.Label className="small fw-bold text-muted">Fecha de Inicio</Form.Label>
-                    <Form.Control
-                      type="date"
-                      value={form.start_date || ""}
-                      onChange={(e) => onChangeForm(e.target.value === "" ? null : e.target.value, "start_date")}
-                    />
+                    <Form.Label className="small fw-bold text-muted">Tienda</Form.Label>
+                    <Form.Select
+                      value={selectedStoreId || "all"}
+                      onChange={(e) => setSelectedStoreId(e.target.value === "all" ? null : e.target.value)}
+                    >
+                      <option value="all">Todas las tiendas</option>
+                      {stores.map(s => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                      ))}
+                    </Form.Select>
                   </Form.Group>
                 </Col>
-                <Col xs={12} md={3}>
-                  <Form.Group>
-                    <Form.Label className="small fw-bold text-muted">Fecha Final</Form.Label>
-                    <Form.Control
-                      type="date"
-                      value={form.end_date || ""}
-                      onChange={(e) => onChangeForm(e.target.value === "" ? null : e.target.value, "end_date")}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col xs={12} md={3}>
-                  <div className="d-flex gap-2">
-                    <Button
-                      variant="primary"
-                      className="w-100 fw-bold"
-                      onClick={getCashBoxSessions}
-                    >
-                      Filtrar
-                    </Button>
-                    <Button
-                      variant="outline-secondary"
-                      className="w-100 fw-bold"
-                      onClick={handleClearFilters}
-                    >
-                      Limpiar
-                    </Button>
-                  </div>
-                </Col>
-              </Row>
-            </Form>
-          </Card.Body>
-        </Card>
-      )}
+              )}
+              <Col xs={12} md={userData?.role === "cashier" ? 4 : 3}>
+                <div className="d-flex gap-2">
+                  <Button
+                    variant="primary"
+                    className="w-100 fw-bold"
+                    onClick={getCashBoxSessions}
+                  >
+                    Filtrar
+                  </Button>
+                  <Button
+                    variant="outline-secondary"
+                    className="w-100 fw-bold"
+                    onClick={handleClearFilters}
+                  >
+                    Limpiar
+                  </Button>
+                </div>
+              </Col>
+            </Row>
+          </Form>
+        </Card.Body>
+      </Card>
 
       <Card className="shadow-sm border-0 bg-white">
         <Card.Body className="p-0">

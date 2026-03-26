@@ -6,10 +6,8 @@ import { useForm } from "../hooks/useForm";
 import type { Store } from "../interfaces/global.interface";
 import type { storeForm } from "../interfaces/pages/Stores.interfaces";
 import { onCreateStore, onGetStores } from "../services/stores.services";
-import userStore from "../store/userStore";
 
 export default function Stores() {
-  const { userData } = userStore();
   const [stores, setStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);

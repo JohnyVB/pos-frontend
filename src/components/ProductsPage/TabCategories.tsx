@@ -64,10 +64,10 @@ const TabCategories = ({
   return (
     <div>
       <h3 className="mb-4">Nueva Categoría</h3>
-      <Card className="mb-5 shadow-sm border-0 bg-light" style={{ maxWidth: "600px" }}>
+      <Card className="mb-5 shadow-sm border-0 bg-light">
         <Card.Body>
-          <Row className="g-3 align-items-end">
-            <Col md={12}>
+          <Row className="align-items-end g-3">
+            <Col md={6} lg={4}>
               <Form.Group>
                 <Form.Label className="fw-semibold">Nombre de categoría</Form.Label>
                 <Form.Control
@@ -78,8 +78,12 @@ const TabCategories = ({
                 />
               </Form.Group>
             </Col>
-
-            <Col md={12}>
+            <Col md={6} lg={4}>
+              <Button onClick={handleAddCategory} variant="primary" className="fw-bold px-4">
+                Agregar Categoría
+              </Button>
+            </Col>
+            <Col lg={12}>
               <Form.Group>
                 <Form.Label className="fw-semibold">Descripción</Form.Label>
                 <Form.Control
@@ -90,12 +94,6 @@ const TabCategories = ({
                   onChange={(e) => onChangeForm(e.target.value, "description")}
                 />
               </Form.Group>
-            </Col>
-
-            <Col xs={12} className="mt-4">
-              <Button onClick={handleAddCategory} variant="primary" className="fw-bold px-4">
-                Agregar Categoría
-              </Button>
             </Col>
           </Row>
         </Card.Body>

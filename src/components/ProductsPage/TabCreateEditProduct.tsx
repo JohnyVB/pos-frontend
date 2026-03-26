@@ -259,7 +259,7 @@ const TabCreateEditProduct = ({
                         className="w-100 fw-bold"
                         onClick={handleCreateEdit}
                       >
-                        {editingId ? "Actualizar" : "Agregar Producto"}
+                        {editingId ? "Actualizar" : "Agregar"}
                       </Button>
                       <Button
                         variant="outline-danger"

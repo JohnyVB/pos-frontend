@@ -1,26 +1,24 @@
 import { useEffect, useState } from "react";
+import { Card, Container, Tab, Tabs } from "react-bootstrap";
 import toast, { Toaster } from "react-hot-toast";
-import { Container, Card, Nav, Badge } from "react-bootstrap";
 import { PageHeader } from "../components/common/PageHeader";
 import TabCategories from "../components/ProductsPage/TabCategories";
 import TabCreateEditProduct from "../components/ProductsPage/TabCreateEditProduct";
 import { TabInventory } from "../components/ProductsPage/TabInventory";
-import TabLowStock from "../components/ProductsPage/TabLowStock";
 import type { LowStockProduct } from "../components/ProductsPage/TabLowStock";
+import TabLowStock from "../components/ProductsPage/TabLowStock";
+import { useForm } from "../hooks/useForm";
 import type { Category } from "../interfaces/components/POSPage/TabCategories.interface";
 import type { Inventory } from "../interfaces/components/POSPage/TabInventory.interface";
 import type { Product, Store } from "../interfaces/global.interface";
-import type { ActiveTab } from "../interfaces/global.types";
 import { onGetCategories } from "../services/categories.services";
 import { onLoadInventory } from "../services/inventory.services";
 import { onGetProducts, onGetProductsWithLowStock } from "../services/products.services";
-import userStore from "../store/userStore";
-import { useForm } from "../hooks/useForm";
 import { onGetStores } from "../services/stores.services";
+import userStore from "../store/userStore";
 
 export default function Products() {
   const { userData } = userStore();
-  const [activeTab, setActiveTab] = useState<ActiveTab>("products");
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [inventory, setInventory] = useState<Inventory[]>([]);
@@ -131,68 +129,49 @@ export default function Products() {
     <Container fluid className="p-4 bg-light min-vh-100">
       <PageHeader title="Gestión de productos" />
       <Card className="shadow-sm border-0 mt-3">
-        <Card.Header className="bg-white border-bottom-0 pt-3 pb-0 px-4">
-          <Nav variant="tabs" activeKey={activeTab} onSelect={(k) => setActiveTab(k as ActiveTab)}>
-            <Nav.Item>
-              <Nav.Link eventKey="products" className="fw-bold fs-5 px-4 text-dark">
-                Productos
-              </Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link eventKey="categories" className="fw-bold fs-5 px-4 text-dark">
-                Categorías
-              </Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link eventKey="inventory" className="fw-bold fs-5 px-4 text-dark">
-                Inventario
-              </Nav.Link>
-            </Nav.Item>
-            {(userData?.role === "admin" || userData?.role === "superadmin") && (
-              <Nav.Item>
-                <Nav.Link eventKey="low_stock" className="fw-bold fs-5 px-4 text-dark">
-                  Bajo Stock {lowStockProducts.length > 0 && <Badge bg="danger">{lowStockProducts.length}</Badge>}
-                </Nav.Link>
-              </Nav.Item>
-            )}
-          </Nav>
-        </Card.Header>
-
-        <Card.Body className="p-4">
-          {activeTab === "products" && (
-            <TabCreateEditProduct
-              products={products}
-              setProducts={setProducts}
-              categories={categories}
-              stores={stores}
-              filterForm={filterForm}
-              onChangeFilterForm={onChangeFilterForm}
-              loadProducts={loadProducts}
-              handleClearFilters={handleClearFilters}
-            />
-          )}
-
-          {activeTab === "categories" && (
-            <TabCategories
-              categories={categories}
-              setCategories={setCategories}
-            />
-          )}
-
-          {activeTab === "inventory" && (
-            <TabInventory
-              inventory={inventory}
-              setInventory={setInventory}
-              getProductsWithLowStock={getProductsWithLowStock}
-            />
-          )}
-
-          {activeTab === "low_stock" && (
-            <TabLowStock products={lowStockProducts} />
-          )}
-        </Card.Body>
+        <Tabs
+          defaultActiveKey="products"
+          id="fill-tab-example"
+          fill
+        >
+          <Tab eventKey="products" title="Productos">
+            <Card.Body className="p-4">
+              <TabCreateEditProduct
+                products={products}
+                setProducts={setProducts}
+                categories={categories}
+                stores={stores}
+                filterForm={filterForm}
+                onChangeFilterForm={onChangeFilterForm}
+                loadProducts={loadProducts}
+                handleClearFilters={handleClearFilters}
+              />
+            </Card.Body>
+          </Tab>
+          <Tab eventKey="categories" title="Categorías">
+            <Card.Body className="p-4">
+              <TabCategories
+                categories={categories}
+                setCategories={setCategories}
+              />
+            </Card.Body>
+          </Tab>
+          <Tab eventKey="inventory" title="Inventario">
+            <Card.Body className="p-4">
+              <TabInventory
+                inventory={inventory}
+                setInventory={setInventory}
+                getProductsWithLowStock={getProductsWithLowStock}
+              />
+            </Card.Body>
+          </Tab>
+          <Tab eventKey="low_stock" title="Bajo Stock">
+            <Card.Body className="p-4">
+              <TabLowStock products={lowStockProducts} />
+            </Card.Body>
+          </Tab>
+        </Tabs>
       </Card>
-
       <Toaster position="top-center" />
     </Container>
   );

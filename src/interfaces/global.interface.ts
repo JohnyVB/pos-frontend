@@ -14,6 +14,7 @@ export interface Product {
   category_name: string;
   store_name: string;
   stock: number;
+  quantity?: number;
 }
 
 export interface User {

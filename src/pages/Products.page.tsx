@@ -29,7 +29,7 @@ export default function Products() {
     min_stock: null,
     category_id: null,
     sale_type: null,
-    store_id: (userData && userData.role === "admin" || userData?.role === "superadmin") ? null : userData?.store_id || null,
+    store_id: (userData && userData?.role === "superadmin") ? null : userData?.store_id || null,
   });
 
   const loadProducts = async () => {
@@ -131,7 +131,8 @@ export default function Products() {
       <Card className="shadow-sm border-0 mt-3">
         <Tabs
           defaultActiveKey="products"
-          id="fill-tab-example"
+          variant="tabs"
+          justify
           fill
         >
           <Tab eventKey="products" title="Productos">

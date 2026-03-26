@@ -128,7 +128,7 @@ export const TabInventory = ({
           product_id: res.product.id,
           name: res.product.name,
           barcode: res.product.barcode,
-          quantity: res.product.quantity,
+          quantity: res.product.quantity || 0,
           store_id: res.product.store_id,
           store_name: res.product.store_name,
         });

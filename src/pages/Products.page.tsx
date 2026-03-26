@@ -9,12 +9,14 @@ import TabLowStock from "../components/ProductsPage/TabLowStock";
 import type { LowStockProduct } from "../components/ProductsPage/TabLowStock";
 import type { Category } from "../interfaces/components/POSPage/TabCategories.interface";
 import type { Inventory } from "../interfaces/components/POSPage/TabInventory.interface";
-import type { Product } from "../interfaces/global.interface";
+import type { Product, Store } from "../interfaces/global.interface";
 import type { ActiveTab } from "../interfaces/global.types";
 import { onGetCategories } from "../services/categories.services";
 import { onLoadInventory } from "../services/inventory.services";
 import { onGetProducts, onGetProductsWithLowStock } from "../services/products.services";
 import userStore from "../store/userStore";
+import { useForm } from "../hooks/useForm";
+import { onGetStores } from "../services/stores.services";
 
 export default function Products() {
   const { userData } = userStore();
@@ -23,10 +25,18 @@ export default function Products() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [inventory, setInventory] = useState<Inventory[]>([]);
   const [lowStockProducts, setLowStockProducts] = useState<LowStockProduct[]>([]);
+  const [stores, setStores] = useState<Store[]>([]);
+  const { form: filterForm, onChangeForm: onChangeFilterForm, resetForm: resetFilterForm } = useForm({
+    vat: null,
+    min_stock: null,
+    category_id: null,
+    sale_type: null,
+    store_id: (userData && userData.role === "admin" || userData?.role === "superadmin") ? null : userData?.store_id || null,
+  });
 
   const loadProducts = async () => {
     try {
-      const res = await onGetProducts(userData?.store_id!);
+      const res = await onGetProducts(filterForm, userData?.store_id!);
       if (res.response === "success" && res.products) {
         setProducts(res.products);
       } else {
@@ -78,17 +88,48 @@ export default function Products() {
     }
   }
 
+  const getStores = async () => {
+    try {
+      const res = await onGetStores();
+      if (res.response === "success" && res.stores) {
+        setStores(res.stores);
+      } else {
+        toast.error(res.message || "Error al obtener tiendas");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al obtener tiendas");
+    }
+  };
+
+  const handleClearFilters = async () => {
+    const initialFilters = {
+      vat: null,
+      min_stock: null,
+      category_id: null,
+      sale_type: null,
+      store_id: (userData && userData.role === "admin" || userData?.role === "superadmin") ? null : userData?.store_id || null,
+    };
+    resetFilterForm();
+    const res = await onGetProducts(initialFilters, userData?.store_id!);
+    if (res.response === "success" && res.products) {
+      setProducts(res.products)
+    }
+  }
+
   useEffect(() => {
     loadProducts();
     loadCategories();
     loadInventory();
     getProductsWithLowStock();
-  }, []);
+    if (userData?.role === "superadmin") {
+      getStores();
+    }
+  }, [userData?.role]);
 
   return (
     <Container fluid className="p-4 bg-light min-vh-100">
       <PageHeader title="Gestión de productos" />
-
       <Card className="shadow-sm border-0 mt-3">
         <Card.Header className="bg-white border-bottom-0 pt-3 pb-0 px-4">
           <Nav variant="tabs" activeKey={activeTab} onSelect={(k) => setActiveTab(k as ActiveTab)}>
@@ -123,6 +164,11 @@ export default function Products() {
               products={products}
               setProducts={setProducts}
               categories={categories}
+              stores={stores}
+              filterForm={filterForm}
+              onChangeFilterForm={onChangeFilterForm}
+              loadProducts={loadProducts}
+              handleClearFilters={handleClearFilters}
             />
           )}
 

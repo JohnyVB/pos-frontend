@@ -1,4 +1,4 @@
-import type { Product } from "../../global.interface";
+import type { Product, Store } from "../../global.interface";
 import type { Category } from "./TabCategories.interface";
 
 export interface createEditForm {
@@ -15,6 +15,11 @@ export interface TabProductsProps {
   products: Product[];
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
   categories: Category[];
+  stores: Store[];
+  filterForm: filterForm;
+  onChangeFilterForm: (value: string | null, field: keyof filterForm) => void;
+  loadProducts: () => void;
+  handleClearFilters: () => void;
 };
 
 export interface createProductResponse {
@@ -33,4 +38,12 @@ export interface updateProductResponse {
   response: "success" | "error";
   product?: Product;
   message?: string;
+}
+
+export interface filterForm {
+  vat: string | null;
+  min_stock: string | null;
+  category_id: string | null;
+  sale_type: string | null;
+  store_id: string | null;
 }

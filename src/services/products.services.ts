@@ -2,13 +2,14 @@ import API from "../config/api.config";
 import type {
   createEditForm,
   createProductResponse,
+  filterForm,
   getProductsResponse,
   updateProductResponse
 } from "../interfaces/components/POSPage/TabCreateEdit.interface";
 
-export const onGetProducts = async (store_id: string): Promise<getProductsResponse> => {
+export const onGetProducts = async (filterForm: filterForm, store_id: string): Promise<getProductsResponse> => {
   try {
-    const { data } = await API.get(`/products/${store_id}`);
+    const { data } = await API.post(`/products/${store_id}`, filterForm);
     return data;
   } catch (error: any) {
     console.log("Error fetching products:", error);

@@ -138,244 +138,236 @@ const TabCreateEditProduct = ({
 
   return (
     <div>
-      <Accordion className="mb-3 mt-3" defaultActiveKey="0">
-        <Accordion.Item eventKey="0">
-          <Accordion.Header><h5 className="fw-bold text-dark">{editingId ? "Editar Producto" : "Nuevo Producto"}</h5></Accordion.Header>
+      <Accordion className="mb-3 mt-3 shadow-sm border-0" defaultActiveKey="0">
+        <Accordion.Item eventKey="0" className="bg-light">
+          <Accordion.Header><h4 className="text-dark">{editingId ? "Editar Producto" : "Nuevo Producto"}</h4></Accordion.Header>
           <Accordion.Body>
-            <Card className="shadow-sm border-0 bg-light">
-              <Card.Body>
-                <Row className="align-items-end g-3">
-                  <Col md={6} lg={4}>
-                    <Form.Group>
-                      <Form.Label className="small fw-bold text-muted">Código de barras</Form.Label>
-                      <Form.Control
-                        ref={inputBarcodeRef}
-                        placeholder="Ej: 123456789"
-                        value={form.barcode}
-                        onChange={(e) => valueAdjustment(e.target.value, "barcode")}
-                        onKeyDown={(e) => handleKeyDown(e, inputNameRef)}
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
+            <Row className="align-items-end g-3">
+              <Col md={6} lg={4}>
+                <Form.Group>
+                  <Form.Label className="small fw-bold text-muted">Código de barras</Form.Label>
+                  <Form.Control
+                    ref={inputBarcodeRef}
+                    placeholder="Ej: 123456789"
+                    value={form.barcode}
+                    onChange={(e) => valueAdjustment(e.target.value, "barcode")}
+                    onKeyDown={(e) => handleKeyDown(e, inputNameRef)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
 
-                  <Col md={6} lg={4}>
-                    <Form.Group>
-                      <Form.Label className="small fw-bold text-muted">Nombre</Form.Label>
-                      <Form.Control
-                        ref={inputNameRef}
-                        placeholder="Nombre del producto"
-                        value={form.name}
-                        onChange={(e) => valueAdjustment(e.target.value, "name")}
-                        onKeyDown={(e) => handleKeyDown(e, inputSaleTypeRef)}
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
+              <Col md={6} lg={4}>
+                <Form.Group>
+                  <Form.Label className="small fw-bold text-muted">Nombre</Form.Label>
+                  <Form.Control
+                    ref={inputNameRef}
+                    placeholder="Nombre del producto"
+                    value={form.name}
+                    onChange={(e) => valueAdjustment(e.target.value, "name")}
+                    onKeyDown={(e) => handleKeyDown(e, inputSaleTypeRef)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
 
-                  <Col md={6} lg={4}>
-                    <Form.Group>
-                      <Form.Label className="small fw-bold text-muted">Tipo de Venta</Form.Label>
-                      <Form.Select
-                        ref={inputSaleTypeRef}
-                        value={form.sale_type}
-                        onChange={(e) => valueAdjustment(e.target.value, "sale_type")}
-                        onKeyDown={(e) => handleKeyDown(e, inputPriceRef)}
-                      >
-                        <option value="UNIT">Unidad</option>
-                        <option value="WEIGHT">Peso</option>
-                      </Form.Select>
-                    </Form.Group>
-                  </Col>
+              <Col md={6} lg={4}>
+                <Form.Group>
+                  <Form.Label className="small fw-bold text-muted">Tipo de Venta</Form.Label>
+                  <Form.Select
+                    ref={inputSaleTypeRef}
+                    value={form.sale_type}
+                    onChange={(e) => valueAdjustment(e.target.value, "sale_type")}
+                    onKeyDown={(e) => handleKeyDown(e, inputPriceRef)}
+                  >
+                    <option value="UNIT">Unidad</option>
+                    <option value="WEIGHT">Peso</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
 
-                  <Col md={4} lg={2}>
-                    <Form.Group>
-                      <Form.Label className="small fw-bold text-muted">Precio (€)</Form.Label>
-                      <Form.Control
-                        ref={inputPriceRef}
-                        type="text"
-                        placeholder="0.00"
-                        value={form.price}
-                        onChange={(e) => valueAdjustment(e.target.value, "price")}
-                        onKeyDown={(e) => handleKeyDown(e, inputVatRef)}
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
+              <Col md={4} lg={2}>
+                <Form.Group>
+                  <Form.Label className="small fw-bold text-muted">Precio (€)</Form.Label>
+                  <Form.Control
+                    ref={inputPriceRef}
+                    type="text"
+                    placeholder="0.00"
+                    value={form.price}
+                    onChange={(e) => valueAdjustment(e.target.value, "price")}
+                    onKeyDown={(e) => handleKeyDown(e, inputVatRef)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
 
-                  <Col md={4} lg={2}>
-                    <Form.Group>
-                      <Form.Label className="small fw-bold text-muted">IVA (%)</Form.Label>
-                      <Form.Control
-                        ref={inputVatRef}
-                        type="text"
-                        placeholder="21"
-                        value={form.vat}
-                        onChange={(e) => valueAdjustment(e.target.value, "vat")}
-                        onKeyDown={(e) => handleKeyDown(e, inputMinStockRef)}
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
+              <Col md={4} lg={2}>
+                <Form.Group>
+                  <Form.Label className="small fw-bold text-muted">IVA (%)</Form.Label>
+                  <Form.Control
+                    ref={inputVatRef}
+                    type="text"
+                    placeholder="21"
+                    value={form.vat}
+                    onChange={(e) => valueAdjustment(e.target.value, "vat")}
+                    onKeyDown={(e) => handleKeyDown(e, inputMinStockRef)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
 
-                  <Col md={4} lg={2}>
-                    <Form.Group>
-                      <Form.Label className="small fw-bold text-muted">Stock Mínimo</Form.Label>
-                      <Form.Control
-                        ref={inputMinStockRef}
-                        type="text"
-                        placeholder="0"
-                        value={form.min_stock}
-                        onChange={(e) => valueAdjustment(e.target.value, "min_stock")}
-                        onKeyDown={(e) => handleKeyDown(e, inputCategoryRef)}
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
+              <Col md={4} lg={2}>
+                <Form.Group>
+                  <Form.Label className="small fw-bold text-muted">Stock Mínimo</Form.Label>
+                  <Form.Control
+                    ref={inputMinStockRef}
+                    type="text"
+                    placeholder="0"
+                    value={form.min_stock}
+                    onChange={(e) => valueAdjustment(e.target.value, "min_stock")}
+                    onKeyDown={(e) => handleKeyDown(e, inputCategoryRef)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
 
-                  <Col md={4} lg={3}>
-                    <Form.Group>
-                      <Form.Label className="small fw-bold text-muted">Categoría</Form.Label>
-                      <Form.Select
-                        ref={inputCategoryRef}
-                        value={form.category_id}
-                        onChange={(e) => valueAdjustment(e.target.value, "category_id")}
-                        onKeyDown={(e) => handleKeyDown(e)}
-                      >
-                        <option value={0}>Sin categoría</option>
-                        {categories.map((cat: Category) => (
-                          <option key={cat.id} value={cat.id}>
-                            {cat.name}
-                          </option>
-                        ))}
-                      </Form.Select>
-                    </Form.Group>
-                  </Col>
+              <Col md={4} lg={3}>
+                <Form.Group>
+                  <Form.Label className="small fw-bold text-muted">Categoría</Form.Label>
+                  <Form.Select
+                    ref={inputCategoryRef}
+                    value={form.category_id}
+                    onChange={(e) => valueAdjustment(e.target.value, "category_id")}
+                    onKeyDown={(e) => handleKeyDown(e)}
+                  >
+                    <option value={0}>Sin categoría</option>
+                    {categories.map((cat: Category) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
 
-                  <Col xs={12} md={userData?.role === "cashier" ? 4 : 3}>
-                    <div className="d-flex gap-2">
-                      <Button
-                        variant="primary"
-                        className="w-100 fw-bold"
-                        onClick={handleCreateEdit}
-                      >
-                        {editingId ? "Actualizar" : "Agregar"}
-                      </Button>
-                      <Button
-                        variant="outline-danger"
-                        className="w-100 fw-bold"
-                        disabled={!editingId}
-                        onClick={() => {
-                          resetForm();
-                          setEditingId(null);
-                        }}
-                      >
-                        Cancelar
-                      </Button>
-                    </div>
-                  </Col>
-                </Row>
-              </Card.Body>
-            </Card>
+              <Col xs={12} md={userData?.role === "cashier" ? 4 : 3}>
+                <div className="d-flex gap-2">
+                  <Button
+                    variant="primary"
+                    className="w-100 fw-bold"
+                    onClick={handleCreateEdit}
+                  >
+                    {editingId ? "Actualizar" : "Agregar"}
+                  </Button>
+                  <Button
+                    variant="outline-danger"
+                    className="w-100 fw-bold"
+                    disabled={!editingId}
+                    onClick={() => {
+                      resetForm();
+                      setEditingId(null);
+                    }}
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+              </Col>
+            </Row>
           </Accordion.Body>
         </Accordion.Item>
 
-        <Accordion.Item eventKey="1">
-          <Accordion.Header><h5 className="fw-bold text-dark">Filtros de Búsqueda</h5></Accordion.Header>
+        <Accordion.Item eventKey="1" className="bg-light">
+          <Accordion.Header><h4 className="text-dark">Filtros de Búsqueda</h4></Accordion.Header>
           <Accordion.Body>
-            <Card className="shadow-sm border-0 bg-light">
-              <Card.Body>
-                <Row className="align-items-end g-3">
-                  <Col md={2}>
-                    <Form.Group>
-                      <Form.Label className="small fw-bold text-muted">IVA</Form.Label>
-                      <Form.Select
-                        value={filterForm.vat || "all"}
-                        onChange={(e) => onChangeFilterForm(e.target.value === "all" ? null : e.target.value, "vat")}
-                      >
-                        <option value="all">Todos los IVA</option>
-                        <option value="21">21%</option>
-                        <option value="10">10%</option>
-                        <option value="4">4%</option>
-                        <option value="0">0%</option>
-                      </Form.Select>
-                    </Form.Group>
-                  </Col>
-                  <Col md={1}>
-                    <Form.Group>
-                      <Form.Label className="small fw-bold text-muted">Stock Mínimo</Form.Label>
-                      <Form.Control
-                        type="text"
-                        placeholder="0.00"
-                        value={filterForm.min_stock || ""}
-                        onChange={(e) => onChangeFilterForm(e.target.value === "" ? null : e.target.value, "min_stock")}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col xs={12} md={userData?.role === "superadmin" ? 2 : userData?.role === "cashier" ? 4 : 3}>
-                    <Form.Group>
-                      <Form.Label className="small fw-bold text-muted">Categoría</Form.Label>
-                      <Form.Select
-                        value={filterForm.category_id || ""}
-                        onChange={(e) => onChangeFilterForm(e.target.value === "" ? null : e.target.value, "category_id")}
-                      >
-                        <option value="">Todas las categorías</option>
-                        {categories.map(c => (
-                          <option key={c.id} value={c.id}>{c.name}</option>
-                        ))}
-                      </Form.Select>
-                    </Form.Group>
-                  </Col>
-                  <Col xs={12} md={2}>
-                    <Form.Group>
-                      <Form.Label className="small fw-bold text-muted">Tipo de Venta</Form.Label>
-                      <Form.Select
-                        value={filterForm.sale_type || "all"}
-                        onChange={(e) => onChangeFilterForm(e.target.value === "all" ? null : e.target.value, "sale_type")}
-                      >
-                        <option value="all">Todos los tipos de venta</option>
-                        <option value="UNIT">Unidad</option>
-                        <option value="WEIGHT">Peso</option>
-                      </Form.Select>
-                    </Form.Group>
-                  </Col>
-                  {userData?.role === "superadmin" && (
-                    <Col xs={12} md={2}>
-                      <Form.Group>
-                        <Form.Label className="small fw-bold text-muted">Tienda</Form.Label>
-                        <Form.Select
-                          value={filterForm.store_id || "all"}
-                          onChange={(e) => onChangeFilterForm(e.target.value === "all" ? null : e.target.value, "store_id")}
-                        >
-                          <option value="all">Todas las tiendas</option>
-                          {stores.map(s => (
-                            <option key={s.id} value={s.id}>{s.name}</option>
-                          ))}
-                        </Form.Select>
-                      </Form.Group>
-                    </Col>
-                  )}
-                  <Col xs={12} md={userData?.role !== "superadmin" ? 4 : 3}>
-                    <div className="d-flex gap-2">
-                      <Button
-                        variant="primary"
-                        className="w-100 fw-bold"
-                        onClick={loadProducts}
-                      >
-                        Filtrar
-                      </Button>
-                      <Button
-                        variant="outline-secondary"
-                        className="w-100 fw-bold"
-                        onClick={handleClearFilters}
-                      >
-                        Limpiar
-                      </Button>
-                    </div>
-                  </Col>
-                </Row>
-              </Card.Body>
-            </Card>
+            <Row className="align-items-end g-3">
+              <Col md={2}>
+                <Form.Group>
+                  <Form.Label className="small fw-bold text-muted">IVA</Form.Label>
+                  <Form.Select
+                    value={filterForm.vat || "all"}
+                    onChange={(e) => onChangeFilterForm(e.target.value === "all" ? null : e.target.value, "vat")}
+                  >
+                    <option value="all">Todos los IVA</option>
+                    <option value="21">21%</option>
+                    <option value="10">10%</option>
+                    <option value="4">4%</option>
+                    <option value="0">0%</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={1}>
+                <Form.Group>
+                  <Form.Label className="small fw-bold text-muted">Stock Mínimo</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="0.00"
+                    value={filterForm.min_stock || ""}
+                    onChange={(e) => onChangeFilterForm(e.target.value === "" ? null : e.target.value, "min_stock")}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={12} md={userData?.role === "superadmin" ? 2 : userData?.role === "cashier" ? 4 : 3}>
+                <Form.Group>
+                  <Form.Label className="small fw-bold text-muted">Categoría</Form.Label>
+                  <Form.Select
+                    value={filterForm.category_id || ""}
+                    onChange={(e) => onChangeFilterForm(e.target.value === "" ? null : e.target.value, "category_id")}
+                  >
+                    <option value="">Todas las categorías</option>
+                    {categories.map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col xs={12} md={2}>
+                <Form.Group>
+                  <Form.Label className="small fw-bold text-muted">Tipo de Venta</Form.Label>
+                  <Form.Select
+                    value={filterForm.sale_type || "all"}
+                    onChange={(e) => onChangeFilterForm(e.target.value === "all" ? null : e.target.value, "sale_type")}
+                  >
+                    <option value="all">Todos los tipos de venta</option>
+                    <option value="UNIT">Unidad</option>
+                    <option value="WEIGHT">Peso</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              {userData?.role === "superadmin" && (
+                <Col xs={12} md={2}>
+                  <Form.Group>
+                    <Form.Label className="small fw-bold text-muted">Tienda</Form.Label>
+                    <Form.Select
+                      value={filterForm.store_id || "all"}
+                      onChange={(e) => onChangeFilterForm(e.target.value === "all" ? null : e.target.value, "store_id")}
+                    >
+                      <option value="all">Todas las tiendas</option>
+                      {stores.map(s => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+              )}
+              <Col xs={12} md={userData?.role !== "superadmin" ? 4 : 3}>
+                <div className="d-flex gap-2">
+                  <Button
+                    variant="primary"
+                    className="w-100 fw-bold"
+                    onClick={loadProducts}
+                  >
+                    Filtrar
+                  </Button>
+                  <Button
+                    variant="outline-secondary"
+                    className="w-100 fw-bold"
+                    onClick={handleClearFilters}
+                  >
+                    Limpiar
+                  </Button>
+                </div>
+              </Col>
+            </Row>
           </Accordion.Body>
         </Accordion.Item>
       </Accordion>

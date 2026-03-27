@@ -30,6 +30,7 @@ export default function Dashboard() {
     { label: "Nueva Venta", icon: "🛒", path: "/pos", bg: "primary", visible: true },
     { label: "Movimientos Caja", icon: "💸", path: "/cash-movements", bg: "danger", visible: true },
     { label: "Reporte Cajas", icon: "💶", path: "/cashbox-sessions", bg: "info", visible: true },
+    { label: "Reporte Productos", icon: "📊", path: "/top-products", bg: "info", visible: userData?.role === "superadmin" || userData?.role === "admin" },
     { label: "Productos", icon: "📦", path: "/products", bg: "success", visible: userData?.role === "superadmin" || userData?.role === "admin" },
     { label: "Usuarios", icon: "👥", path: "/register", bg: "warning", visible: userData?.role === "superadmin" || userData?.role === "admin" },
     { label: "Terminales", icon: "🖥️", path: "/terminals", bg: "secondary", visible: userData?.role === "superadmin" || userData?.role === "admin" },

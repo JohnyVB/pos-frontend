@@ -22,3 +22,21 @@ body {
   font-weight: 500;
   text-align: right;
 }
+
+/* 1. Quita el color de fondo y el color de texto cuando está expandido */
+.accordion-button:not(.collapsed) {
+    background-color: transparent !important; /* O el color que desees */
+    color: inherit !important;                /* Mantiene el color de texto original */
+    box-shadow: none !important;              /* Quita la sombra interna azul */
+}
+
+/* 2. Quita el borde azul (outline) que sale al hacer clic (enfoque) */
+.accordion-button:focus {
+    border-color: rgba(0,0,0,.125);           /* Color de borde original */
+    box-shadow: none !important;              /* Quita el resplandor azul de foco */
+}
+
+/* 3. (Opcional) Si quieres que al pasar el mouse no cambie nada */
+.accordion-button:hover {
+    background-color: transparent !important;
+}

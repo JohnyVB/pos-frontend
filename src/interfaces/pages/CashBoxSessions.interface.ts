@@ -1,3 +1,5 @@
+import type { Pagination } from "../global.interface"
+
 export interface CashBoxSession {
   // datos de la sesion
   session_id: number
@@ -37,8 +39,9 @@ export interface CloseCashBoxSessionResponse {
 
 export interface GetCashBoxSessionsResponse {
   response: string
+  cashBoxSessions?: CashBoxSession[],
+  pagination?: Pagination,
   message?: string
-  cashBoxSessions?: CashBoxSession[]
 }
 
 export interface CashBoxSessionFilters {

@@ -6,9 +6,9 @@ import type {
   OpenCashBoxSessionResponse
 } from "../interfaces/pages/CashBoxSessions.interface";
 
-export const onGetCashBoxSessions = async (filters: CashBoxSessionFilters, store_id: string): Promise<GetCashBoxSessionsResponse> => {
+export const onGetCashBoxSessions = async (filters: CashBoxSessionFilters, store_id: string, page: number, limit: number): Promise<GetCashBoxSessionsResponse> => {
   try {
-    const { data } = await API.post(`/cashbox-sessions/get/${store_id}`, filters)
+    const { data } = await API.post(`/cashbox-sessions/get/${store_id}`, filters, { params: { page, limit } })
     return data
   } catch (error: any) {
     console.log(error)

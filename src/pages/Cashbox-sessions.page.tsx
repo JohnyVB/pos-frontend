@@ -14,10 +14,14 @@ import { onGetTerminals } from "../services/terminals.services"
 import useCashStore from "../store/useCashStore"
 import userStore from "../store/userStore"
 import { onGetStores } from "../services/stores.services"
+import { TablePagination } from "../components/common/TablePagination"
 
 export default function CashboxSessions() {
   const { userData } = userStore();
   const [cashBoxSessions, setCashBoxSessions] = useState<CashBoxSession[]>([])
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalRecords, setTotalRecords] = useState<number>(0);
   const [showCloseBoxModal, setShowCloseBoxModal] = useState<boolean>(false)
   const [cashBoxId, setCashBoxId] = useState<number>(0)
   const { cashBoxSession, setCashBoxSession, currentAmount, setCurrentAmount } = useCashStore()
@@ -76,10 +80,13 @@ export default function CashboxSessions() {
     }
   }
 
-  const getCashBoxSessions = async () => {
-    const res = await onGetCashBoxSessions(form, userData?.store_id!)
-    if (res.response === "success" && res.cashBoxSessions) {
+  const getCashBoxSessions = async (page: number, limit: number = 10) => {
+    const res = await onGetCashBoxSessions(form, userData?.store_id!, page, limit)
+    if (res.response === "success" && res.cashBoxSessions && res.pagination) {
       setCashBoxSessions(res.cashBoxSessions)
+      setTotalPages(res.pagination.totalPages)
+      setCurrentPage(res.pagination.page)
+      setTotalRecords(res.pagination.total)
       updateCashBox(res.cashBoxSessions)
     } else {
       toast.error(res.message || "Error al obtener las sesiones")
@@ -107,7 +114,7 @@ export default function CashboxSessions() {
     };
     setSelectedStoreId(null)
     resetForm();
-    const res = await onGetCashBoxSessions(initialFilters, userData?.store_id!)
+    const res = await onGetCashBoxSessions(initialFilters, userData?.store_id!, 1, 10)
     if (res.response === "success" && res.cashBoxSessions) {
       setCashBoxSessions(res.cashBoxSessions)
     }
@@ -128,7 +135,7 @@ export default function CashboxSessions() {
   };
 
   useEffect(() => {
-    getCashBoxSessions()
+    getCashBoxSessions(1)
     getTerminals()
     if (userData?.role === "superadmin") {
       getStores()
@@ -229,7 +236,7 @@ export default function CashboxSessions() {
                   <Button
                     variant="primary"
                     className="w-100 fw-bold"
-                    onClick={getCashBoxSessions}
+                    onClick={() => getCashBoxSessions(1)}
                   >
                     Filtrar
                   </Button>
@@ -323,6 +330,13 @@ export default function CashboxSessions() {
               )}
             </tbody>
           </Table>
+          <TablePagination
+            data={cashBoxSessions}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalRecords={totalRecords}
+            loadData={getCashBoxSessions}
+          />
         </Card.Body>
       </Card>
       <Toaster position="top-center" />

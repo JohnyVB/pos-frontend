@@ -3,9 +3,10 @@ import { Pagination } from "react-bootstrap";
 import type { Product } from "../../interfaces/global.interface";
 import type { Category } from "../../interfaces/components/POSPage/TabCategories.interface";
 import type { Inventory } from "../../interfaces/components/POSPage/TabInventory.interface";
+import type { CashBoxSession } from "../../interfaces/pages/CashBoxSessions.interface";
 
 interface TablePaginationProps {
-  data: Product[] | Category[] | Inventory[];
+  data: Product[] | Category[] | Inventory[] | CashBoxSession[];
   totalRecords: number;
   currentPage: number;
   totalPages: number;

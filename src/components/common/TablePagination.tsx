@@ -1,9 +1,11 @@
 import { Fragment } from "react";
 import { Pagination } from "react-bootstrap";
 import type { Product } from "../../interfaces/global.interface";
+import type { Category } from "../../interfaces/components/POSPage/TabCategories.interface";
+import type { Inventory } from "../../interfaces/components/POSPage/TabInventory.interface";
 
 interface TablePaginationProps {
-  data: Product[];
+  data: Product[] | Category[] | Inventory[];
   totalRecords: number;
   currentPage: number;
   totalPages: number;
@@ -14,7 +16,7 @@ export const TablePagination = ({ data, totalRecords, currentPage, totalPages, l
   return (
     <div className="d-flex justify-content-center gap-3 align-items-center mt-3 p-3 shadow-sm rounded">
       <div className="text-muted small">
-        Mostrando <strong>{data.length}</strong> de <strong>{totalRecords}</strong> productos
+        Mostrando <strong>{data.length}</strong> de <strong>{totalRecords}</strong> elementos
       </div>
 
       <Pagination size="sm" className="mb-0">

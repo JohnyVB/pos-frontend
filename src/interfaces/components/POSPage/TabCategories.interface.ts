@@ -1,3 +1,4 @@
+import type { Pagination } from "../../global.interface";
 
 export interface categoryFormType {
   name: string;
@@ -17,6 +18,10 @@ export interface Category {
 export interface TabCategoriesProps {
   categories: Category[];
   setCategories: (categories: Category[]) => void;
+  currentCategoryPage: number;
+  totalCategoryPages: number;
+  totalCategoriesRecords: number;
+  loadCategories: (page: number, limit?: number) => Promise<void>;
 }
 
 export interface createCategoryResponse {
@@ -28,6 +33,7 @@ export interface createCategoryResponse {
 export interface getCategoriesResponse {
   response: "success" | "error";
   categories?: Category[];
+  pagination?: Pagination;
   message?: string;
 }
 

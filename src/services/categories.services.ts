@@ -6,9 +6,9 @@ import type {
   getCategoriesResponse,
 } from "../interfaces/components/POSPage/TabCategories.interface";
 
-export const onGetCategories = async (store_id: string): Promise<getCategoriesResponse> => {
+export const onGetCategories = async (store_id: string, page: number = 1, limit: number = 10): Promise<getCategoriesResponse> => {
   try {
-    const { data } = await API.get(`/categories/${store_id}`);
+    const { data } = await API.get(`/categories/${store_id}`, { params: { page, limit } });
     return data;
   } catch (error: any) {
     console.log("Error fetching categories:", error);

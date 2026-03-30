@@ -28,9 +28,9 @@ export const onGetProductByQuery = async (query: string, store_id: string): Prom
   }
 };
 
-export const onLoadInventory = async (store_id: string): Promise<LoadInventoryResponse> => {
+export const onLoadInventory = async (store_id: string, page: number = 1, limit: number = 10): Promise<LoadInventoryResponse> => {
   try {
-    const { data } = await API.get(`/inventory/${store_id}`);
+    const { data } = await API.get(`/inventory/${store_id}`, { params: { page, limit } });
     return data;
   } catch (error) {
     console.error("Error loading inventory:", error);

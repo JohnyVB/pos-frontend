@@ -1,4 +1,4 @@
-import type { Product } from "../../global.interface";
+import type { Pagination, Product } from "../../global.interface";
 
 
 export interface Inventory {
@@ -22,6 +22,10 @@ export interface TabInventoryProps {
   inventory: Inventory[];
   setInventory: React.Dispatch<React.SetStateAction<Inventory[]>>;
   getProductsWithLowStock: () => Promise<void>;
+  currentInventoryPage: number;
+  totalInventoryPages: number;
+  totalInventoryRecords: number;
+  loadInventory: (page: number, limit?: number) => Promise<void>;
 };
 
 export interface InventoryMovementResponse {
@@ -38,5 +42,6 @@ export interface ProductSearchResponse {
 export interface LoadInventoryResponse {
   response: string;
   inventory?: Inventory[];
+  pagination?: Pagination;
   message?: string;
 }

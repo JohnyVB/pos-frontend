@@ -1,4 +1,5 @@
-import { Form, Button, Table, Card, Row, Col } from "react-bootstrap";
+import { Button, Card, Col, Form, Row, Table } from "react-bootstrap";
+import toast from "react-hot-toast";
 import { useForm } from "../../hooks/useForm";
 import type {
   Category,
@@ -9,11 +10,15 @@ import {
   onDeactivateCategory,
 } from "../../services/categories.services";
 import userStore from "../../store/userStore";
-import toast from "react-hot-toast";
+import { TablePagination } from "../common/TablePagination";
 
 const TabCategories = ({
   categories,
   setCategories,
+  currentCategoryPage,
+  totalCategoryPages,
+  totalCategoriesRecords,
+  loadCategories,
 }: TabCategoriesProps) => {
   const { userData } = userStore();
   const { form, onChangeForm, resetForm } = useForm({
@@ -138,6 +143,13 @@ const TabCategories = ({
               )}
             </tbody>
           </Table>
+          <TablePagination
+            data={categories}
+            totalRecords={totalCategoriesRecords}
+            currentPage={currentCategoryPage}
+            totalPages={totalCategoryPages}
+            loadData={loadCategories}
+          />
         </Card.Body>
       </Card>
     </div>

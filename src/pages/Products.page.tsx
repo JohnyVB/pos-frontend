@@ -24,7 +24,13 @@ export default function Products() {
   const [totalProductPages, setTotalProductPages] = useState<number>(1);
   const [totalProductsRecords, setTotalProductsRecords] = useState<number>(0);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [currentCategoryPage, setCurrentCategoryPage] = useState<number>(1);
+  const [totalCategoryPages, setTotalCategoryPages] = useState<number>(1);
+  const [totalCategoriesRecords, setTotalCategoriesRecords] = useState<number>(0);
   const [inventory, setInventory] = useState<Inventory[]>([]);
+  const [currentInventoryPage, setCurrentInventoryPage] = useState<number>(1);
+  const [totalInventoryPages, setTotalInventoryPages] = useState<number>(1);
+  const [totalInventoryRecords, setTotalInventoryRecords] = useState<number>(0);
   const [lowStockProducts, setLowStockProducts] = useState<LowStockProduct[]>([]);
   const [stores, setStores] = useState<Store[]>([]);
   const { form: filterForm, onChangeForm: onChangeFilterForm, resetForm: resetFilterForm } = useForm({
@@ -54,21 +60,27 @@ export default function Products() {
     }
   };
 
-  const loadCategories = async () => {
-    const res = await onGetCategories(userData?.store_id!);
-    if (res.response === "success" && res.categories) {
+  const loadCategories = async (pageLoad: number = 1, limit: number = 10) => {
+    const res = await onGetCategories(userData?.store_id!, pageLoad, limit);
+    if (res.response === "success" && res.categories && res.pagination) {
       setCategories(res.categories);
+      setTotalCategoryPages(res.pagination.totalPages);
+      setCurrentCategoryPage(res.pagination.page);
+      setTotalCategoriesRecords(res.pagination.total);
     } else {
       setCategories([]);
       toast.error("Error al cargar categorías", { duration: 4000 });
     }
   };
 
-  const loadInventory = async () => {
+  const loadInventory = async (pageLoad: number = 1, limit: number = 10) => {
     try {
-      const res = await onLoadInventory(userData?.store_id!);
-      if (res.response === "success" && res.inventory) {
+      const res = await onLoadInventory(userData?.store_id!, pageLoad, limit);
+      if (res.response === "success" && res.inventory && res.pagination) {
         setInventory(res.inventory);
+        setTotalInventoryPages(res.pagination.totalPages);
+        setCurrentInventoryPage(res.pagination.page);
+        setTotalInventoryRecords(res.pagination.total);
       } else {
         setInventory([]);
         toast.error("Error al cargar inventario", { duration: 4000 });
@@ -123,8 +135,8 @@ export default function Products() {
 
   useEffect(() => {
     loadProducts(1);
-    loadCategories();
-    loadInventory();
+    loadCategories(1);
+    loadInventory(1);
     getProductsWithLowStock();
     if (userData?.role === "superadmin") {
       getStores();
@@ -164,6 +176,10 @@ export default function Products() {
               <TabCategories
                 categories={categories}
                 setCategories={setCategories}
+                currentCategoryPage={currentCategoryPage}
+                totalCategoryPages={totalCategoryPages}
+                totalCategoriesRecords={totalCategoriesRecords}
+                loadCategories={loadCategories}
               />
             </Card.Body>
           </Tab>
@@ -173,6 +189,10 @@ export default function Products() {
                 inventory={inventory}
                 setInventory={setInventory}
                 getProductsWithLowStock={getProductsWithLowStock}
+                currentInventoryPage={currentInventoryPage}
+                totalInventoryPages={totalInventoryPages}
+                totalInventoryRecords={totalInventoryRecords}
+                loadInventory={loadInventory}
               />
             </Card.Body>
           </Tab>

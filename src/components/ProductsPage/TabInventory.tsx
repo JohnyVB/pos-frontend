@@ -6,11 +6,16 @@ import { onGetProductByQuery, onMovement } from "../../services/inventory.servic
 import userStore from "../../store/userStore";
 import type { Inventory, InventoryForm, TabInventoryProps } from "../../interfaces/components/POSPage/TabInventory.interface";
 import toast from "react-hot-toast";
+import { TablePagination } from "../common/TablePagination";
 
 export const TabInventory = ({
   inventory,
   setInventory,
   getProductsWithLowStock,
+  currentInventoryPage,
+  totalInventoryPages,
+  totalInventoryRecords,
+  loadInventory,
 }: TabInventoryProps) => {
   const { userData } = userStore();
   const [query, setQuery] = useState<string>("");
@@ -372,6 +377,13 @@ export const TabInventory = ({
               )}
             </tbody>
           </Table>
+          <TablePagination
+            data={inventory}
+            currentPage={currentInventoryPage}
+            totalPages={totalInventoryPages}
+            totalRecords={totalInventoryRecords}
+            loadData={loadInventory}
+          />
         </Card.Body>
       </Card>
     </div >

@@ -4,12 +4,13 @@ import type { InventoryMovementResponse, LoadInventoryResponse, ProductSearchRes
 export const onMovement = async (
   product_id: number,
   quantity: number,
+  cost_price: number,
   type: "IN" | "OUT",
   reference: string,
-  store_id: string
+  store_id: string,
 ): Promise<InventoryMovementResponse> => {
   try {
-    const { data } = await API.post(`/inventory/movement/${store_id}`, { product_id, quantity, type, reference });
+    const { data } = await API.post(`/inventory/movement/${store_id}`, { product_id, quantity, type, reference, cost_price });
     return data;
   } catch (error) {
     console.error("Error adding inventory:", error);

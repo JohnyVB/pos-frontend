@@ -9,12 +9,14 @@ export interface Inventory {
   quantity: number;
   store_id: string;
   store_name: string;
+  cost_price: number;
 }
 
 export interface InventoryForm {
   product_id: string;
   quantity: string;
   reference: string;
+  cost_price: string;
 }
 export interface TabInventoryProps {
   inventory: Inventory[];

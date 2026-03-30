@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, Container, Tab, Tabs } from "react-bootstrap";
+import { Badge, Card, Container, Tab, Tabs } from "react-bootstrap";
 import toast, { Toaster } from "react-hot-toast";
 import { PageHeader } from "../components/common/PageHeader";
 import TabCategories from "../components/ProductsPage/TabCategories";
@@ -166,7 +166,20 @@ export default function Products() {
               />
             </Card.Body>
           </Tab>
-          <Tab eventKey="low_stock" title="Bajo Stock">
+          <Tab eventKey="low_stock" title={
+            <div className="d-flex align-items-center justify-content-center gap-2">
+              Bajo Stock
+              {lowStockProducts.length > 0 && (
+                <Badge
+                  pill
+                  bg="danger"
+                  style={{ fontSize: '0.75rem' }}
+                >
+                  {lowStockProducts.length}
+                </Badge>
+              )}
+            </div>
+          }>
             <Card.Body className="p-4">
               <TabLowStock products={lowStockProducts} />
             </Card.Body>

@@ -131,7 +131,7 @@ const TabCategories = ({
               ))}
               {categories.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="text-center text-muted py-5">
+                  <td colSpan={userData?.role === "superadmin" ? 4 : 3} className="text-center text-muted py-5">
                     No hay categorías registradas.
                   </td>
                 </tr>

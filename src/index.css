@@ -40,3 +40,21 @@ body {
 .accordion-button:hover {
     background-color: transparent !important;
 }
+
+/* Color para las pestañas NO seleccionadas */
+.nav-tabs .nav-link {
+  color: #6c757d !important; /* Gris oscuro de Bootstrap (text-muted) */
+  font-weight: 500;
+  border: none; /* Opcional: quita el borde si prefieres un look más limpio */
+}
+
+/* Color para la pestaña seleccionada (Activa) */
+.nav-tabs .nav-link.active {
+  color: #0d6dfda9 !important; /* Azul (o el color que prefieras para la activa) */
+  border-bottom: 2px solid #0d6dfda9 !important; /* Línea de énfasis */
+}
+
+/* Color al pasar el ratón (Hover) */
+.nav-tabs .nav-link:hover {
+  color: #0d6dfda9 !important;
+}

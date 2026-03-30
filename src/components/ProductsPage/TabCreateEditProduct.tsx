@@ -9,6 +9,8 @@ import { onCreateProduct, onDeleteProduct, onUpdateProduct } from "../../service
 import userStore from "../../store/userStore";
 import toast from "react-hot-toast";
 
+type ActiveKey = string | string[] | null | undefined;
+
 const TabCreateEditProduct = ({
   products,
   setProducts,
@@ -25,9 +27,12 @@ const TabCreateEditProduct = ({
   const inputSaleTypeRef = useRef<HTMLSelectElement | null>(null);
   const inputBarcodeRef = useRef<HTMLInputElement | null>(null);
   const inputPriceRef = useRef<HTMLInputElement | null>(null);
+  const inputCostPriceRef = useRef<HTMLInputElement | null>(null);
   const inputVatRef = useRef<HTMLInputElement | null>(null);
   const inputMinStockRef = useRef<HTMLInputElement | null>(null);
   const inputCategoryRef = useRef<HTMLSelectElement | null>(null);
+  const formRef = useRef<HTMLDivElement>(null);
+  const [activeKey, setActiveKey] = useState<ActiveKey>("0"); // "0" inicia abierto el formulario
   const { form, onChangeForm, setFormValues, resetForm } = useForm<createEditForm>({
     name: "",
     barcode: "",
@@ -36,6 +41,7 @@ const TabCreateEditProduct = ({
     sale_type: "UNIT",
     category_id: "1",
     min_stock: "5.00",
+    cost_price: "0",
   });
 
   const addProductToList = (newProduct: Product) => {
@@ -49,7 +55,7 @@ const TabCreateEditProduct = ({
   };
 
   const handleCreateEdit = async () => {
-    if (!form.name || !form.barcode || !form.price || !form.vat || !form.sale_type || !form.category_id) {
+    if (!form.name || !form.barcode || !form.price || !form.vat || !form.sale_type || !form.category_id || !form.cost_price) {
       toast.error("Todos los campos son obligatorios", { duration: 4000 });
       return;
     }
@@ -64,7 +70,11 @@ const TabCreateEditProduct = ({
       } else {
         const res = await onUpdateProduct(editingId, form);
         if (res.response === "success" && res.product) {
-          updateProductInList(res.product);
+          updateProductInList({
+            ...res.product,
+            category_name: categories.find((c) => c.id === Number(form.category_id))?.name || "",
+            store_name: stores.find((s) => s.id === res.product?.store_id)?.name || "",
+          });
           toast.success("Producto actualizado exitosamente", { duration: 4000 });
           setEditingId(null);
           inputBarcodeRef.current?.focus();
@@ -79,6 +89,13 @@ const TabCreateEditProduct = ({
 
   const handleEdit = (product: Product) => {
     setEditingId(product.id!);
+    setActiveKey("0");
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({
+        behavior: "smooth", // Movimiento fluido
+        block: "start"      // Alinea el inicio del elemento con la parte superior
+      });
+    }, 100);
     setFormValues({
       name: product.name,
       barcode: product.barcode,
@@ -87,6 +104,7 @@ const TabCreateEditProduct = ({
       category_id: String(product.category_id),
       min_stock: String(product.min_stock),
       sale_type: product.sale_type,
+      cost_price: String(product.cost_price),
     });
   };
 
@@ -116,7 +134,7 @@ const TabCreateEditProduct = ({
   }
 
   const valueAdjustment = (value: string, field: keyof createEditForm) => {
-    if (field === "price" || field === "min_stock") {
+    if (field === "price" || field === "min_stock" || field === "cost_price") {
       value = value.replace(',', '.');
       const regex = /^\d*(\.\d{0,2})?$/;
       if (value === "" || value === "." || regex.test(value)) {
@@ -138,7 +156,12 @@ const TabCreateEditProduct = ({
 
   return (
     <div>
-      <Accordion className="mb-3 mt-3 shadow-sm border-0" defaultActiveKey="0">
+      <Accordion
+        ref={formRef}
+        className="mb-3 mt-3 shadow-sm border-0"
+        activeKey={activeKey}
+        onSelect={(k) => setActiveKey(k)}
+      >
         <Accordion.Item eventKey="0" className="bg-light">
           <Accordion.Header><h4 className="text-dark">{editingId ? "Editar Producto" : "Nuevo Producto"}</h4></Accordion.Header>
           <Accordion.Body>
@@ -178,7 +201,7 @@ const TabCreateEditProduct = ({
                     ref={inputSaleTypeRef}
                     value={form.sale_type}
                     onChange={(e) => valueAdjustment(e.target.value, "sale_type")}
-                    onKeyDown={(e) => handleKeyDown(e, inputPriceRef)}
+                    onKeyDown={(e) => handleKeyDown(e, inputCostPriceRef)}
                   >
                     <option value="UNIT">Unidad</option>
                     <option value="WEIGHT">Peso</option>
@@ -186,7 +209,22 @@ const TabCreateEditProduct = ({
                 </Form.Group>
               </Col>
 
-              <Col md={4} lg={2}>
+              <Col md={4} lg={1}>
+                <Form.Group>
+                  <Form.Label className="small fw-bold text-muted">Costo (€)</Form.Label>
+                  <Form.Control
+                    ref={inputCostPriceRef}
+                    type="text"
+                    placeholder="0.00"
+                    value={form.cost_price}
+                    onChange={(e) => valueAdjustment(e.target.value, "cost_price")}
+                    onKeyDown={(e) => handleKeyDown(e, inputPriceRef)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col md={4} lg={1}>
                 <Form.Group>
                   <Form.Label className="small fw-bold text-muted">Precio (€)</Form.Label>
                   <Form.Control
@@ -195,7 +233,7 @@ const TabCreateEditProduct = ({
                     placeholder="0.00"
                     value={form.price}
                     onChange={(e) => valueAdjustment(e.target.value, "price")}
-                    onKeyDown={(e) => handleKeyDown(e, inputVatRef)}
+                    onKeyDown={(e) => handleKeyDown(e, inputCostPriceRef)}
                     required
                   />
                 </Form.Group>
@@ -380,6 +418,7 @@ const TabCreateEditProduct = ({
               <tr>
                 <th className="px-4 py-3">Nombre</th>
                 <th className="py-3">Barcode</th>
+                <th className="text-end py-3">Costo</th>
                 <th className="text-end py-3">Precio</th>
                 <th className="text-center py-3">IVA</th>
                 <th className="text-center py-3">Stock Mínimo</th>
@@ -396,12 +435,13 @@ const TabCreateEditProduct = ({
                 <tr key={p.id}>
                   <td className="px-4 fw-semibold">{p.name}</td>
                   <td className="text-muted"><small className="font-monospace">{p.barcode}</small></td>
+                  <td className="font-monospace text-end fw-bold text-success">€{p.cost_price}</td>
                   <td className="font-monospace text-end fw-bold text-success">€{p.price}</td>
                   <td className="text-center">
                     <Badge bg="secondary" className="px-2 py-1">{p.vat}%</Badge>
                   </td>
                   <td className="text-center">
-                    <Badge bg="secondary" className="px-2 py-1">{p.min_stock}</Badge>
+                    <Badge bg="secondary" className="px-2 py-1">{p.min_stock || 0}</Badge>
                   </td>
                   <td>
                     <Badge bg="light" text="dark" className="border shadow-sm px-2 py-1 text-wrap" style={{ maxWidth: '120px' }}>
@@ -417,7 +457,7 @@ const TabCreateEditProduct = ({
                   </td>
                   <td className="text-muted"><small>{formatDateToShow(p.created_at) || "N/A"}</small></td>
                   <td className="text-center">
-                    <Badge bg="success" className="px-2 py-1">{p.stock}</Badge>
+                    <Badge bg="success" className="px-2 py-1">{p.stock || 0}</Badge>
                   </td>
                   {userData?.role === "superadmin" && (
                     <td className="text-center">
@@ -448,7 +488,7 @@ const TabCreateEditProduct = ({
               ))}
               {products.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="text-center text-muted py-5">
+                  <td colSpan={userData?.role === "superadmin" ? 11 : 10} className="text-center text-muted py-5">
                     No hay productos registrados.
                   </td>
                 </tr>

@@ -17,12 +17,14 @@ export const TabInventory = ({
   const [selectedProduct, setSelectedProduct] = useState<Inventory | null>(null);
   const inputSearchRef = useRef<HTMLInputElement | null>(null);
   const inputQuantityRef = useRef<HTMLInputElement | null>(null);
+  const inputCostPriceRef = useRef<HTMLInputElement | null>(null);
   const inputReferenceRef = useRef<HTMLTextAreaElement | null>(null);
 
   const { form, onChangeForm, resetForm } = useForm<InventoryForm>({
     product_id: "",
-    quantity: "0",
+    quantity: "",
     reference: "",
+    cost_price: "",
   });
 
   const existingInventory = (selectedProduct: Inventory): number => {
@@ -82,7 +84,7 @@ export const TabInventory = ({
       return;
     }
 
-    const res = await onMovement(Number(form.product_id), Number(form.quantity), "IN", form.reference, userData?.store_id!);
+    const res = await onMovement(Number(form.product_id), Number(form.quantity), Number(form.cost_price), "IN", form.reference, userData?.store_id!);
     if (res.response === "success") {
       updateProductInventory(selectedProduct!, "IN");
       getProductsWithLowStock();
@@ -106,7 +108,7 @@ export const TabInventory = ({
       return;
     }
 
-    const res = await onMovement(Number(form.product_id), Number(form.quantity), "OUT", form.reference, userData?.store_id!);
+    const res = await onMovement(Number(form.product_id), Number(form.quantity), Number(form.cost_price), "OUT", form.reference, userData?.store_id!);
     if (res.response === "success") {
       updateProductInventory(selectedProduct!, "OUT");
       getProductsWithLowStock();
@@ -131,7 +133,9 @@ export const TabInventory = ({
           quantity: res.product.quantity || 0,
           store_id: res.product.store_id,
           store_name: res.product.store_name,
+          cost_price: res.product.cost_price,
         });
+        onChangeForm(res.product.cost_price.toString(), "cost_price");
         inputQuantityRef.current?.focus();
         onChangeForm(res.product.id.toString(), "product_id");
         toast.success(`Producto encontrado: ${res.product.name}`, { duration: 4000 });
@@ -145,23 +149,30 @@ export const TabInventory = ({
 
   const handleKeyDownQuantity = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (selectedProduct) {
-      if (e.shiftKey && e.key === "Enter") {
-        handleRemoveInventory();
-        inputReferenceRef.current?.focus();
-      } else if (e.key === 'Enter') {
-        handleAddInventory();
+      if (e.key === "Enter") {
+        inputCostPriceRef.current?.focus();
       }
     } else {
       toast.error("Primero selecciona un producto válido", { duration: 4000 });
       inputSearchRef.current?.focus();
     }
-
   };
+
+  const handleKeyDownCostPrice = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (selectedProduct) {
+      if (e.key === "Enter") {
+        inputReferenceRef.current?.focus();
+      }
+    } else {
+      toast.error("Primero selecciona un producto válido", { duration: 4000 });
+      inputSearchRef.current?.focus();
+    }
+  }
 
   const handleKeyDownReference = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (selectedProduct) {
-      if (e.key === "Enter" && e.shiftKey) {
-        handleRemoveInventory();
+      if (e.key === "Enter") {
+        handleAddInventory();
       }
     } else {
       toast.error("Primero selecciona un producto válido", { duration: 4000 });
@@ -172,6 +183,23 @@ export const TabInventory = ({
   const removeSelectedProduct = () => {
     setSelectedProduct(null);
     onChangeForm("", "product_id");
+  }
+
+  const valueAdjustment = (value: string, field: keyof InventoryForm) => {
+    if (field === "cost_price") {
+      value = value.replace(',', '.');
+      const regex = /^\d*(\.\d{0,2})?$/;
+      if (value === "" || value === "." || regex.test(value)) {
+        onChangeForm(value, field);
+      }
+    } else if (field === "quantity") {
+      const regex = /^[0-9]*$/;
+      if (value === "" || regex.test(value)) {
+        onChangeForm(value, field);
+      }
+    } else {
+      onChangeForm(value, field);
+    }
   }
 
   useEffect(() => {
@@ -204,7 +232,7 @@ export const TabInventory = ({
                   </Form.Group>
                 </Col>
 
-                <Col md={12}>
+                <Col md={6}>
                   <Form.Group>
                     <Form.Label className="fw-semibold">Cantidad a mover</Form.Label>
                     <Form.Control
@@ -212,14 +240,23 @@ export const TabInventory = ({
                       type="text"
                       placeholder="0"
                       value={form.quantity}
-                      onChange={(e) => {
-                        let value = e.target.value;
-                        const regex = /^[0-9]*$/;
-                        if (regex.test(value)) {
-                          onChangeForm(Number(value), "quantity")
-                        }
-                      }}
+                      onChange={(e) => valueAdjustment(e.target.value, "quantity")}
                       onKeyDown={handleKeyDownQuantity}
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={6}>
+                  <Form.Group>
+                    <Form.Label className="fw-semibold">Costo unitario</Form.Label>
+                    <Form.Control
+                      ref={inputCostPriceRef}
+                      type="text"
+                      placeholder="0"
+                      value={form.cost_price}
+                      onChange={(e) => valueAdjustment(e.target.value, "cost_price")}
+                      onKeyDown={handleKeyDownCostPrice}
                       required
                     />
                   </Form.Group>
@@ -234,7 +271,7 @@ export const TabInventory = ({
                       rows={2}
                       placeholder="Ej: Merma, Caducidad, Devolución..."
                       value={form.reference}
-                      onChange={(e) => onChangeForm(e.target.value, "reference")}
+                      onChange={(e) => valueAdjustment(e.target.value, "reference")}
                       onKeyDown={handleKeyDownReference}
                     />
                   </Form.Group>
@@ -267,6 +304,9 @@ export const TabInventory = ({
                     <p className="mb-0"><span className="fw-bold text-secondary">Stock actual:</span> <br />
                       <Badge bg="primary" className="fs-5">{Number(selectedProduct.quantity)}</Badge>
                     </p>
+                    <p className="mb-0"><span className="fw-bold text-secondary">Costo inicial:</span> <br />
+                      <Badge bg="warning" className="fs-5">{Number(selectedProduct.cost_price)}</Badge>
+                    </p>
                   </div>
                   <Button
                     variant="light"
@@ -297,6 +337,7 @@ export const TabInventory = ({
                 <th className="px-4 py-3">Barcode</th>
                 <th className="px-4 py-3">Nombre</th>
                 <th className="text-end px-4 py-3" style={{ width: "200px" }}>Stock Disponible</th>
+                <th className="text-end px-4 py-3" style={{ width: "200px" }}>Costo</th>
                 {userData?.role === "superadmin" && (
                   <th className="text-end px-4 py-3" style={{ width: "200px" }}>Tienda</th>
                 )}
@@ -311,6 +352,9 @@ export const TabInventory = ({
                     <td className="text-end px-4">
                       <Badge bg="primary" className="fs-5">{Number(inv.quantity)}</Badge>
                     </td>
+                    <td className="text-end px-4">
+                      <Badge bg="primary" className="fs-5">{Number(inv.cost_price)}</Badge>
+                    </td>
                     {userData?.role === "superadmin" && (
                       <td className="text-end px-4">
                         <Badge bg="primary" className="fs-5">{inv.store_name}</Badge>
@@ -321,7 +365,7 @@ export const TabInventory = ({
               })}
               {inventory.length === 0 && (
                 <tr>
-                  <td colSpan={2} className="text-center text-muted py-5">
+                  <td colSpan={userData?.role === "superadmin" ? 4 : 3} className="text-center text-muted py-5">
                     El inventario está vacío.
                   </td>
                 </tr>

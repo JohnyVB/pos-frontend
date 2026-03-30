@@ -54,3 +54,10 @@ export interface Store {
 export interface CartItem extends Product {
   quantity: number;
 }
+
+export interface Pagination {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}

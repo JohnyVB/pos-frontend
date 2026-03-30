@@ -20,6 +20,9 @@ import userStore from "../store/userStore";
 export default function Products() {
   const { userData } = userStore();
   const [products, setProducts] = useState<Product[]>([]);
+  const [currentProductPage, setCurrentProductPage] = useState<number>(1);
+  const [totalProductPages, setTotalProductPages] = useState<number>(1);
+  const [totalProductsRecords, setTotalProductsRecords] = useState<number>(0);
   const [categories, setCategories] = useState<Category[]>([]);
   const [inventory, setInventory] = useState<Inventory[]>([]);
   const [lowStockProducts, setLowStockProducts] = useState<LowStockProduct[]>([]);
@@ -32,11 +35,14 @@ export default function Products() {
     store_id: (userData && userData?.role === "superadmin") ? null : userData?.store_id || null,
   });
 
-  const loadProducts = async () => {
+  const loadProducts = async (pageLoad: number = 1, limit: number = 10) => {
     try {
-      const res = await onGetProducts(filterForm, userData?.store_id!);
-      if (res.response === "success" && res.products) {
+      const res = await onGetProducts(filterForm, userData?.store_id!, pageLoad, limit);
+      if (res.response === "success" && res.products && res.pagination) {
         setProducts(res.products);
+        setTotalProductPages(res.pagination.totalPages);
+        setCurrentProductPage(res.pagination.page);
+        setTotalProductsRecords(res.pagination.total);
       } else {
         setProducts([]);
         toast.error("Error al cargar productos", { duration: 4000 });
@@ -116,7 +122,7 @@ export default function Products() {
   }
 
   useEffect(() => {
-    loadProducts();
+    loadProducts(1);
     loadCategories();
     loadInventory();
     getProductsWithLowStock();
@@ -146,6 +152,10 @@ export default function Products() {
                 onChangeFilterForm={onChangeFilterForm}
                 loadProducts={loadProducts}
                 handleClearFilters={handleClearFilters}
+                currentProductPage={currentProductPage}
+                totalProductPages={totalProductPages}
+                totalProductsRecords={totalProductsRecords}
+
               />
             </Card.Body>
           </Tab>

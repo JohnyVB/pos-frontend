@@ -1,4 +1,4 @@
-import type { Product, Store } from "../../global.interface";
+import type { Pagination, Product, Store } from "../../global.interface";
 import type { Category } from "./TabCategories.interface";
 
 export interface createEditForm {
@@ -19,8 +19,11 @@ export interface TabProductsProps {
   stores: Store[];
   filterForm: filterForm;
   onChangeFilterForm: (value: string | null, field: keyof filterForm) => void;
-  loadProducts: () => void;
+  loadProducts: (pageLoad: number, limit?: number) => void;
   handleClearFilters: () => void;
+  currentProductPage: number;
+  totalProductPages: number;
+  totalProductsRecords: number;
 };
 
 export interface createProductResponse {
@@ -32,6 +35,7 @@ export interface createProductResponse {
 export interface getProductsResponse {
   response: "success" | "error";
   products?: Product[];
+  pagination?: Pagination;
   message?: string;
 }
 

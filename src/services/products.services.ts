@@ -7,9 +7,9 @@ import type {
   updateProductResponse
 } from "../interfaces/components/POSPage/TabCreateEdit.interface";
 
-export const onGetProducts = async (filterForm: filterForm, store_id: string): Promise<getProductsResponse> => {
+export const onGetProducts = async (filterForm: filterForm, store_id: string, page: number = 1, limit: number = 10): Promise<getProductsResponse> => {
   try {
-    const { data } = await API.post(`/products/${store_id}`, filterForm);
+    const { data } = await API.post(`/products/${store_id}`, { ...filterForm, page, limit });
     return data;
   } catch (error: any) {
     console.log("Error fetching products:", error);

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Form, Button, Table, Row, Col, Card, Badge, Accordion } from "react-bootstrap";
+import { Accordion, Badge, Button, Card, Col, Form, Row, Table } from "react-bootstrap";
+import toast from "react-hot-toast";
 import { formatDateToShow } from "../../helper/formatDate.helper";
 import { useForm } from "../../hooks/useForm";
 import type { Category } from "../../interfaces/components/POSPage/TabCategories.interface";
@@ -7,7 +8,7 @@ import type { createEditForm, TabProductsProps } from "../../interfaces/componen
 import type { Product } from "../../interfaces/global.interface";
 import { onCreateProduct, onDeleteProduct, onUpdateProduct } from "../../services/products.services";
 import userStore from "../../store/userStore";
-import toast from "react-hot-toast";
+import { TablePagination } from "../common/TablePagination";
 
 type ActiveKey = string | string[] | null | undefined;
 
@@ -19,7 +20,10 @@ const TabCreateEditProduct = ({
   filterForm,
   onChangeFilterForm,
   loadProducts,
-  handleClearFilters
+  handleClearFilters,
+  currentProductPage,
+  totalProductPages,
+  totalProductsRecords,
 }: TabProductsProps) => {
   const { userData } = userStore();
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -392,7 +396,7 @@ const TabCreateEditProduct = ({
                   <Button
                     variant="primary"
                     className="w-100 fw-bold"
-                    onClick={loadProducts}
+                    onClick={() => loadProducts(1)}
                   >
                     Filtrar
                   </Button>
@@ -495,6 +499,13 @@ const TabCreateEditProduct = ({
               )}
             </tbody>
           </Table>
+          <TablePagination
+            data={products}
+            totalRecords={totalProductsRecords}
+            currentPage={currentProductPage}
+            totalPages={totalProductPages}
+            loadData={loadProducts}
+          />
         </Card.Body>
       </Card>
     </div>

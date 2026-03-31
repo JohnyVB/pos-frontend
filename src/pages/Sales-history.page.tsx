@@ -1,32 +1,38 @@
 import React, { useEffect, useState } from "react"
 import { Badge, Button, Card, Container, Table } from "react-bootstrap"
 import toast, { Toaster } from "react-hot-toast"
-import { useLocation, useNavigate } from "react-router-dom"
+import { useLocation } from "react-router-dom"
 import { PageHeader } from "../components/common/PageHeader"
+import { TablePagination } from "../components/common/TablePagination"
 import { ReturnModal } from "../components/SalesHistory/ReturnModal"
 import { formatDateToShow } from "../helper/formatDate.helper"
+import type { ReturnedItem } from "../interfaces/components/SalesHistory/ReturnModal"
 import type { CashBoxSession } from "../interfaces/pages/CashBoxSessions.interface"
 import type { Sale } from "../interfaces/pages/Sales-history.interface"
 import { onGetSalesBySessionId, onSaleRefund } from "../services/sales-history.services"
-import userStore from "../store/userStore"
-import type { ReturnedItem } from "../interfaces/components/SalesHistory/ReturnModal"
 import useCashStore from "../store/useCashStore"
+import userStore from "../store/userStore"
 
 export const SalesHistory = () => {
   const { token, userData } = userStore();
   const { currentAmount, setCurrentAmount } = useCashStore()
   const location = useLocation()
-  const navigate = useNavigate()
   const sale_history: CashBoxSession = location.state?.sale_history
   const [sales, setSales] = useState<Sale[]>([])
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null)
   const [expandedSaleId, setExpandedSaleId] = useState<number | null>(null)
   const [isReturnModalOpen, setIsReturnModalOpen] = useState(false)
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalRecords, setTotalRecords] = useState<number>(0);
 
-  const getSalesBySessionId = async () => {
-    const res = await onGetSalesBySessionId(Number(sale_history.session_id))
-    if (res.response === "success" && res.sales) {
+  const getSalesBySessionId = async (page: number, limit: number = 10) => {
+    const res = await onGetSalesBySessionId(Number(sale_history.session_id), page, limit)
+    if (res.response === "success" && res.sales && res.pagination) {
       setSales(res.sales)
+      setTotalPages(res.pagination.totalPages)
+      setCurrentPage(res.pagination.page)
+      setTotalRecords(res.pagination.total)
     }
   }
 
@@ -68,12 +74,8 @@ export const SalesHistory = () => {
   }
 
   useEffect(() => {
-    if (!sale_history) {
-      navigate("/cashbox-sessions")
-      return
-    }
-    getSalesBySessionId()
-  }, [sale_history])
+    getSalesBySessionId(1)
+  }, [])
 
   return (
     <Container fluid className="p-4 bg-light min-vh-100">
@@ -138,7 +140,7 @@ export const SalesHistory = () => {
                         <div className="p-4 animate__animated animate__fadeIn">
                           <div className="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
                             <h6 className="fw-bold mb-0">Productos de la Venta #{sale.record_id}</h6>
-                            {(userData?.role === "admin" || userData?.username === sale_history.user_name) && sale_history.session_status === "OPEN" && (
+                            {(userData?.role === "admin" || userData?.id === sale_history.user_id) && sale_history.session_status === "OPEN" && (
                               <Button
                                 variant="outline-danger"
                                 size="sm"
@@ -188,6 +190,13 @@ export const SalesHistory = () => {
               )}
             </tbody>
           </Table>
+          <TablePagination
+            data={sales}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalRecords={totalRecords}
+            loadData={getSalesBySessionId}
+          />
         </Card.Body>
       </Card>
 

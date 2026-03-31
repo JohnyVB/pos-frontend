@@ -4,9 +4,10 @@ import type { Product } from "../../interfaces/global.interface";
 import type { Category } from "../../interfaces/components/POSPage/TabCategories.interface";
 import type { Inventory } from "../../interfaces/components/POSPage/TabInventory.interface";
 import type { CashBoxSession } from "../../interfaces/pages/CashBoxSessions.interface";
+import type { Sale } from "../../interfaces/pages/Sales-history.interface";
 
 interface TablePaginationProps {
-  data: Product[] | Category[] | Inventory[] | CashBoxSession[];
+  data: Product[] | Category[] | Inventory[] | CashBoxSession[] | Sale[];
   totalRecords: number;
   currentPage: number;
   totalPages: number;

@@ -1,9 +1,9 @@
 import API from "../config/api.config";
 import type { SaleRefundBody, SaleRefundResponse, SalesHistoryResponse } from "../interfaces/pages/Sales-history.interface";
 
-export const onGetSalesBySessionId = async (session_id: number): Promise<SalesHistoryResponse> => {
+export const onGetSalesBySessionId = async (session_id: number, page: number = 1, limit: number = 10): Promise<SalesHistoryResponse> => {
   try {
-    const { data } = await API.get(`/sales/${session_id}`);
+    const { data } = await API.get(`/sales/${session_id}`, { params: { page, limit } });
     return data;
   } catch (error) {
     console.log("Error en getSalesBySessionId", error);

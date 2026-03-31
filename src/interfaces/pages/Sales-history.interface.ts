@@ -1,4 +1,5 @@
 import type { ReturnedItem } from "../components/SalesHistory/ReturnModal";
+import type { Pagination } from "../global.interface";
 
 export interface Sale {
   record_id: number;
@@ -26,8 +27,9 @@ export interface SaleItem {
 
 export interface SalesHistoryResponse {
   response: string;
-  message?: string;
   sales?: Sale[];
+  pagination?: Pagination;
+  message?: string;
 }
 
 export interface SaleRefundBody {

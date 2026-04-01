@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Badge, Button, Card, Col, Form, InputGroup, Row, Tab, Table, Tabs } from 'react-bootstrap';
 import { useForm } from '../../hooks/useForm';
 import type { PromoForm, TabPromotionsProps } from '../../interfaces/components/ProductsPage/TabPromotions.interface';
 import type { Product } from '../../interfaces/global.interface';
 import { TablePagination } from '../common/TablePagination';
 import toast, { Toaster } from "react-hot-toast";
-import { onCreatePromotion } from '../../services/promotions.services';
+import { onCreatePromotion, onDeletePromotionItems, onStopPromotion } from '../../services/promotions.services';
 import userStore from '../../store/userStore';
 
 const TabPromotions = ({
@@ -35,6 +35,42 @@ const TabPromotions = ({
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.barcode.includes(searchTerm)
   );
+
+  const [expandedPromoId, setExpandedPromoId] = useState<number | null>(null);
+
+  const toggleExpandPromo = (id: number) => {
+    setExpandedPromoId(prev => prev === id ? null : id);
+  };
+
+  const handleRemoveProductFromPromo = async (promoId: number, productId: number) => {
+    try {
+      const res = await onDeletePromotionItems(promoId, productId);
+      if (res.response === "success") {
+        toast.success("Producto eliminado de la promoción");
+        getPromotions(currentPromotionPage, 10);
+      } else {
+        toast.error(res.message || "Error al eliminar el producto");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al eliminar el producto");
+    }
+  };
+
+  const handleStopPromotion = async (promoId: number) => {
+    try {
+      const res = await onStopPromotion(promoId);
+      if (res.response === "success") {
+        toast.success("Promoción detenida exitosamente");
+        getPromotions(currentPromotionPage, 10);
+      } else {
+        toast.error(res.message || "Error al detener la promoción");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al detener la promoción");
+    }
+  };
 
   const toggleProduct = (product: Product) => {
     if (selectedProducts.find(p => p.id === product.id)) {
@@ -251,30 +287,86 @@ const TabPromotions = ({
               </thead>
               <tbody>
                 {promotions.map(promo => (
-                  <tr key={promo.id}>
-                    <td><strong>{promo.name}</strong></td>
-                    <td>
-                      {promo.type === 'PERCENTAGE'
-                        ? <Badge bg="info">{promo.discount_rate}% OFF</Badge>
-                        : <Badge bg="warning text-dark">{promo.buy_qty}x{promo.pay_qty}</Badge>
-                      }
-                    </td>
-                    <td>{promo.associated_products.length} productos</td>
-                    <td>
-                      <small>
-                        {new Date(promo.start_date).toLocaleDateString()} - {new Date(promo.end_date).toLocaleDateString()}
-                      </small>
-                    </td>
-                    <td>
-                      {new Date() > new Date(promo.end_date) || !promo.is_effective
-                        ? <Badge bg="secondary">Expirada</Badge>
-                        : <Badge bg="success">Activa</Badge>
-                      }
-                    </td>
-                    <td>
-                      <Button variant="outline-danger" size="sm">Detener</Button>
-                    </td>
-                  </tr>
+                  <React.Fragment key={promo.id}>
+                    <tr onClick={() => toggleExpandPromo(promo.id)} style={{ cursor: 'pointer' }}>
+                      <td><strong>{promo.name}</strong></td>
+                      <td>
+                        {promo.type === 'PERCENTAGE'
+                          ? <Badge bg="info">{promo.discount_rate}% OFF</Badge>
+                          : <Badge bg="warning text-dark">{promo.buy_qty}x{promo.pay_qty}</Badge>
+                        }
+                      </td>
+                      <td>{promo.associated_products.length} productos</td>
+                      <td>
+                        <small>
+                          {new Date(promo.start_date).toLocaleDateString()} - {new Date(promo.end_date).toLocaleDateString()}
+                        </small>
+                      </td>
+                      <td>
+                        {new Date() > new Date(promo.end_date) || !promo.is_effective
+                          ? <Badge bg="secondary">Expirada</Badge>
+                          : <Badge bg="success">Activa</Badge>
+                        }
+                      </td>
+                      <td>
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleStopPromotion(promo.id);
+                          }}
+                        >
+                          Detener
+                        </Button>
+                      </td>
+                    </tr>
+                    {expandedPromoId === promo.id && (
+                      <tr>
+                        <td colSpan={6} className="bg-light p-0">
+                          <div className="p-3 border-bottom shadow-inner">
+                            <h6 className="mb-3 text-primary">Productos Asociados a la Campaña</h6>
+                            {promo.associated_products && promo.associated_products.length > 0 ? (
+                              <Table size="sm" bordered hover className="bg-white mb-0 shadow-sm">
+                                <thead className="table-light">
+                                  <tr>
+                                    <th>Producto</th>
+                                    <th>Código de Barras</th>
+                                    <th>Precio</th>
+                                    <th className="text-center" style={{ width: '100px' }}>Acciones</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {promo.associated_products.map(product => (
+                                    <tr key={product.id}>
+                                      <td className="align-middle">{product.name}</td>
+                                      <td className="align-middle">{product.barcode}</td>
+                                      <td className="align-middle">{product.price}€</td>
+                                      <td className="text-center">
+                                        <Button
+                                          variant="danger"
+                                          size="sm"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleRemoveProductFromPromo(promo.id, product.id);
+                                          }}
+                                          title="Eliminar producto de la campaña"
+                                        >
+                                          Eliminar
+                                        </Button>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </Table>
+                            ) : (
+                              <p className="text-muted mb-0">No hay productos asociados en esta campaña.</p>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))}
               </tbody>
             </Table>

@@ -31,17 +31,17 @@ export const onUpdatePromotion = async (promotion: any) => {
   }
 }
 
-export const onDeletePromotion = async (id: string) => {
+export const onStopPromotion = async (id: number) => {
   try {
-    const res = await API.delete(`/promotions/${id}`);
+    const res = await API.put(`/promotions/${id}/stop`);
     return res.data;
   } catch (error) {
     console.error(error);
-    return { response: "error", message: "Error al eliminar promocion" };
+    return { response: "error", message: "Error al detener promocion" };
   }
 }
 
-export const onDeletePromotionItems = async (promotion_id: string, product_ids: string[]) => {
+export const onDeletePromotionItems = async (promotion_id: number, product_ids: number) => {
   try {
     const res = await API.delete(`/promotions/items`, { data: { promotion_id, product_ids } });
     return res.data;

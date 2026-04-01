@@ -21,7 +21,7 @@ export const OpenSessionModal = ({
   setOpeningAmount
 }: OpenCloseSessionModalProps) => {
 
-  const valueAjustment = (value: string) => {
+  const valueAdjustment = (value: string) => {
     const numValue = value.replace(",", ".")
     const regex = /^\d*(\.\d{0,3})?$/
     if (value === "" || regex.test(numValue)) {
@@ -55,7 +55,7 @@ export const OpenSessionModal = ({
                 placeholder="0"
                 className="fw-bold text-center fs-2 py-3 border-2 bg-white"
                 value={openingAmount}
-                onChange={(e) => valueAjustment(e.target.value)}
+                onChange={(e) => valueAdjustment(e.target.value)}
               />
               <Form.Text className="text-muted text-center d-block mt-2">
                 Usa el teclado para ingresar el efectivo inicial.
@@ -64,7 +64,7 @@ export const OpenSessionModal = ({
 
             <Keyboard
               number={openingAmount}
-              addNumber={valueAjustment}
+              addNumber={valueAdjustment}
               clear={clear}
             />
           </Col>

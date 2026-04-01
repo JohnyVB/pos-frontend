@@ -5,7 +5,7 @@ import type {
   filterForm,
   getProductsResponse,
   updateProductResponse
-} from "../interfaces/components/POSPage/TabCreateEdit.interface";
+} from "../interfaces/components/ProductsPage/TabCreateEdit.interface";
 
 export const onGetProducts = async (filterForm: filterForm, store_id: string, page: number = 1, limit: number = 10): Promise<getProductsResponse> => {
   try {

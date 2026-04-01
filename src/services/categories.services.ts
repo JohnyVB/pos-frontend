@@ -4,7 +4,7 @@ import type {
   createCategoryResponse,
   deactivateCategoryResponse,
   getCategoriesResponse,
-} from "../interfaces/components/POSPage/TabCategories.interface";
+} from "../interfaces/components/ProductsPage/TabCategories.interface";
 
 export const onGetCategories = async (store_id: string, page: number = 1, limit: number = 10): Promise<getCategoriesResponse> => {
   try {

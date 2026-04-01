@@ -19,7 +19,7 @@ export const CloseSessionModal = ({
 }: CloseSessionModalProps) => {
   const [amount, setAmount] = useState(currentAmount)
 
-  const valueAjustment = (value: string) => {
+  const valueAdjustment = (value: string) => {
     const numValue = value.replace(",", ".")
     const regex = /^\d*(\.\d{0,3})?$/
     if (value === "" || regex.test(numValue)) {
@@ -59,7 +59,7 @@ export const CloseSessionModal = ({
 
         <Keyboard
           number={amount}
-          addNumber={valueAjustment}
+          addNumber={valueAdjustment}
           clear={clear}
         />
 

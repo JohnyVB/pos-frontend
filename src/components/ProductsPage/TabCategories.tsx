@@ -4,7 +4,7 @@ import { useForm } from "../../hooks/useForm";
 import type {
   Category,
   TabCategoriesProps,
-} from "../../interfaces/components/POSPage/TabCategories.interface";
+} from "../../interfaces/components/ProductsPage/TabCategories.interface";
 import {
   onCreateCategory,
   onDeactivateCategory,
@@ -68,7 +68,7 @@ const TabCategories = ({
 
   return (
     <div>
-      <h3 className="mb-4">Nueva Categoría</h3>
+      <h3 className="mb-4">Gestionar Categorías</h3>
       <Card className="mb-5 shadow-sm border-0 bg-light">
         <Card.Body>
           <Row className="align-items-end g-3">

@@ -4,7 +4,7 @@ import { useForm } from "../../hooks/useForm";
 
 import { onGetProductByQuery, onMovement } from "../../services/inventory.services";
 import userStore from "../../store/userStore";
-import type { Inventory, InventoryForm, TabInventoryProps } from "../../interfaces/components/POSPage/TabInventory.interface";
+import type { Inventory, InventoryForm, TabInventoryProps } from "../../interfaces/components/ProductsPage/TabInventory.interface";
 import toast from "react-hot-toast";
 import { TablePagination } from "../common/TablePagination";
 

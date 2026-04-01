@@ -1,13 +1,14 @@
 import { Fragment } from "react";
 import { Pagination } from "react-bootstrap";
 import type { Product } from "../../interfaces/global.interface";
-import type { Category } from "../../interfaces/components/POSPage/TabCategories.interface";
-import type { Inventory } from "../../interfaces/components/POSPage/TabInventory.interface";
+import type { Category } from "../../interfaces/components/ProductsPage/TabCategories.interface";
+import type { Inventory } from "../../interfaces/components/ProductsPage/TabInventory.interface";
 import type { CashBoxSession } from "../../interfaces/pages/CashBoxSessions.interface";
 import type { Sale } from "../../interfaces/pages/Sales-history.interface";
+import type { Promotion } from "../../interfaces/components/ProductsPage/TabPromotions.interface";
 
 interface TablePaginationProps {
-  data: Product[] | Category[] | Inventory[] | CashBoxSession[] | Sale[];
+  data: Product[] | Category[] | Inventory[] | CashBoxSession[] | Sale[] | Promotion[];
   totalRecords: number;
   currentPage: number;
   totalPages: number;

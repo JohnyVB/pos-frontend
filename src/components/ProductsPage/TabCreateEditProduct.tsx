@@ -3,8 +3,8 @@ import { Accordion, Badge, Button, Card, Col, Form, Row, Table } from "react-boo
 import toast from "react-hot-toast";
 import { formatDateToShow } from "../../helper/formatDate.helper";
 import { useForm } from "../../hooks/useForm";
-import type { Category } from "../../interfaces/components/POSPage/TabCategories.interface";
-import type { createEditForm, TabProductsProps } from "../../interfaces/components/POSPage/TabCreateEdit.interface";
+import type { Category } from "../../interfaces/components/ProductsPage/TabCategories.interface";
+import type { createEditForm, TabProductsProps } from "../../interfaces/components/ProductsPage/TabCreateEdit.interface";
 import type { Product } from "../../interfaces/global.interface";
 import { onCreateProduct, onDeleteProduct, onUpdateProduct } from "../../services/products.services";
 import userStore from "../../store/userStore";
@@ -160,6 +160,7 @@ const TabCreateEditProduct = ({
 
   return (
     <div>
+      <h3 className="mb-4">Gestionar Productos</h3>
       <Accordion
         ref={formRef}
         className="mb-3 mt-3 shadow-sm border-0"

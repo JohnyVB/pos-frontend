@@ -8,14 +8,17 @@ import { TabInventory } from "../components/ProductsPage/TabInventory";
 import type { LowStockProduct } from "../components/ProductsPage/TabLowStock";
 import TabLowStock from "../components/ProductsPage/TabLowStock";
 import { useForm } from "../hooks/useForm";
-import type { Category } from "../interfaces/components/POSPage/TabCategories.interface";
-import type { Inventory } from "../interfaces/components/POSPage/TabInventory.interface";
+import type { Category } from "../interfaces/components/ProductsPage/TabCategories.interface";
+import type { Inventory } from "../interfaces/components/ProductsPage/TabInventory.interface";
 import type { Product, Store } from "../interfaces/global.interface";
 import { onGetCategories } from "../services/categories.services";
 import { onLoadInventory } from "../services/inventory.services";
 import { onGetProducts, onGetProductsWithLowStock } from "../services/products.services";
 import { onGetStores } from "../services/stores.services";
 import userStore from "../store/userStore";
+import TabPromotions from "../components/ProductsPage/TabPromotions";
+import type { Promotion } from "../interfaces/components/ProductsPage/TabPromotions.interface";
+import { onGetPromotions } from "../services/promotions.services";
 
 export default function Products() {
   const { userData } = userStore();
@@ -32,6 +35,10 @@ export default function Products() {
   const [totalInventoryPages, setTotalInventoryPages] = useState<number>(1);
   const [totalInventoryRecords, setTotalInventoryRecords] = useState<number>(0);
   const [lowStockProducts, setLowStockProducts] = useState<LowStockProduct[]>([]);
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [currentPromotionPage, setCurrentPromotionPage] = useState<number>(1);
+  const [totalPromotionPages, setTotalPromotionPages] = useState<number>(1);
+  const [totalPromotionsRecords, setTotalPromotionsRecords] = useState<number>(0);
   const [stores, setStores] = useState<Store[]>([]);
   const { form: filterForm, onChangeForm: onChangeFilterForm, resetForm: resetFilterForm } = useForm({
     vat: null,
@@ -104,6 +111,25 @@ export default function Products() {
     }
   }
 
+  const getPromotions = async (pageLoad: number = 1, limit: number = 10) => {
+    try {
+      const res = await onGetPromotions(userData?.store_id!, pageLoad, limit);
+      if (res.response === "success" && res.promotions && res.pagination) {
+        setPromotions(res.promotions);
+        setTotalPromotionPages(res.pagination.totalPages);
+        setCurrentPromotionPage(res.pagination.page);
+        setTotalPromotionsRecords(res.pagination.total);
+      } else {
+        setPromotions([]);
+        toast.error("Error al cargar promociones", { duration: 4000 });
+      }
+    } catch (error) {
+      console.error(error);
+      setPromotions([]);
+      toast.error("Error al cargar promociones", { duration: 4000 });
+    }
+  }
+
   const getStores = async () => {
     try {
       const res = await onGetStores();
@@ -138,6 +164,7 @@ export default function Products() {
     loadCategories(1);
     loadInventory(1);
     getProductsWithLowStock();
+    getPromotions(1);
     if (userData?.role === "superadmin") {
       getStores();
     }
@@ -167,7 +194,6 @@ export default function Products() {
                 currentProductPage={currentProductPage}
                 totalProductPages={totalProductPages}
                 totalProductsRecords={totalProductsRecords}
-
               />
             </Card.Body>
           </Tab>
@@ -212,6 +238,31 @@ export default function Products() {
           }>
             <Card.Body className="p-4">
               <TabLowStock products={lowStockProducts} />
+            </Card.Body>
+          </Tab>
+          <Tab eventKey="promotions" title={
+            <div className="d-flex align-items-center justify-content-center gap-2">
+              Promociones
+              {promotions.filter(p => p.is_effective).length > 0 && (
+                <Badge
+                  pill
+                  bg="success"
+                  style={{ fontSize: '0.75rem' }}
+                >
+                  {promotions.filter(p => p.is_effective).length}
+                </Badge>
+              )}
+            </div>
+          }>
+            <Card.Body className="p-4">
+              <TabPromotions
+                products={products}
+                promotions={promotions}
+                currentPromotionPage={currentPromotionPage}
+                totalPromotionPages={totalPromotionPages}
+                totalPromotionsRecords={totalPromotionsRecords}
+                getPromotions={getPromotions}
+              />
             </Card.Body>
           </Tab>
         </Tabs>

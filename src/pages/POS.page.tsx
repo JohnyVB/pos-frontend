@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Button, Card, Col, Container, Form, InputGroup, Row } from 'react-bootstrap';
+import { Badge, Button, Card, Col, Container, Form, InputGroup, Row } from 'react-bootstrap';
 import toast, { Toaster } from "react-hot-toast";
 import { PageHeader } from "../components/common/PageHeader";
 import CardPaymentForm from "../components/POSPage/CardPaymentForm";
@@ -44,35 +44,53 @@ export default function POS() {
   };
 
   const addToCart = (product: ProductByBarcode, weight?: number) => {
-    if (Number(product.stock) > 0) {
-      const existingInCart = cart.find((p) => p.id === product.id);
-      if (existingInCart) {
-        if (Number(product.stock) >= Number(existingInCart?.quantity!)) {
-          const quantity = weight ? Number(weight) + Number(existingInCart?.quantity) : Number(existingInCart?.quantity) + 1
-          const total = (Number(quantity) * Number(product.price))
-          setCart(cart.map((p) =>
-            p.id === product.id ? {
-              ...p,
-              quantity,
-              total
-            } : p,
-          ));
-          playSuccessSound()
-          inputBarcodeRef.current?.focus()
-        } else {
-          toast.error("Producto agotado", { duration: 5000 })
-          playErrorSound()
-        }
-      } else {
-        const total = Number(product.price) * Number(weight ? weight : 1)
-        setCart([...cart, { ...product, quantity: weight ? Number(weight) : 1, total }]);
-        playSuccessSound()
-        inputBarcodeRef.current?.focus()
-      }
-    } else {
-      toast.error("Producto agotado", { duration: 5000 })
-      playErrorSound()
+    if (Number(product.stock) <= 0) {
+      toast.error("Producto agotado", { duration: 5000 });
+      playErrorSound();
+      return;
     }
+
+    // 1. Mantenemos el precio base que viene de la DB
+    const basePrice = Number(product.price);
+    let effectivePrice = basePrice;
+
+    // 2. Calculamos el precio con descuento si es PERCENTAGE
+    if (product.promo_type === 'PERCENTAGE' && product.discount_rate) {
+      effectivePrice = basePrice * (1 - Number(product.discount_rate) / 100);
+    }
+
+    const existingInCart = cart.find((p) => p.id === product.id);
+
+    if (existingInCart) {
+      const quantity = weight ? Number(weight) + Number(existingInCart.quantity) : Number(existingInCart.quantity) + 1;
+
+      // El total se calcula siempre sobre el precio efectivo
+      const total = quantity * effectivePrice;
+
+      setCart(cart.map((p) =>
+        p.id === product.id ? {
+          ...p,
+          quantity,
+          total,
+          price: effectivePrice, // Precio que paga
+          original_price: basePrice // Precio original para la UI
+        } : p
+      ));
+    } else {
+      const qty = weight ? Number(weight) : 1;
+      const total = effectivePrice * qty;
+
+      setCart([...cart, {
+        ...product,
+        quantity: qty,
+        price: effectivePrice,
+        original_price: basePrice, // <--- GUARDAMOS EL ORIGINAL AQUÍ
+        total
+      }]);
+    }
+
+    playSuccessSound();
+    inputBarcodeRef.current?.focus();
   };
 
   const handleWeightConfirm = (weight: number) => {
@@ -92,15 +110,32 @@ export default function POS() {
     setCart(cart.filter((p) => p.id !== id));
   };
 
-  const subtotal = cart.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0,
-  );
+  const subtotal = cart.reduce((acc, item) => {
+    let itemSubtotal = item.price * item.quantity;
 
-  const vatTotal = cart.reduce(
-    (acc, item) => acc + (item.price * item.quantity * item.vat) / 100,
-    0,
-  );
+    // Lógica para MULTIBUY (Ej: 2x1)
+    if (item.promo_type === 'MULTIBUY' && item.buy_qty && item.pay_qty) {
+      const packs = Math.floor(item.quantity / item.buy_qty);
+      const freeUnits = packs * (item.buy_qty - item.pay_qty);
+      const discount = freeUnits * item.price;
+      itemSubtotal -= discount;
+    }
+
+    return acc + itemSubtotal;
+  }, 0);
+
+  // El IVA se calcula sobre el subtotal ya rebajado
+  const vatTotal = cart.reduce((acc, item) => {
+    let baseImponible = item.price * item.quantity;
+
+    if (item.promo_type === 'MULTIBUY' && item.buy_qty && item.pay_qty) {
+      const packs = Math.floor(item.quantity / item.buy_qty);
+      const discount = packs * (item.buy_qty - item.pay_qty) * item.price;
+      baseImponible -= discount;
+    }
+
+    return acc + (baseImponible * item.vat) / 100;
+  }, 0);
 
   const total = subtotal + vatTotal;
 
@@ -110,6 +145,7 @@ export default function POS() {
       quantity: item.quantity,
       price: item.price,
       vat: item.vat,
+      promo_id: item.promo_id,
     }));
   }
 
@@ -197,9 +233,36 @@ export default function POS() {
                       </div>
                       <div className="flex-grow-1 text-truncate fw-semibold">
                         {item.name}
+                        {item.promo_name && (
+                          <div className="d-block">
+                            <Badge bg="warning" text="dark" style={{ fontSize: '0.65rem' }}>
+                              {item.promo_name} {item.promo_type === 'PERCENTAGE' ? `(-${Number(item.discount_rate).toFixed(0)}%)` : `(${item.buy_qty}x${item.pay_qty})`}
+                            </Badge>
+                          </div>
+                        )}
                       </div>
-                      <div className="text-muted small text-end" style={{ minWidth: "90px" }}>
-                        {item.price} €/{item.sale_type === "WEIGHT" ? "kg" : "ud"}
+                      <div className="text-muted small text-end" style={{ minWidth: "110px" }}>
+                        {/* Si hay una promo de porcentaje, mostramos el precio viejo tachado */}
+                        {item.promo_type === 'PERCENTAGE' && (
+                          <div className="text-decoration-line-through text-danger" style={{ fontSize: '0.75rem' }}>
+                            {item.original_price?.toFixed(2)} €
+                          </div>
+                        )}
+
+                        {/* Precio que se está cobrando actualmente */}
+                        <span className="fw-bold text-dark">
+                          {item.price?.toFixed(2)} €
+                        </span>
+                        <span className="ms-1">/{item.sale_type === "WEIGHT" ? "kg" : "ud"}</span>
+
+                        {/* Badge para promos Multibuy (2x1, etc) */}
+                        {item.promo_type === 'MULTIBUY' && (
+                          <div className="mt-1">
+                            <Badge bg="warning" text="dark" style={{ fontSize: '0.6rem' }}>
+                              OFERTA {item.buy_qty}x{item.pay_qty}
+                            </Badge>
+                          </div>
+                        )}
                       </div>
                       <div className="fw-bold text-primary text-end fs-5" style={{ minWidth: "80px" }}>
                         €{item.total?.toFixed(2)}

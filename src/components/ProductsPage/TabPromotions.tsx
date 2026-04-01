@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Badge, Button, Card, Col, Form, InputGroup, Row, Tab, Table, Tabs } from 'react-bootstrap';
 import { useForm } from '../../hooks/useForm';
 import type { PromoForm, TabPromotionsProps } from '../../interfaces/components/ProductsPage/TabPromotions.interface';
@@ -14,7 +14,11 @@ const TabPromotions = ({
   currentPromotionPage,
   totalPromotionPages,
   totalPromotionsRecords,
-  getPromotions
+  getPromotions,
+  currentProductPage,
+  totalProductPages,
+  totalProductsRecords,
+  loadProducts
 }: TabPromotionsProps) => {
   const { userData } = userStore();
   const { form, onChangeForm, resetForm } = useForm<PromoForm>({
@@ -28,13 +32,7 @@ const TabPromotions = ({
   });
 
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-
-  // Filtrar productos para el buscador interno
-  const availableProducts = products.filter(p =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.barcode.includes(searchTerm)
-  );
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const [expandedPromoId, setExpandedPromoId] = useState<number | null>(null);
 
@@ -123,6 +121,16 @@ const TabPromotions = ({
     }
   };
 
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (searchTerm.length >= 2 || searchTerm === "") {
+        loadProducts(1, 10, searchTerm);
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
+
   return (
     <div>
       <Tabs
@@ -166,7 +174,7 @@ const TabPromotions = ({
                             type="number"
                             placeholder="15"
                             value={form.discount_rate}
-                            onChange={(e) => onChangeForm(e.target.value, 'discount_rate')}
+                            onChange={(e) => onChangeForm(parseInt(e.target.value), 'discount_rate')}
                             min={0}
                             max={100}
                           />
@@ -245,25 +253,50 @@ const TabPromotions = ({
                           <th>Sel.</th>
                           <th>Producto</th>
                           <th>Precio Reg.</th>
+                          <th>Promoción</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {availableProducts.map(p => (
-                          <tr key={p.id} onClick={() => toggleProduct(p)} style={{ cursor: 'pointer' }}>
+                        {products.length > 0 ? products.map(p => (
+                          <tr key={p.id} className={p.promo_name ? 'text-muted opacity-50' : ''} onClick={() => !p.promo_name && toggleProduct(p)} style={{ cursor: p.promo_name ? 'not-allowed' : 'pointer' }}>
                             <td>
                               <Form.Check
                                 type="checkbox"
                                 checked={!!selectedProducts.find(sp => sp.id === p.id)}
-                                readOnly
+                                disabled={!!p.promo_name}
                               />
                             </td>
                             <td>{p.name} <br /><small className="text-muted">{p.barcode}</small></td>
                             <td>{p.price}€</td>
+                            <td>
+                              {p.promo_name ? (
+                                <div className='text-truncate' style={{ maxWidth: '250px' }}>
+                                  {p.promo_name} - {p.promo_type === 'PERCENTAGE' ? (
+                                    <Badge bg="success">{p.discount_rate}%</Badge>
+                                  ) : p.promo_type === 'MULTIBUY' ? (
+                                    <Badge bg="success">{p.buy_qty}x{p.pay_qty}</Badge>
+                                  ) : null}
+                                </div>
+                              ) : (
+                                <Badge bg="secondary">Sin promoción</Badge>
+                              )}
+                            </td>
                           </tr>
-                        ))}
+                        )) : (
+                          <tr>
+                            <td colSpan={4} className="text-center">No hay productos</td>
+                          </tr>
+                        )}
                       </tbody>
                     </Table>
                   </div>
+                  <TablePagination
+                    data={products}
+                    currentPage={currentProductPage}
+                    totalPages={totalProductPages}
+                    totalRecords={totalProductsRecords}
+                    loadData={loadProducts}
+                  />
                 </Card.Body>
               </Card>
             </Col>

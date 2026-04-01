@@ -16,6 +16,11 @@ export interface Product {
   stock: number;
   quantity?: number;
   cost_price: number;
+  promo_name?: string;
+  promo_type?: string;
+  discount_rate?: number;
+  buy_qty?: number;
+  pay_qty?: number;
 }
 
 export interface User {

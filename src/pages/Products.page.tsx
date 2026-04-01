@@ -48,9 +48,9 @@ export default function Products() {
     store_id: (userData && userData?.role === "superadmin") ? null : userData?.store_id || null,
   });
 
-  const loadProducts = async (pageLoad: number = 1, limit: number = 10) => {
+  const loadProducts = async (pageLoad: number = 1, limit: number = 10, searchTerm?: string) => {
     try {
-      const res = await onGetProducts(filterForm, userData?.store_id!, pageLoad, limit);
+      const res = await onGetProducts(filterForm, userData?.store_id!, pageLoad, limit, searchTerm);
       if (res.response === "success" && res.products && res.pagination) {
         setProducts(res.products);
         setTotalProductPages(res.pagination.totalPages);
@@ -262,6 +262,10 @@ export default function Products() {
                 totalPromotionPages={totalPromotionPages}
                 totalPromotionsRecords={totalPromotionsRecords}
                 getPromotions={getPromotions}
+                currentProductPage={currentProductPage}
+                totalProductPages={totalProductPages}
+                totalProductsRecords={totalProductsRecords}
+                loadProducts={loadProducts}
               />
             </Card.Body>
           </Tab>

@@ -8,6 +8,13 @@ export interface ProductByBarcode {
   quantity: number;
   stock: number;
   total?: number;
+  promo_id?: number;
+  promo_name?: string;
+  promo_type?: string;
+  discount_rate?: number;
+  buy_qty?: number;
+  pay_qty?: number;
+  original_price?: number;
 }
 
 export interface SearchProductResponse {
@@ -21,6 +28,7 @@ export interface ProductSale {
   quantity: number;
   price: number;
   vat: number;
+  promo_id?: number;
 }
 
 export interface RegisterSaleData {

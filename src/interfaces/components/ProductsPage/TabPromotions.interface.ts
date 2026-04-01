@@ -7,6 +7,10 @@ export interface TabPromotionsProps {
   totalPromotionPages: number;
   totalPromotionsRecords: number;
   getPromotions: (pageLoad: number, limit?: number) => Promise<void>;
+  currentProductPage: number;
+  totalProductPages: number;
+  totalProductsRecords: number;
+  loadProducts: (pageLoad: number, limit?: number, searchTerm?: string) => Promise<void>;
 }
 
 export interface PromoForm {

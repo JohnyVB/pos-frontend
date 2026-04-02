@@ -315,7 +315,9 @@ export default function CashboxSessions() {
                   {visibleCols.amounts && (
                     <td className="text-end font-monospace">
                       <div className="text-success">↑ €{cb.opening_amount}</div>
-                      <div className="text-danger">↓ {cb.closing_amount ? `€${cb.closing_amount}` : "---"}</div>
+                      <div className={Number(cb.total_collected) !== Number(cb.expected_cash_balance) ? "text-danger fw-bold" : "text-primary"}>
+                        ↓ {cb.closing_amount ? `€${cb.closing_amount}` : "---"}
+                      </div>
                     </td>
                   )}
 

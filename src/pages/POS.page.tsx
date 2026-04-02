@@ -38,6 +38,7 @@ export default function POS() {
         addToCart(res.product)
         setBarcode("")
       } else {
+        toast.error("Producto no encontrado", { duration: 5000 })
         playErrorSound()
       }
     }
@@ -217,7 +218,7 @@ export default function POS() {
       <PageHeader title="Venta" />
       <Row className="flex-grow-1 overflow-hidden gx-4">
         {/* LADO IZQUIERDO: CARRITO */}
-        <Col md={6} lg={5} className="d-flex flex-column h-100">
+        <Col md={6} lg={6} className="d-flex flex-column h-100">
           <Card className="h-100 shadow-sm border-0 d-flex flex-column">
             <Card.Header className="bg-white border-bottom py-3">
               <h4 className="m-0 fw-bold">Carrito</h4>
@@ -316,7 +317,7 @@ export default function POS() {
         </Col>
 
         {/* LADO DERECHO: PRODUCTOS / ESCÁNER */}
-        <Col md={6} lg={7} className="d-flex flex-column h-100">
+        <Col md={6} lg={6} className="d-flex flex-column h-100">
           <div className="mb-4">
             <h4 className="fw-bold mb-3">Escáner de Productos</h4>
             <InputGroup size="lg" className="shadow-sm">

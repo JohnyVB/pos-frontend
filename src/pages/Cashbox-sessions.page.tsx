@@ -48,7 +48,12 @@ export default function CashboxSessions() {
   const openCashBoxSession = async (terminal: Terminal, openingAmount: number) => {
     const res = await onOpenCashBoxSession(openingAmount, terminal.id, userData?.store_id!);
     if (res.response === "success" && res.cashBoxSession) {
-      setCashBoxSessions(prev => [{ ...res.cashBoxSession!, terminal_name: terminal.name, user_name: userData!.name }, ...prev])
+      setCashBoxSessions(prev => [{
+        ...res.cashBoxSession!,
+        terminal_name: terminal.name,
+        user_name: userData!.name,
+        session_status: "OPEN"
+      }, ...prev])
       setCashBoxSession(res.cashBoxSession);
       setShowTerminalModal(false);
       setCurrentAmount(openingAmount.toString())
@@ -65,11 +70,7 @@ export default function CashboxSessions() {
   const closeCashBoxSession = async (id: number, closingAmount: number) => {
     const res = await onCloseCashBoxSession(id, closingAmount)
     if (res.response === "success" && res.cashBoxSession) {
-      setCashBoxSessions(prev =>
-        prev.map(cb => cb.session_id === id
-          ? { ...res.cashBoxSession!, terminal_name: cb.terminal_name, user_name: userData!.name }
-          : cb
-        ))
+      getCashBoxSessions(1)
       setCashBoxSession(null)
       setShowCloseBoxModal(false)
       setCashBoxId(0)

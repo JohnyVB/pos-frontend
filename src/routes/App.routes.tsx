@@ -25,9 +25,9 @@ export default function AppRoutes() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/sales-history" element={<SalesHistory />} />
             <Route path="/cashbox-sessions" element={<CashboxSessions />} />
-            <Route path="/cash-movements" element={<CashMovements />} />
             <Route element={<CashBoxGuard />}>
               <Route path="/pos" element={<POS />} />
+              <Route path="/cash-movements" element={<CashMovements />} />
             </Route>
             <Route element={<AdminGuard />}>
               <Route path="/products" element={<Products />} />

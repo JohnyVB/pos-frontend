@@ -90,6 +90,7 @@ export const SalesHistory = () => {
                 <th className="py-3">Método Pago</th>
                 <th className="text-end py-3">Subtotal</th>
                 <th className="text-end py-3">IVA</th>
+                <th className="text-end py-3">Descuentos</th>
                 <th className="text-end py-3">Total</th>
                 <th className="text-end py-3">Total Devuelto</th>
                 <th className="text-end py-3">Total Neto</th>
@@ -117,6 +118,7 @@ export const SalesHistory = () => {
                     </td>
                     <td className="text-end font-monospace">€{Number(sale.sale_subtotal || 0)}</td>
                     <td className="text-end font-monospace">€{Number(sale.sale_vat_total || 0)}</td>
+                    <td className="text-end font-monospace">€{Number(sale.sale_discount_total || 0)}</td>
                     <td className="text-end font-monospace">€{Number(sale.amount)}</td>
                     <td className="text-end font-monospace">€{Number(sale.total_refunded || 0)}</td>
                     <td className="text-end fw-bold font-monospace">€{(Number(sale.amount) - Number(sale.total_refunded || 0)).toFixed(2)}</td>
@@ -183,7 +185,7 @@ export const SalesHistory = () => {
               ))}
               {sales.length === 0 && (
                 <tr>
-                  <td colSpan={10} className="text-center text-muted py-5">
+                  <td colSpan={11} className="text-center text-muted py-5">
                     No se encontraron ventas para esta sesión.
                   </td>
                 </tr>

@@ -7,6 +7,7 @@ export interface Sale {
   amount: number | string;
   sale_subtotal: number | string;
   sale_vat_total: number | string;
+  sale_discount_total: number | string;
   payment_method: string;
   created_at: string;
   record_status: string;

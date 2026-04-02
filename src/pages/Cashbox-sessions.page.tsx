@@ -38,6 +38,13 @@ export default function CashboxSessions() {
     end_date: null
   });
 
+  const [visibleCols, setVisibleCols] = useState({
+    dates: true,    // Apertura y Cierre
+    amounts: true,  // $ Apertura y $ Cierre
+    stats: false,   // Nº Ventas, Entradas, Salidas (Ocultas por defecto)
+    financial: true, // T. Ventas, Recaudado, Esperado
+  });
+
   const getTerminals = async () => {
     const data = await onGetTerminals(userData?.store_id!);
     if (data.response === "success" && data.terminals) {
@@ -255,51 +262,90 @@ export default function CashboxSessions() {
         </Card.Body>
       </Card>
 
+      <Card className="shadow-sm border-0 bg-white mb-3">
+        <Card.Body className="d-flex justify-content-end gap-2">
+          <Form.Check
+            type="switch" label="Fechas" checked={visibleCols.dates}
+            onChange={() => setVisibleCols(v => ({ ...v, dates: !v.dates }))}
+          />
+          <Form.Check
+            type="switch" label="Movimientos" checked={visibleCols.stats}
+            onChange={() => setVisibleCols(v => ({ ...v, stats: !v.stats }))}
+          />
+          <Form.Check
+            type="switch" label="Dinero" checked={visibleCols.financial}
+            onChange={() => setVisibleCols(v => ({ ...v, financial: !v.financial }))}
+          />
+        </Card.Body>
+      </Card>
+
       <Card className="shadow-sm border-0 bg-white">
         <Card.Body className="p-0">
           <Table responsive hover className="mb-0 align-middle">
             <thead className="table-light">
               <tr>
-                <th className="py-3">Terminal</th>
-                <th className="py-3">Usuario</th>
-                <th className="py-3">Apertura</th>
-                <th className="py-3">Cierre</th>
-                <th className="text-end py-3">$ Apertura</th>
-                <th className="text-end py-3">$ Cierre</th>
-                <th className="text-end py-3">Nº Ventas</th>
-                <th className="text-end py-3">Entradas</th>
-                <th className="text-end py-3">Salidas</th>
-                <th className="text-end py-3">T. Ventas</th>
-                <th className="text-end py-3">Recaudado</th>
-                <th className="text-end py-3">S. Esperado</th>
-                <th className="text-center py-3">Estado</th>
-                {userData?.role === "superadmin" && <th className="text-center py-3">Tienda</th>}
-                <th className="text-center px-4 py-3">Acciones</th>
+                <th>Terminal / Usuario</th>
+                {visibleCols.dates && <th>Tiempos (Ap. / Cierre)</th>}
+                {visibleCols.amounts && <th className="text-end">Saldos (Ini. / Fin)</th>}
+                {visibleCols.stats && <th className="text-center">Actividad (V / E / S)</th>}
+                {visibleCols.financial && <th className="text-end">Totales</th>}
+                <th className="text-center">Estado</th>
+                {userData?.role === "superadmin" && <th className="text-center">Tienda</th>}
+                <th className="text-center">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {cashBoxSessions.map(cb => (
                 <tr key={cb.session_id}>
-                  <td className="fw-semibold">{cb.terminal_name}</td>
-                  <td className="fw-semibold">{cb.user_full_name}</td>
-                  <td><small>{cb.opened_at ? formatDateToShow(cb.opened_at) : "-"}</small></td>
-                  <td><small>{cb.closed_at ? formatDateToShow(cb.closed_at) : "-"}</small></td>
-                  <td className="text-end font-monospace">€{cb.opening_amount}</td>
-                  <td className="text-end font-monospace">{cb.closing_amount ? `€${cb.closing_amount}` : "-"}</td>
-                  <td className="text-end font-monospace">{cb.total_sales_count || 0}</td>
-                  <td className="text-end font-monospace">{cb.total_cash_in || 0}</td>
-                  <td className="text-end font-monospace">{cb.total_cash_out || 0}</td>
-                  <td className="text-end font-monospace">{cb.total_sales_amount || 0}</td>
-                  <td className="text-end font-monospace">{cb.total_collected || 0}</td>
-                  <td className="text-end font-monospace">{cb.expected_cash_balance || 0}</td>
+                  {/* COLUMNA AGRUPADA: Terminal y Usuario */}
+                  <td>
+                    <div className="fw-bold">{cb.terminal_name}</div>
+                    <div className="text-muted small">{cb.user_full_name}</div>
+                  </td>
+
+                  {/* COLUMNA AGRUPADA: Fechas */}
+                  {visibleCols.dates && (
+                    <td>
+                      <div className="small"><b>A:</b> {formatDateToShow(cb.opened_at)}</div>
+                      <div className="small text-muted"><b>C:</b> {cb.closed_at ? formatDateToShow(cb.closed_at) : "En curso..."}</div>
+                    </td>
+                  )}
+
+                  {/* COLUMNA AGRUPADA: Montos de caja */}
+                  {visibleCols.amounts && (
+                    <td className="text-end font-monospace">
+                      <div className="text-success">↑ €{cb.opening_amount}</div>
+                      <div className="text-danger">↓ {cb.closing_amount ? `€${cb.closing_amount}` : "---"}</div>
+                    </td>
+                  )}
+
+                  {/* COLUMNA AGRUPADA: Stats (Ventas, Entradas, Salidas) */}
+                  {visibleCols.stats && (
+                    <td className="text-center">
+                      <Badge bg="light" text="dark" className="border me-1" title="Ventas">🛒 {cb.total_sales_count}</Badge>
+                      <Badge bg="light" text="success" className="border me-1" title="Entradas">➕ {cb.total_cash_in}</Badge>
+                      <Badge bg="light" text="danger" className="border" title="Salidas">➖ {cb.total_cash_out}</Badge>
+                    </td>
+                  )}
+
+                  {/* COLUMNA AGRUPADA: Resumen Financiero */}
+                  {visibleCols.financial && (
+                    <td className="text-end">
+                      <div className="fw-bold">€{cb.total_collected}</div>
+                      <div className="small text-muted" title="Esperado en caja">Esp: €{cb.expected_cash_balance}</div>
+                    </td>
+                  )}
+
                   <td className="text-center">
-                    <Badge bg={cb.session_status === "OPEN" ? "success" : "danger"} className="px-3 py-2 rounded-pill">
-                      {cb.session_status === "OPEN" ? "ABIERTA" : "CERRADA"}
+                    <Badge bg={cb.session_status === "OPEN" ? "success" : "secondary"} pill>
+                      {cb.session_status}
                     </Badge>
                   </td>
+
                   {userData?.role === "superadmin" && <td className="text-center px-4">{cb.store_name}</td>}
-                  <td className="text-center px-4">
-                    <div className="d-flex gap-2 justify-content-center">
+
+                  <td className="text-center">
+                    <div className="d-flex gap-1 justify-content-center">
                       {cb.session_status === "OPEN" && (
                         <Button
                           variant="outline-danger"
@@ -322,13 +368,6 @@ export default function CashboxSessions() {
                   </td>
                 </tr>
               ))}
-              {cashBoxSessions.length === 0 && (
-                <tr>
-                  <td colSpan={userData?.role === "superadmin" ? 15 : 14} className="text-center text-muted py-5">
-                    No hay registros de cajas.
-                  </td>
-                </tr>
-              )}
             </tbody>
           </Table>
           <TablePagination

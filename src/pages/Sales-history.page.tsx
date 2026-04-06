@@ -138,7 +138,7 @@ export const SalesHistory = () => {
 
                   {expandedSaleId === sale.record_id && sale.record_type === 'SALE' && (
                     <tr>
-                      <td colSpan={10} className="p-0 bg-light">
+                      <td colSpan={11} className="p-0 bg-light">
                         <div className="p-4 animate__animated animate__fadeIn">
                           <div className="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
                             <h6 className="fw-bold mb-0">Productos de la Venta #{sale.record_id}</h6>
